@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "662460448010",
+    "project_id": "just-concentrate",
+    "storage_bucket": "just-concentrate.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:662460448010:android:6247dcc9a285e680fb4ef3",
+        "android_client_info": {
+          "package_name": "com.mobichill.justconcentration"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBJvw6__lpLG2UeozbN5k1XyDXGv0V2EcM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

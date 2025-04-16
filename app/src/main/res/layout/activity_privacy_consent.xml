@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/privacy_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp"
+    android:orientation="vertical"
+    android:gravity="center">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/privacy_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/privacy_policy"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/privacy_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/please_read_and_accept_our_privacy_policy_to_continue_using_the_app"
+        android:textSize="16sp"
+        android:layout_marginBottom="14dp" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/view_policy_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:focusable="true"
+        android:padding="10dp"
+        android:clickable="true"
+        android:text="@string/view_privacy_policy"
+        android:textColor="@color/blue"/>
+
+    <CheckBox
+        android:id="@+id/accept_checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/i_accept_the_privacy_policy" />
+
+    <Button
+        android:id="@+id/continue_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/continue_button"
+        android:layout_marginTop="14dp"
+        android:enabled="false" />
+</LinearLayout>

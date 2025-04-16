@@ -1,26 +1,36 @@
 package com.mobichill.justconcentration.helper
 
-import android.Manifest
-import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import androidx.annotation.RequiresPermission
+import android.media.RingtoneManager
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
+import androidx.annotation.RequiresApi
 import com.mobichill.justconcentration.receiver.AlarmReceiver
+import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.ALARM_URI
+import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.REQUEST_CODE
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
 class AlarmHelper {
-    @SuppressLint("ScheduleExactAlarm")
-    @RequiresPermission(Manifest.permission.SCHEDULE_EXACT_ALARM)
     fun setAlarm(context: Context, triggerTime: Long, requestCode: Int, alarmUri: String) {
+
+        var finalUri = ""
+        //set default alarm if user did not select any alarm
+        val defaultAlarmUri: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+        finalUri = if (alarmUri.isEmpty()) {
+            defaultAlarmUri.toString()
+        } else alarmUri
+
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
         val intent = Intent(context, AlarmReceiver::class.java).apply {
-            putExtra("REQUEST_CODE", requestCode)
-            putExtra("ALARM_URI", alarmUri)
+            putExtra(REQUEST_CODE, requestCode)
+            putExtra(ALARM_URI, alarmUri)
         }
         val pendingIntent = PendingIntent.getBroadcast(
             context,
@@ -29,9 +39,28 @@ class AlarmHelper {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         //Used when you need to trigger an alarm even if the device is asleep.
-        alarmManager?.setExactAndAllowWhileIdle(
-            AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent
-        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // Check if the app can schedule exact alarms
+            if (context.getSystemService(AlarmManager::class.java).canScheduleExactAlarms()) {
+                alarmManager?.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent
+                )
+            } else {
+                requestExactAlarmPermission(context)
+            }
+        } else {
+            // For devices below API 31, just schedule the alarm normally
+            alarmManager?.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent
+            )
+        }
+    }
+
+    //Checked
+    @RequiresApi(Build.VERSION_CODES.S)
+    private fun requestExactAlarmPermission(context: Context) {
+        val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
+        context.startActivity(intent)
     }
 
     //use to cancel after update alarm in task or triggered alarm
@@ -50,10 +79,9 @@ class AlarmHelper {
     }
 
     //rescheduleAlarms after reboot
-    @SuppressLint("ScheduleExactAlarm")
     fun rescheduleAlarms(context: Context) {
         CoroutineScope(Dispatchers.IO).launch {
-            val tasks = RoomHelper.getInstance(context).taskDao().getAllTasks()
+            val tasks = RoomHelper.getInstance(context).taskDao().getAllActiveTasks()
             tasks.collect { list ->
                 list.forEach { task ->
                     if (task.alarmTimeMillis != 0L && task.alarmTimeMillis > System.currentTimeMillis()) {

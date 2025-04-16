@@ -7,7 +7,7 @@ plugins {
     id("com.google.gms.google-services")
     id("com.google.devtools.ksp")
     id("kotlin-parcelize")
-
+    id("kotlin-kapt")
 }
 
 android {
@@ -28,12 +28,24 @@ android {
     }
 
     buildTypes {
+        debug {
+            // Custom debug configurations
+            isDebuggable = true
+            isMinifyEnabled = false  // Typically false for debug builds
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            buildConfigField("boolean", "DEBUG", "true")
+        }
         release {
+            isDebuggable = false
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            buildConfigField("boolean", "DEBUG", "false")
         }
     }
     compileOptions {
@@ -45,6 +57,7 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
     buildToolsVersion = "35.0.0"
 }
@@ -80,5 +93,9 @@ dependencies {
     implementation(libs.circleimageview)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.work.runtime.ktx)
-
+    implementation(libs.androidx.fragment.ktx)
+    implementation(libs.play.services.ads)
+    implementation(libs.play.services.oss.licenses)
+    implementation(libs.glide)
+    ksp(libs.compiler)
 }

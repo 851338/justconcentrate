@@ -23,10 +23,13 @@ data class TaskModel(
     var requestCode: Int = 0,
 
     @get:PropertyName("completed") @set:PropertyName("completed")
-    var completed: Int = 0,
+    var completed: Boolean = false,
 
     @get:PropertyName("alarmSoundUri") @set:PropertyName("alarmSoundUri")
-    var alarmSoundUri: String = ""
+    var alarmSoundUri: String = "",
+
+    @get:PropertyName("deletedAt") @set:PropertyName("deletedAt")
+    var deletedAt: Long? = null
 ) : Parcelable {
-    constructor() : this("", "", 0L, 0, 0, "") // Required for FireStore deserialize
+    constructor() : this("", "", 0L, 0, false, "", null) // Required for FireStore deserialize
 }

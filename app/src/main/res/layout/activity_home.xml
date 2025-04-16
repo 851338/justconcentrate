@@ -24,8 +24,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            />
+            app:layout_constraintStart_toStartOf="parent" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/btn_back"
@@ -58,35 +57,69 @@
             style="@style/ButtonMainActivity"
             android:padding="5dp"
             android:scaleType="fitCenter"
-            app:srcCompat="@drawable/baseline_post_add_24"
+            app:srcCompat="@drawable/ic_task"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/btn_chill"
-            style="@style/ButtonMainActivity"
-            android:padding="5dp"
-            android:scaleType="fitCenter"
-            app:srcCompat="@drawable/baseline_post_add_24"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="@id/btn_task"
+            app:layout_constraintEnd_toEndOf="@id/btn_task"
+            app:layout_constraintTop_toBottomOf="@id/btn_task"
+            style="@style/TextStyle"
+            android:text="@string/task_title"/>
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/btn_concentrate"
             style="@style/ButtonMainActivity"
             android:padding="5dp"
             android:scaleType="fitCenter"
-            app:srcCompat="@drawable/baseline_post_add_24"
+            app:srcCompat="@drawable/ic_concentrate"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="@id/btn_concentrate"
+            app:layout_constraintEnd_toEndOf="@id/btn_concentrate"
+            app:layout_constraintTop_toBottomOf="@id/btn_concentrate"
+            style="@style/TextStyle"
+            android:text="@string/concentrate_title"/>
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/btn_guide"
+            style="@style/ButtonMainActivity"
+            android:padding="5dp"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/ic_guide"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btn_task"/>
 
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="@id/btn_guide"
+            app:layout_constraintEnd_toEndOf="@id/btn_guide"
+            app:layout_constraintTop_toBottomOf="@id/btn_guide"
+            style="@style/TextStyle"
+            android:text="@string/guide_title"/>
+
         <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/btn_music"
+            android:id="@+id/btn_subscription"
             style="@style/ButtonMainActivity"
             android:padding="5dp"
             android:scaleType="fitCenter"
             app:srcCompat="@drawable/baseline_post_add_24"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/btn_chill"/>
+            app:layout_constraintTop_toBottomOf="@id/btn_concentrate"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/layout_action_bar"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,17 +1,17 @@
 package com.mobichill.justconcentration.base
 
-import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.content.res.Resources
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.Log
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
+import java.util.Calendar
 import java.util.Locale
+
 
 abstract class BaseActivity : AppCompatActivity(), BaseActivityListener {
 
@@ -23,6 +23,7 @@ abstract class BaseActivity : AppCompatActivity(), BaseActivityListener {
     @get:LayoutRes
     abstract val layoutId: Int
     override fun onCreate(savedInstanceState: Bundle?) {
+//        ThemeHelper.applyTheme(this) // Apply theme before UI loads
         timeStartOnCreate = System.currentTimeMillis()
         super.onCreate(savedInstanceState)
         isPaused = false
@@ -32,7 +33,7 @@ abstract class BaseActivity : AppCompatActivity(), BaseActivityListener {
         initData(intent = intent, isNewIntent = false)
         addListener()
         setTransitionOnCreate()
-
+        applyThemeBasedOnTime()
         //
         val res: Resources = resources
         val dm: DisplayMetrics = res.displayMetrics
@@ -141,6 +142,10 @@ abstract class BaseActivity : AppCompatActivity(), BaseActivityListener {
         Log.d(TAG, "onNetworkStateChanged $isConnected")
     }
 
+    fun dp(value: Int): Int {
+        return (value * Resources.getSystem().displayMetrics.density).toInt()
+    }
+
     private fun addListener() {
 //        App.instance.listenerUtils.removerListener(this)
 //        App.instance.listenerUtils.addListener(this)
@@ -155,7 +160,7 @@ abstract class BaseActivity : AppCompatActivity(), BaseActivityListener {
     }
 
     override fun setTheme() {
-        //TODO khong duoc sua o day. man hinh nao can sua theme thi overide lai
+        //TODO override this function in other screen if needed, do not change this code
         Log.i(TAG, "setTheme")
 //        StatusBarUtil.setLightMode(this)
         //BarUtils.setStatusBarColor(window, Color.WHITE)
@@ -183,6 +188,15 @@ abstract class BaseActivity : AppCompatActivity(), BaseActivityListener {
 
     open fun isCanShowDialog(): Boolean {
         return !this.isFinishing
+    }
+
+    private fun applyThemeBasedOnTime() {
+        val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY) // Get current hour (0-23)
+
+        val isNight = hour >= 18 || hour < 6  // Night mode from 6 PM to 6 AM
+        val mode = if (isNight) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
+
+        AppCompatDelegate.setDefaultNightMode(mode)  // Apply the theme
     }
 }
 

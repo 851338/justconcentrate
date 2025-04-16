@@ -1,13 +1,15 @@
 package com.mobichill.justconcentration.view
 
+import android.view.View
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingFragment
 import com.mobichill.justconcentration.databinding.FragmentCreateAccountBinding
 import com.mobichill.justconcentration.repository.FireStoreRepository
+import com.mobichill.justconcentration.util.Constants.OTHERS.EMAIL_REGEX
+import com.mobichill.justconcentration.util.OnSingleClickListener
 import com.mobichill.justconcentration.util.Utils
-import java.util.UUID
 
 class CreateAccountFragment : BaseViewBindingFragment<FragmentCreateAccountBinding>() {
     private lateinit var auth: FirebaseAuth
@@ -22,38 +24,45 @@ class CreateAccountFragment : BaseViewBindingFragment<FragmentCreateAccountBindi
     }
 
     override fun initView() = with(binding) {
-        binding.btnSignup.setOnClickListener {
-            if (Utils.isNetworkAvailable(requireContext())) {
-                if (validateRegInfo())             //check and create
-                    checkUsernameAvailability(etUsername.toString(), etPassword.toString())
-            } else Utils.showToast(
-                requireContext(),
-                getString(R.string.no_internet_connection)
-            )
-        }
-    }
-
-    private fun createAccount(username: String, password: String) {
-        val userId = UUID.randomUUID().toString() // Generate a unique user ID
-        // Store hashed password (Never store raw password)
-        val hashedPassword = password.hashCode().toString() // Basic password hashing
-        FireStoreRepository().addNewUserBySigningUp(
-            requireContext(),
-            userId,
-            username,
-            hashedPassword
-        )
+        binding.btnSignup.setOnClickListener(object : OnSingleClickListener() {
+            override fun onSingleClick(view: View) {
+                if (Utils.isNetworkAvailable(requireContext())) {
+                    if (validateRegInfo())             //check and create
+                        createAccount(
+                            etEmail.text.toString(),
+                            etName.text.toString(),
+                            etPassword.text.toString()
+                        )
+                } else Utils.showToast(
+                    requireContext(),
+                    getString(R.string.no_internet_connection)
+                )
+            }
+        })
     }
 
     private fun validateRegInfo(): Boolean = with(binding) {
-        val username = etUsername.text.toString()
+        val email = etEmail.text.toString()
+        val name = etName.text.toString()
         val password = etPassword.text.toString()
         val rePassword = etReenterPassword.text.toString()
 
         when {
-            username.isEmpty() -> {
-                etUsername.requestFocus()
-                etUsername.error = getString(R.string.empty_username)
+            email.isEmpty() -> {
+                etEmail.requestFocus()
+                etEmail.error = getString(R.string.empty_email)
+                return false
+            }
+
+            !EMAIL_REGEX.matcher(email).matches() -> {
+                etEmail.requestFocus()
+                etEmail.error = getString(R.string.wrong_format_email)
+                return false
+            }
+
+            name.isEmpty() -> {
+                etName.requestFocus()
+                etName.error = getString(R.string.empty_username)
                 return false
             }
 
@@ -72,22 +81,25 @@ class CreateAccountFragment : BaseViewBindingFragment<FragmentCreateAccountBindi
         return true
     }
 
-    private fun checkUsernameAvailability(username: String, password: String) {
-        val db = FirebaseFirestore.getInstance()
-        db.collection("users").whereEqualTo("username", username).get()
-            .addOnSuccessListener { documents ->
-                if (documents.isEmpty) {
-                    // Username is available, proceed with signup
-                    createAccount(username, password)
+    private fun createAccount(email: String, name: String, password: String) {
+        FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val firebaseUser = task.result?.user
+                    val uid = firebaseUser?.uid
+                    //Save user data to FireStore and Room
+                    if (uid != null) {
+                        FireStoreRepository().addNewUserBySigningUp(
+                            requireContext(),
+                            uid,
+                            email,
+                            name
+                        )
+                    }
                 } else {
-                    Utils.showToast(requireContext(), getString(R.string.username_already_taken))
+                    Utils.showToast(requireContext(), "Signup failed: ${task.exception?.message}")
                 }
             }
-            .addOnFailureListener {
-                Utils.showToast(
-                    requireContext(),
-                    getString(R.string.error_checking_username, it.message)
-                )
-            }
     }
+
 }

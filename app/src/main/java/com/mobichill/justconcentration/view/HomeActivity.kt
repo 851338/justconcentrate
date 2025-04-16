@@ -1,32 +1,120 @@
 package com.mobichill.justconcentration.view
 
-import android.Manifest
+import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
-import androidx.activity.result.ActivityResultLauncher
-import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import com.mobichill.justconcentration.BuildConfig
+import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.databinding.ActivityHomeBinding
+import com.mobichill.justconcentration.helper.RoomHelper
 import com.mobichill.justconcentration.popup.UserPopup
+import com.mobichill.justconcentration.repository.RoomRepository
+import com.mobichill.justconcentration.util.MyContextWrapper
+import com.mobichill.justconcentration.util.OnSingleClickListener
+import com.mobichill.justconcentration.util.Utils
+import com.mobichill.justconcentration.worker.AutoDeleteOldTasksWorker
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.concurrent.TimeUnit
 
 class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
-    private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        //must be called before onCreated() finishes, does not work in bg service
-        checkNotificationPermission()
+        if (BuildConfig.DEBUG) {
+            // Debug-specific behavior
+            Log.d("HomeActivity", "This is a debug build!")
+        }
+        //auto delete task in trash bin after 7 days
+        scheduleAutoDeleteWorker()
+        //load user avatar
+        if (Utils.isUserLoggedIn(this)) {
+            val uid = Utils.getUserIdFromSF(this)
+            CoroutineScope(Dispatchers.IO).launch {
+                val user =
+                    RoomRepository(RoomHelper.getInstance(this@HomeActivity)).getUserById(uid)
+                // Update UI here
+                withContext(Dispatchers.Main) {
+                    Utils.setAvatar(this@HomeActivity, user?.profilePic, binding.ivAvatar)
+                }
+            }
+        } else binding.ivAvatar.setImageResource(R.drawable.ic_setting)
+
+        binding.btnBack.setOnClickListener {
+            object : OnSingleClickListener() {
+                override fun onSingleClick(view: View) {
+                    onBackPressed()
+                }
+            }
+        }
+        binding.btnBack.visibility = View.GONE
         super.onCreate(savedInstanceState)
+    }
+
+    fun setupToolbar(title: String, isBackEnabled: Boolean) {
+        binding.btnBack.isVisible = isBackEnabled
+        binding.abTitle.text = title
+    }
+
+    override fun onBackPressed() {
+        val current = supportFragmentManager.findFragmentById(R.id.fragment_container)
+        when (current) {
+            is AboutFragment ->
+                onBackPressedDispatcher.onBackPressed()
+
+            else ->
+                super.onBackPressed()
+        }
+    }
+
+    //delete old tasks after 7 day, run daily
+    private fun scheduleAutoDeleteWorker() {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED) // Only run when online
+            .build()
+
+        val workRequest = PeriodicWorkRequestBuilder<AutoDeleteOldTasksWorker>(
+            1, TimeUnit.DAYS
+        ).setConstraints(constraints).build()
+
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            "AutoDeleteOldTasks",
+            ExistingPeriodicWorkPolicy.KEEP,
+            workRequest
+        )
+    }
+
+    override fun attachBaseContext(newBase: Context?) {
+        super.attachBaseContext(MyContextWrapper.wrap(newBase, "en"))
     }
 
     override fun initViewBinding(): ActivityHomeBinding =
         ActivityHomeBinding.inflate(layoutInflater)
 
     override fun initView(): Unit = with(binding) {
-        btnTask.setOnClickListener { openTaskActivity() }
-        ivAvatar.setOnClickListener { showUserPopup(ivAvatar) }
+        btnTask.setOnClickListener(
+            object : OnSingleClickListener() {
+                override fun onSingleClick(view: View) {
+                    openTaskActivity()
+                }
+            })
+        ivAvatar.setOnClickListener(
+            object : OnSingleClickListener() {
+                override fun onSingleClick(view: View) {
+                    showUserPopup(ivAvatar)
+                }
+            })
+
         super.initView()
     }
 
@@ -39,20 +127,14 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
         popup.show(view)
     }
 
-    private fun checkNotificationPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            when {
-                ContextCompat.checkSelfPermission(
-                    this@HomeActivity,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) == PackageManager.PERMISSION_GRANTED -> {
-                    // Permission already granted
-                }
+    fun openAboutFragment() {
+        supportFragmentManager.beginTransaction()
+            .replace(binding.fragmentContainer.id, AboutFragment())
+            .addToBackStack(null)
+            .commit()
+    }
 
-                else -> {
-                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                }
-            }
-        }
+    fun setAvatarAfterLogout() {
+        Utils.setAvatar(this, null, binding.ivAvatar)
     }
 }

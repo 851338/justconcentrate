@@ -1,27 +1,32 @@
 package com.mobichill.justconcentration.repository
 
 import android.content.Context
-import android.util.Log
 import com.mobichill.justconcentration.helper.FireStoreHelper
 import com.mobichill.justconcentration.model.TaskModel
 
 class FireStoreRepository {
-    private val TAG = javaClass.canonicalName
-    suspend fun getTasksFromFireStore(): List<TaskModel> {
-        return FireStoreHelper.getInstance().getAllTasksFromFireStore()
+    fun getTasksFromFireStore(onCompleted: (List<TaskModel>, Exception?) -> Unit) {
+        FireStoreHelper.getInstance().getAllTasksFromFireStore { onComplete, e ->
+            if (onComplete.isNotEmpty())
+                onCompleted(onComplete, null)
+            else onCompleted(emptyList(), e)
+        }
     }
 
-    fun saveTaskToFireStore(task: TaskModel) {
-        FireStoreHelper.getInstance().saveTaskToFireStore(task)
+    fun saveTaskToFireStore(task: TaskModel, onComplete: (Boolean, Exception?) -> Unit) {
+        FireStoreHelper.getInstance().saveTaskToFireStore(task, onComplete)
     }
 
-    fun updateTaskToFireStore(task: TaskModel) {
-        FireStoreHelper.getInstance().updateTaskToFireStore(task, {
-            Log.d(TAG, "Task updated successfully!")
-        }, { exception ->
-            Log.e(TAG, "Error updating task: ${exception.message}")
-            exception.printStackTrace()
-        })
+    fun updateTaskToFireStore(task: TaskModel, onComplete: (Boolean, Exception?) -> Unit) {
+        FireStoreHelper.getInstance().updateTaskToFireStore(task, onComplete)
+    }
+
+    fun removeOrRestoreTask(
+        task: TaskModel,
+        onComplete: (Boolean, Exception?) -> Unit,
+        isRemove: Boolean
+    ) {
+        FireStoreHelper.getInstance().removeOrRestoreTask(task, onComplete, isRemove)
     }
 
     fun checkIfUserExists(
@@ -37,10 +42,14 @@ class FireStoreRepository {
     fun addNewUserBySigningUp(
         context: Context,
         userId: String,
-        username: String,
-        hashedPassword: String
+        email: String,
+        name: String
     ) {
         FireStoreHelper.getInstance()
-            .addNewUserBySigningUp(context, userId, username, hashedPassword)
+            .addNewUserBySigningUp(context, userId, email, name)
+    }
+
+    fun fetchUserFromFireStore(context: Context, uid: String) {
+        FireStoreHelper.getInstance().fetchUserFromFireStore(context, uid)
     }
 }

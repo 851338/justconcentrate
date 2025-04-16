@@ -28,6 +28,7 @@ abstract class BaseFragment : Fragment(), BaseFragmentListener {
         initData()
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         initView()
@@ -67,18 +68,23 @@ abstract class BaseFragment : Fragment(), BaseFragmentListener {
         Log.i(TAG, "onAttach")
         timeStartOnCreate = System.currentTimeMillis()
         if (context is BaseActivity) {
-            context.onFragmentAttached(TAG)
+            if (TAG != null) {
+                context.onFragmentAttached(TAG)
+            }
         }
     }
 
     override fun onDetach() {
         //Log.i("$TAG onDetach")
         if (activity is BaseActivity) {
-            (activity as BaseActivity).onFragmentDetached(TAG)
+            if (TAG != null) {
+                (activity as BaseActivity).onFragmentDetached(TAG)
+            }
         }
         super.onDetach()
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 //        if (BuildConfig.DEBUG) Log.i("$TAG onActivityResult requestCode = $requestCode, resultCode = $resultCode, data = $data")
@@ -88,10 +94,10 @@ abstract class BaseFragment : Fragment(), BaseFragmentListener {
         Log.e(TAG, "onCreate takes ${System.currentTimeMillis() - timeStartOnCreate} ms")
     }
 
-    fun addListener() {
+//    fun addListener() {
 //        App.instance.listenerUtils.removerListener(this)
 //        App.instance.listenerUtils.addListener(this)
-    }
+//    }
 
     open fun isCanShowDialog(): Boolean {
         return activity != null && !requireActivity().isFinishing && isAdded

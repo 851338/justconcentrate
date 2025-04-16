@@ -10,6 +10,8 @@ import androidx.core.view.WindowInsetsCompat
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.util.Utils
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.ACCEPTED_POLICY_KEY
+import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.APP_PREFS_NAME
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,16 +28,22 @@ class MainActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             installSplashScreen()
         }
-        // Check login state
+        val prefs = getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE)
+        val hasAccepted = prefs.getBoolean(ACCEPTED_POLICY_KEY, false)
 
-        if (Utils.isUserLoggedIn(this)) {
-            // User is logged in, go to HomeActivity
-            startActivity(Intent(this, HomeActivity::class.java))
+        // Check read policy first
+        if (!hasAccepted) {
+            startActivity(Intent(this, PrivacyConsentActivity::class.java))
         } else {
-            // User is NOT logged in, go to LoginActivity
-            startActivity(Intent(this, WelcomeActivity::class.java))
+            // Check login state
+            if (Utils.isUserLoggedIn(this)) {
+                // User is logged in, go to HomeActivity
+                startActivity(Intent(this, HomeActivity::class.java))
+            } else {
+                // User is NOT logged in, go to LoginActivity
+                startActivity(Intent(this, WelcomeActivity::class.java))
+            }
         }
-
         // Close SplashActivity to prevent going back to it
         finish()
     }

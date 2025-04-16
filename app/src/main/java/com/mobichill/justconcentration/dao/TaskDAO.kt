@@ -19,18 +19,24 @@ interface TaskDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTasks(tasks: List<TaskModel>)
 
-    @Query("SELECT * FROM tasks")
-    fun getAllTasks(): Flow<List<TaskModel>>
+    @Query("SELECT * FROM tasks WHERE deletedAt IS NULL")
+    fun getAllActiveTasks(): Flow<List<TaskModel>>
+
+    @Query("SELECT * FROM tasks WHERE deletedAt IS NOT NULL")
+    fun getAllDeletedTasks(): Flow<List<TaskModel>>
+
+    @Query("DELETE FROM tasks WHERE deletedAt < :expiryTime")
+    fun permanentlyDeleteOldTasks(expiryTime: Long)
 
     @Query("DELETE FROM tasks")
     suspend fun clearTasks()
 
     @Query("SELECT * FROM tasks WHERE id = :taskId")
-    fun getTaskById(taskId: Int): Flow<TaskModel>
+    fun getTaskById(taskId: String): Flow<TaskModel>
 
     @Query("SELECT * FROM tasks WHERE requestCode = :requestCode") //requestCode is unique
     fun getTaskByRequestCode(requestCode: Int): Flow<TaskModel>
 
-    @Query("SELECT * FROM tasks WHERE alarmTimeMillis < :currentTime AND alarmTimeMillis != 0 AND completed = 0")
-    fun getMissedTasks(currentTime: Long): List<TaskModel>
+    @Query("SELECT * FROM tasks WHERE taskText LIKE '%' || :query || '%'")
+    fun searchTasks(query: String): Flow<List<TaskModel>>
 }

@@ -2,6 +2,7 @@ package com.mobichill.justconcentration.view
 
 import android.content.Intent
 import android.util.Log
+import android.view.View
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialException
@@ -15,6 +16,7 @@ import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.databinding.ActivityWelcomeBinding
 import com.mobichill.justconcentration.repository.FireStoreRepository
+import com.mobichill.justconcentration.util.OnSingleClickListener
 import com.mobichill.justconcentration.util.Utils
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -31,17 +33,31 @@ class WelcomeActivity : BaseViewBindingActivity<ActivityWelcomeBinding>() {
     override fun initView() {
         auth = FirebaseAuth.getInstance()
         credentialManager = CredentialManager.create(this)
-        binding.btnGoogleSignIn.setOnClickListener {
-            if (Utils.isNetworkAvailable(this@WelcomeActivity))
-                lifecycleScope.launch { signInWithGoogle() }
-            else Utils.showToast(
-                this@WelcomeActivity,
-                getString(R.string.no_internet_connection)
-            )
-        }
-        binding.btnCreateAccount.setOnClickListener { gotoCreateAccountFragment() }
-        binding.txtAlreadyHaveAccount.setOnClickListener { gotoLoginActivity() }
-        binding.txtSkip.setOnClickListener { goToHomeActivity() }
+        binding.btnGoogleSignIn.setOnClickListener(object : OnSingleClickListener() {
+            override fun onSingleClick(view: View) {
+                if (Utils.isNetworkAvailable(this@WelcomeActivity))
+                    lifecycleScope.launch { signInWithGoogle() }
+                else Utils.showToast(
+                    this@WelcomeActivity,
+                    getString(R.string.no_internet_connection)
+                )
+            }
+        })
+        binding.btnCreateAccount.setOnClickListener(object : OnSingleClickListener() {
+            override fun onSingleClick(view: View) {
+                gotoCreateAccountFragment()
+            }
+        })
+        binding.txtAlreadyHaveAccount.setOnClickListener(object : OnSingleClickListener() {
+            override fun onSingleClick(view: View) {
+                gotoLoginActivity()
+            }
+        })
+        binding.txtSkip.setOnClickListener(object : OnSingleClickListener() {
+            override fun onSingleClick(view: View) {
+                goToHomeActivity()
+            }
+        })
         super.initView()
     }
 

@@ -1,8 +1,8 @@
 package com.mobichill.justconcentration.receiver
 
-import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -13,20 +13,22 @@ import com.mobichill.justconcentration.helper.RoomHelper
 import com.mobichill.justconcentration.model.TaskModel
 import com.mobichill.justconcentration.repository.RoomRepository
 import com.mobichill.justconcentration.service.AlarmService
-import com.mobichill.justconcentration.util.Constants
+import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.ALARM_URI
+import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.REQUEST_CODE
+import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.SNOOZE_MINUTES
+import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.TASK_ID
+import com.mobichill.justconcentration.util.Constants.OTHERS.ALARM_CHANNEL
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlin.random.Random
 
 class AlarmReceiver : BroadcastReceiver() {
     private lateinit var task: TaskModel
 
-    @SuppressLint("UnsafeProtectedBroadcastReceiver")
     override fun onReceive(context: Context, intent: Intent?) {
 
-        val alarmUri = intent?.getStringExtra("ALARM_URI") ?: ""
-        val requestCode = intent?.getIntExtra("REQUEST_CODE", 0) ?: 0
+        val alarmUri = intent?.getStringExtra(ALARM_URI) ?: ""
+        val requestCode = intent?.getIntExtra(REQUEST_CODE, 0) ?: 0
         CoroutineScope(Dispatchers.IO).launch {
             RoomRepository(RoomHelper.getInstance(context)).getTaskByRequestCode(requestCode)
                 .collect { t ->
@@ -36,8 +38,8 @@ class AlarmReceiver : BroadcastReceiver() {
         // Trigger
         showNotification(context, task.taskText)
         val serviceIntent = Intent(context, AlarmService::class.java).apply {
-            putExtra("REQUEST_CODE", requestCode)
-            putExtra("ALARM_URI", alarmUri)
+            putExtra(REQUEST_CODE, requestCode)
+            putExtra(ALARM_URI, alarmUri)
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context.startForegroundService(serviceIntent)
@@ -47,8 +49,24 @@ class AlarmReceiver : BroadcastReceiver() {
     }
 
     private fun showNotification(context: Context, taskTitle: String) {
-        val channelId = "task_reminder_channel"
+        val channelId = ALARM_CHANNEL
         val notificationManager = context.getSystemService(NotificationManager::class.java)
+
+        val dismissIntent = createDismissIntent(context, task)
+
+        // Snooze durations in minutes
+        val snoozeTimes = listOf(5, 10, 30)
+
+        val actions = snoozeTimes.map { snoozeMinutes ->
+            val snoozeIntent = createSnoozeIntent(context, task, snoozeMinutes)
+            NotificationCompat.Action.Builder(
+                R.drawable.ic_snooze, "Snooze $snoozeMinutes min", snoozeIntent
+            ).build()
+        }
+
+        val dismissAction = NotificationCompat.Action.Builder(
+            R.drawable.ic_dismiss, "Dismiss", dismissIntent
+        ).build()
 
         // Create Notification Channel (Android 8.0+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -58,14 +76,38 @@ class AlarmReceiver : BroadcastReceiver() {
             notificationManager.createNotificationChannel(channel)
         }
 
-        val notification = NotificationCompat.Builder(context, channelId)
+        val builder = NotificationCompat.Builder(context, channelId)
             .setContentTitle("Reminder")
             .setContentText(taskTitle)
             .setSmallIcon(R.drawable.ic_notification)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .addAction(dismissAction)
             .setAutoCancel(true)
-            .build()
 
-        notificationManager.notify(Random.nextInt(), notification)
+        actions.forEach { builder.addAction(it) }
+
+        notificationManager.notify(task.requestCode, builder.build())
+    }
+
+    private fun createSnoozeIntent(context: Context, task: TaskModel, minutes: Int): PendingIntent {
+        val intent = Intent(context, SnoozeReceiver::class.java).apply {
+            putExtra(TASK_ID, task.id)
+            putExtra(SNOOZE_MINUTES, minutes)
+        }
+        return PendingIntent.getBroadcast(
+            context,
+            task.requestCode + minutes,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT
+        )
+    }
+
+    private fun createDismissIntent(context: Context, task: TaskModel): PendingIntent {
+        val intent = Intent(context, DismissReceiver::class.java).apply {
+            putExtra(TASK_ID, task.id)
+            putExtra(REQUEST_CODE, task.requestCode)
+        }
+        return PendingIntent.getBroadcast(context, task.id.hashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT)
     }
 }
 

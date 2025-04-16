@@ -12,7 +12,12 @@ class RoomRepository(db: RoomHelper) {
     private val taskDao = db.taskDao()
     private val userDao = db.userDao()
 
-    fun getAllTasks(): Flow<List<TaskModel>> = taskDao.getAllTasks()
+    fun getAllActiveTasks(): Flow<List<TaskModel>> = taskDao.getAllActiveTasks()
+    fun getAllDeletedTasks(): Flow<List<TaskModel>> = taskDao.getAllDeletedTasks()
+
+    suspend fun getUserById(userId: String): UserModel? {
+        return userDao.getUserById(userId)
+    }
 
     suspend fun saveTasksToRoom(tasks: List<TaskModel>) {
         taskDao.clearTasks() // Remove old data
@@ -27,7 +32,7 @@ class RoomRepository(db: RoomHelper) {
         taskDao.updateTask(taskModel)
     }
 
-    fun getTaskById(taskId: Int): Flow<TaskModel> {
+    fun getTaskById(taskId: String): Flow<TaskModel> {
         return taskDao.getTaskById(taskId)
     }
 
@@ -35,13 +40,22 @@ class RoomRepository(db: RoomHelper) {
         return taskDao.getTaskByRequestCode(requestCode)
     }
 
+    fun searchTasks(query: String): Flow<List<TaskModel>> {
+        return taskDao.searchTasks(query)
+    }
+
+    suspend fun removeOrRestoreTask(taskModel: TaskModel, isRemove: Boolean) {
+        var updatedTask =
+            taskModel.copy(deletedAt = if (isRemove) System.currentTimeMillis() else null)
+        taskDao.updateTask(updatedTask)
+    }
+
+    //google, signIn, signUp
     fun saveUserToRoom(userModel: UserModel) {
         CoroutineScope(Dispatchers.IO).launch {
             val existingUser = userDao.getUserById(userModel.uid)
-            val createdAt = existingUser?.createdAt ?: System.currentTimeMillis()
             if (existingUser == null) {
                 // Insert if new user
-                userModel.createdAt = createdAt
                 userDao.insertUser(userModel)
             } else {
                 // Update existing user without changing createdAt

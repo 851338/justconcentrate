@@ -10,6 +10,7 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import androidx.core.net.toUri
+import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.ALARM_URI
 
 class AlarmService: Service() {
     private lateinit var mediaPlayer: MediaPlayer
@@ -19,7 +20,7 @@ class AlarmService: Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val alarmUri = intent?.getStringExtra("ALARM_URI")
+        val alarmUri = intent?.getStringExtra(ALARM_URI)
 
         val soundUri: Uri = if (alarmUri.isNullOrEmpty()) {
             RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM) // Default sound

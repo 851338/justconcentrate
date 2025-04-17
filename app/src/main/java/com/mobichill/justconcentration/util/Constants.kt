@@ -10,6 +10,11 @@ object Constants {
     object OTHERS {
         const val REQUEST_CODE_PICK_AUDIO = 1
         const val ALARM_CHANNEL = "task_alarm_channel"
+        const val FOCUS_CHANNEL = "focus_session_channel"
+        const val FOCUS_AUDIO_URI = "focus_audio_uri"
+        const val FOCUS_DURATION = "focus_duration"
+        const val FOCUS_USER_GOAL = "focus_user_goal"
+
         const val POLICY_URL =
             "https://www.privacypolicies.com/live/d032f7b3-71ba-48c9-83fe-27566be9254e"
         val EMAIL_REGEX: Pattern =

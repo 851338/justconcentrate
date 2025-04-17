@@ -13,9 +13,8 @@ class TaskListAdapter(
     private var isActiveList: Boolean
 ) : BaseAdapter<TaskModel, TaskViewHolder>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
-        return TaskViewHolder.from(parent)
-    }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = TaskViewHolder.from(parent)
+
 
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
         val taskModel = taskList[position]

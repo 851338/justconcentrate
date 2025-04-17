@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Just Concentration</string>
-    <string name="add_new_task">Add a new task</string>
+    <string name="note_your_task_here">Note your task here</string>
     <string name="main_title">Main page</string>
     <string name="task_title">Task page</string>
     <string name="time_format">MMM dd, yyyy "at" hh:mm a</string>
@@ -11,13 +11,10 @@
     <string name="action_sign_in">Sign in or register</string>
     <string name="action_sign_in_short">Sign in</string>
     <string name="welcome">"Welcome !"</string>
-    <string name="invalid_username">Not a valid username</string>
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="app_slogan">Stay Organized, Stay Productive!</string>
-    <string name="continue_with_google">Continue with Google</string>
     <string name="create_an_account">Create an Account</string>
     <string name="default_web_client_id">662460448010-d8ckf1eef8c2di5olp9kbbco8j51997s.apps.googleusercontent.com</string>
-    <string name="signed_in_with_google">Signed in with Google!</string>
     <string name="sign_in_successful">Sign-in successful!</string>
     <string name="authentication_failed">Authentication failed</string>
     <string name="slogan_description">Manage your tasks effortlessly with our smart to-do app.</string>
@@ -31,18 +28,15 @@
     <string name="task_created_success">Task created successful!</string>
     <string name="time_choosen_has_passed">Selected date and time has already passed.</string>
     <string name="unexpected_error">unexpected error</string>
-    <string name="sign_up">SIGN UP</string>
+    <string name="sign_up">Sign up</string>
     <string name="password_min_6_characters">Password (min 6 characters)</string>
     <string name="reenter_password">Re-enter password</string>
-    <string name="username">Username</string>
     <string name="create_account">Create Account</string>
-    <string name="empty_username">Username can not be empty.</string>
+    <string name="empty_name">Name can not be empty.</string>
     <string name="empty_password">Password can not be empty.</string>
     <string name="wrong_format_email">Your email is invalid.</string>
     <string name="password_min_6_characters_error">Password must be at least 6 characters.</string>
     <string name="confirm_password_mismatch">Confirm password mismatch</string>
-    <string name="username_already_taken">Username already taken.</string>
-    <string name="error_checking_username">Error checking username: %1$s</string>
     <string name="signup_failed">Signup failed: %1$s</string>
     <string name="signup_successful">Signup successful!</string>
     <string name="already_have_an_account">Already have an account? Log in</string>
@@ -50,7 +44,7 @@
     <string name="welcome_back">Great to See You!</string>
     <string name="password">Password</string>
     <string name="login">Login</string>
-    <string name="or">or</string>
+    <string name="or">Or</string>
     <string name="login_success">Welcome back!</string>
     <string name="login_failed">Login failed: %1$s</string>
     <string name="app_email">%1$s@justconcentration.com</string>
@@ -107,4 +101,15 @@
     <string name="about_content">Just Concentration is your smart personal task manager. Plan your day, set alarms, and boost your productivity with ease.</string>
     <string name="greeting">Hi, %1$s</string>
     <string name="concentrate_title">Concentrate</string>
+    <string name="select_duration">Select Duration</string>
+    <string name="select_apps_to_block">Select Apps to Block</string>
+    <string name="go_concentrate_mode">Go Concentrate Mode!</string>
+    <string name="concentrate_mode_setup_title">Concentrate Mode Setup</string>
+    <string name="duration">Duration in minutes</string>
+    <string name="duration_input_hint">Input the number of minutes, e.g. 60</string>
+    <string name="enter_your_focus_goal">Enter your focus goal</string>
+    <string name="do_you_have_any_goal">Do you have any goal?</string>
+    <string name="select_sound">Select Sound</string>
+    <string name="silence">Silence.mp5</string>
+    <string name="really">Really?</string>
 </resources>

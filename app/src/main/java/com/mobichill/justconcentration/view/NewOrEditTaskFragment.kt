@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import android.view.View
 import androidx.activity.OnBackPressedCallback
@@ -39,8 +40,8 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
     private lateinit var taskViewModel: TaskViewModel
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
     private lateinit var pickAudioLauncher: ActivityResultLauncher<Intent>
-
     private lateinit var selectedUri: Uri
+
     override fun initViewBinding(): FragmentNewOrEditTaskBinding =
         FragmentNewOrEditTaskBinding.inflate(layoutInflater)
 
@@ -66,6 +67,7 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
                         binding.tvSelectedAlarm.text =
                             Utils.getAudioNameFromUri(requireContext(), audioUri)
                         selectedUri = audioUri
+                        checkAudioFile(audioUri)
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                             persistUriPermission(requireActivity(), audioUri)
                         }
@@ -123,6 +125,10 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
 
     override fun initView() {
         resetData()
+        //scroll
+        binding.etTaskTitle.movementMethod = ScrollingMovementMethod.getInstance()
+        binding.etTaskTitle.isVerticalScrollBarEnabled = true
+
         binding.btnSave.setOnClickListener(object : OnSingleClickListener() {
             override fun onSingleClick(view: View) {
                 lifecycleScope.launch {
@@ -294,6 +300,24 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
             etTaskTitle.text.toString().isNotEmpty() ||
                     tvSelectedDateTime.text.toString() != getString(R.string.no_date_selected) ||
                     tvSelectedAlarm.text.toString() != getString(R.string.default_alarm_sound)
+        }
+    }
+
+    private fun checkAudioFile(uri: Uri) {
+        // Show loading
+        binding.progressBar.visibility = View.VISIBLE
+        lifecycleScope.launch {
+            val isValid = Utils.isValidAudioFile(requireContext(), uri)
+            // Hide loading
+            binding.progressBar.visibility = View.GONE
+            if (isValid) {
+                // Proceed with valid file
+                Log.d(TAG, "Audio is valid")
+                binding.tvSelectedAlarm.error = null
+            } else {
+                binding.tvSelectedAlarm.error = "Invalid audio file. Please select another!"
+                Log.e(TAG, "Invalid audio file")
+            }
         }
     }
 }

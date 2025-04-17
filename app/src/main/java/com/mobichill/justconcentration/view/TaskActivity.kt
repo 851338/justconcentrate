@@ -79,8 +79,12 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
         })
 
         btnClear.setOnClickListener {
-            edtSearch.setText("")
-            taskViewModel.setSearchQuery("")
+            object : OnSingleClickListener() {
+                override fun onSingleClick(view: View) {
+                    edtSearch.setText("")
+                    taskViewModel.setSearchQuery("")
+                }
+            }
         }
 
         edtSearch.setOnClickListener {
@@ -234,6 +238,7 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
                 onBackPressedDispatcher.onBackPressed()
                 toggleSearch(false)
             }
+
             else ->
                 super.onBackPressed()
         }

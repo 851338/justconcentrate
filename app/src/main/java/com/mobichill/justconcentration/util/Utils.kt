@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.MediaPlayer
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.Uri
@@ -30,6 +31,8 @@ import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.USERID_
 import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.USER_INFO_PREFS_NAME
 import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.USER_SESSION_PREFS_NAME
 import de.hdodenhof.circleimageview.CircleImageView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -203,4 +206,34 @@ object Utils {
             avatarImageView.setImageResource(R.drawable.default_avatar)
         }
     }
+
+    suspend fun isValidAudioFile(context: Context, uri: Uri): Boolean {
+        // Check MIME type
+        val mimeType = context.contentResolver.getType(uri)
+        if (mimeType != null && mimeType.startsWith("audio/")) {
+            return true
+        }
+
+        // Check file extension
+        val fileExtension = uri.lastPathSegment?.substringAfterLast(".")
+        val validExtensions = listOf("mp3", "wav", "ogg", "flac", "m4a")
+        if (fileExtension != null && fileExtension in validExtensions) {
+            return true
+        }
+
+        // Perform MediaPlayer check in the background to avoid blocking the UI thread
+        return withContext(Dispatchers.IO) {
+            try {
+                val mediaPlayer = MediaPlayer()
+                mediaPlayer.setDataSource(context, uri)
+                mediaPlayer.prepare()
+                mediaPlayer.release() // Release when done
+                true
+            } catch (e: Exception) {
+                e.printStackTrace()
+                false
+            }
+        }
+    }
+
 }

@@ -8,6 +8,7 @@ import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.databinding.ActivityLoginBinding
 import com.mobichill.justconcentration.repository.FireStoreRepository
+import com.mobichill.justconcentration.util.Constants.OTHERS.EMAIL_REGEX
 import com.mobichill.justconcentration.util.OnSingleClickListener
 import com.mobichill.justconcentration.util.Utils
 
@@ -22,13 +23,11 @@ class LoginActivity : BaseViewBindingActivity<ActivityLoginBinding>() {
 
         loginButton.setOnClickListener(object : OnSingleClickListener() {
             override fun onSingleClick(view: View) {
-                val username = usernameEditText.text.toString().trim()
+                val email = emailEditText.text.toString().trim()
                 val password = passwordEditText.text.toString().trim()
 
                 if (Utils.isNetworkAvailable(this@LoginActivity)) {
                     if (validateLoginInfo()) {
-                        val email =
-                            getString(R.string.app_email, username) // Mapping username to email
                         loginUser(email, password)
                     }
                 } else
@@ -44,7 +43,6 @@ class LoginActivity : BaseViewBindingActivity<ActivityLoginBinding>() {
                 onBackPressed()
             }
         })
-
         super.initView()
     }
 
@@ -69,13 +67,19 @@ class LoginActivity : BaseViewBindingActivity<ActivityLoginBinding>() {
     }
 
     private fun validateLoginInfo(): Boolean = with(binding) {
-        val username = usernameEditText.text.toString()
+        val email = emailEditText.text.toString()
         val password = passwordEditText.text.toString()
 
         when {
-            username.isEmpty() -> {
-                usernameEditText.requestFocus()
-                usernameEditText.error = getString(R.string.empty_username)
+            email.isEmpty() -> {
+                emailEditText.requestFocus()
+                emailEditText.error = getString(R.string.empty_email)
+                return false
+            }
+
+            !EMAIL_REGEX.matcher(email).matches() -> {
+                emailEditText.requestFocus()
+                emailEditText.error = getString(R.string.wrong_format_email)
                 return false
             }
 

@@ -15,7 +15,7 @@
         android:textColor="@color/black"
         android:textSize="24sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@id/usernameEditText"
+        app:layout_constraintBottom_toTopOf="@id/emailEditText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -30,12 +30,12 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.appcompat.widget.AppCompatEditText
-        android:id="@+id/usernameEditText"
+        android:id="@+id/emailEditText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
         android:background="@drawable/edittext_bg"
-        android:hint="@string/username"
+        android:hint="@string/enter_email"
         android:padding="12dp"
         android:textColorHint="@color/gray"
         app:layout_constraintBottom_toTopOf="@id/passwordEditText"
@@ -58,12 +58,9 @@
 
     <Button
         android:id="@+id/loginButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        style="@style/positiveButton"
         android:layout_marginTop="16dp"
-        android:padding="15dp"
         android:text="@string/login"
-        android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -62,7 +62,7 @@ class CreateAccountFragment : BaseViewBindingFragment<FragmentCreateAccountBindi
 
             name.isEmpty() -> {
                 etName.requestFocus()
-                etName.error = getString(R.string.empty_username)
+                etName.error = getString(R.string.empty_name)
                 return false
             }
 

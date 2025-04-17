@@ -12,6 +12,7 @@ import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.mobichill.justconcentration.BuildConfig
+import com.mobichill.justconcentration.ConcentrateSetupActivity
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.databinding.ActivityHomeBinding
@@ -66,6 +67,11 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
         binding.abTitle.text = title
     }
 
+    override fun onResume() {
+        super.onResume()
+        setupToolbar(getString(R.string.main_title), false)
+    }
+
     override fun onBackPressed() {
         val current = supportFragmentManager.findFragmentById(R.id.fragment_container)
         when (current) {
@@ -114,17 +120,27 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
                     showUserPopup(ivAvatar)
                 }
             })
-
+        btnConcentrate.setOnClickListener {
+            object : OnSingleClickListener() {
+                override fun onSingleClick(view: View) {
+                    openConcentrateSetup()
+                }
+            }
+        }
         super.initView()
     }
 
     private fun openTaskActivity() {
-        startActivity(Intent(this@HomeActivity, TaskActivity::class.java))
+        startActivity(Intent(this, TaskActivity::class.java))
     }
 
     private fun showUserPopup(view: View) {
         val popup = UserPopup(this)
         popup.show(view)
+    }
+
+    private fun openConcentrateSetup() {
+        startActivity(Intent(this, ConcentrateSetupActivity::class.java))
     }
 
     fun openAboutFragment() {

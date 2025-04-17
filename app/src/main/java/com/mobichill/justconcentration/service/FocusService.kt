@@ -11,10 +11,11 @@ import android.os.CountDownTimer
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.mobichill.justconcentration.R
-import com.mobichill.justconcentration.util.Constants.OTHERS.FOCUS_AUDIO_URI
+import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.FOCUS_AUDIO_URI
 import com.mobichill.justconcentration.util.Constants.OTHERS.FOCUS_CHANNEL
-import com.mobichill.justconcentration.util.Constants.OTHERS.FOCUS_DURATION
-import com.mobichill.justconcentration.util.Constants.OTHERS.FOCUS_USER_GOAL
+import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.FOCUS_DURATION
+import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.FOCUS_QUOTE
+import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.FOCUS_USER_GOAL
 import java.util.Locale
 
 class FocusService : Service() {
@@ -22,6 +23,8 @@ class FocusService : Service() {
     private val NOTIFICATION_ID = 1001
     private lateinit var notificationManager: NotificationManager
     private var mediaPlayer: MediaPlayer? = null
+    private var tickCount = 0 // Keep track of every tick
+    private var isQuote = false
 
     override fun onCreate() {
         super.onCreate()
@@ -33,6 +36,7 @@ class FocusService : Service() {
         val durationInMinutes = intent.getIntExtra(FOCUS_DURATION, 0)
         val goal = intent.getStringExtra(FOCUS_USER_GOAL) ?: "Stay focused"
         val soundUri = intent.getStringExtra(FOCUS_AUDIO_URI)
+        val quote = intent.getStringExtra(FOCUS_QUOTE) ?: "You can do it!"
 
         val durationInMillis = durationInMinutes * 60 * 1000L
 
@@ -41,23 +45,8 @@ class FocusService : Service() {
         if (!soundUri.isNullOrEmpty()) {
             startPlayingSound(soundUri)
         }
-        countDownTimer = object : CountDownTimer(durationInMillis, 1000) {
-            override fun onTick(millisUntilFinished: Long) {
-                val hours = millisUntilFinished / (1000 * 60 * 60)
-                val minutes = (millisUntilFinished / (1000 * 60)) % 60
-                val seconds = (millisUntilFinished / 1000) % 60
-                val timeFormatted =
-                    String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, seconds)
-                updateNotification(goal, timeFormatted)
-            }
+        startCountDownTimer(durationInMillis, goal, quote)
 
-            override fun onFinish() {
-                stopForeground(STOP_FOREGROUND_REMOVE)
-                stopSelf()
-                sendFinishedNotification()
-            }
-
-        }
         return START_STICKY
     }
 
@@ -67,6 +56,34 @@ class FocusService : Service() {
         super.onDestroy()
         countDownTimer.cancel()
         stopPlayingSound()
+    }
+
+    private fun startCountDownTimer(durationInMillis: Long, goal: String, quote: String) {
+        countDownTimer = object : CountDownTimer(durationInMillis, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                val hours = millisUntilFinished / (1000 * 60 * 60)
+                val minutes = (millisUntilFinished / (1000 * 60)) % 60
+                val seconds = (millisUntilFinished / 1000) % 60
+                val timeFormatted =
+                    String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, seconds)
+
+                val content = if (tickCount % 4 == 0) {
+                    // If tickCount is a multiple of 4, toggle between goal and quote
+                    isQuote = !isQuote
+                    if (isQuote) quote else "🎯 Goal: $goal\n⏳ $timeFormatted left"
+                } else {
+                    // Otherwise, just show goal + remaining time (no toggle)
+                    if (isQuote) quote else "🎯 Goal: $goal\n⏳ $timeFormatted left"
+                }
+                updateNotification(content)
+            }
+
+            override fun onFinish() {
+                stopForeground(STOP_FOREGROUND_REMOVE)
+                stopSelf()
+                sendFinishedNotification()
+            }
+        }.start()
     }
 
     private fun createNotificationChannel() {
@@ -84,17 +101,17 @@ class FocusService : Service() {
     private fun buildNotification(goal: String, durationInMinutes: Int): Notification {
         return NotificationCompat.Builder(this, FOCUS_CHANNEL)
             .setContentTitle("Concentration Mode")
-            .setContentText("Goal: $goal | Duration: $durationInMinutes min")
+            .setContentText("🎯 Goal: $goal\n⏳ Duration: $durationInMinutes mins")
             .setSmallIcon(R.drawable.ic_concentrate)
             .setOnlyAlertOnce(true)
             .setOngoing(true)
             .build()
     }
 
-    private fun updateNotification(goal: String, remaining: String) {
+    private fun updateNotification(content: String) {
         val notification = NotificationCompat.Builder(this, FOCUS_CHANNEL)
             .setContentTitle("Concentration Mode")
-            .setContentText("Goal: $goal | Time left: $remaining")
+            .setContentText(content)
             .setSmallIcon(R.drawable.ic_concentrate)
             .setOnlyAlertOnce(true)
             .setOngoing(true)

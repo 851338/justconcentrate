@@ -16,12 +16,14 @@ import androidx.lifecycle.lifecycleScope
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.databinding.ActivityConcentrateSetupBinding
 import com.mobichill.justconcentration.service.FocusService
-import com.mobichill.justconcentration.util.Constants.OTHERS.FOCUS_AUDIO_URI
-import com.mobichill.justconcentration.util.Constants.OTHERS.FOCUS_DURATION
-import com.mobichill.justconcentration.util.Constants.OTHERS.FOCUS_USER_GOAL
+import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.FOCUS_AUDIO_URI
+import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.FOCUS_DURATION
+import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.FOCUS_QUOTE
+import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.FOCUS_USER_GOAL
 import com.mobichill.justconcentration.util.OnSingleClickListener
 import com.mobichill.justconcentration.util.Utils
 import com.mobichill.justconcentration.util.Utils.persistUriPermission
+import com.mobichill.justconcentration.view.ConcentrationActivity
 import kotlinx.coroutines.launch
 
 class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetupBinding>() {
@@ -140,14 +142,23 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
 
     fun startFocusSession(duration: Int, goal: String, audioUri: String?) {
         // Start foreground service with timer & sound
+        val quote = ConcentrationQuotes.getRandomQuote()
         val intent = Intent(this, FocusService::class.java)
         intent.putExtra(FOCUS_AUDIO_URI, audioUri)
         intent.putExtra(FOCUS_DURATION, duration)
         intent.putExtra(FOCUS_USER_GOAL, goal)
+        intent.putExtra(FOCUS_QUOTE, quote)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(intent)
         } else {
             startService(intent)
         }
+        openConcentrationActivity(quote)
+    }
+
+    private fun openConcentrationActivity(quote: String) {
+        val intent = Intent(this, ConcentrationActivity::class.java)
+        intent.putExtra(FOCUS_QUOTE, quote)
+        startActivity(intent)
     }
 }

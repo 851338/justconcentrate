@@ -34,8 +34,9 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
     private var selectedDuration: Int = 0
     override fun initViewBinding(): ActivityConcentrateSetupBinding =
         ActivityConcentrateSetupBinding.inflate(layoutInflater)
-
-    private val prefs = getSharedPreferences(FOCUS_SESSION_NAME, MODE_PRIVATE)
+    private val prefs by lazy {
+        getSharedPreferences(FOCUS_SESSION_NAME, MODE_PRIVATE)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

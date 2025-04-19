@@ -28,8 +28,9 @@ class FocusService : Service() {
     private var mediaPlayer: MediaPlayer? = null
     private var tickCount = 0 // Keep track of every tick
     private var isQuote = false
-    private val prefs = getSharedPreferences(FOCUS_SESSION_NAME, MODE_PRIVATE)
-
+    private val prefs by lazy {
+        getSharedPreferences(FOCUS_SESSION_NAME, MODE_PRIVATE)
+    }
     companion object {
         var isRunning = false
     }

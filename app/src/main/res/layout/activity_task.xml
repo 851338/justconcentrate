@@ -33,7 +33,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_baseline_arrow_back_ios_24" />
+            app:srcCompat="@drawable/ic_back" />
 
         <androidx.appcompat.widget.AppCompatEditText
             android:id="@+id/edt_search"
@@ -133,7 +133,7 @@
                 app:maxImageSize="40dp"
                 app:tint="@color/yellow"
                 android:backgroundTint="@color/transparent"
-                android:src="@drawable/baseline_post_add_24"
+                android:src="@drawable/ic_add"
                 android:contentDescription="@string/add_task"
                 android:layout_gravity="center_vertical"/>
         </LinearLayout>

@@ -7,12 +7,13 @@ object Constants {
     object OTHERS {
         const val ALARM_CHANNEL = "task_alarm_channel"
         const val FOCUS_CHANNEL = "focus_session_channel"
-
+        const val ACTION_START_SESSION = "com.mobichill.justconcentration.ACTION_START_SESSION"
+        const val ACTION_CANCEL_SESSION = "com.mobichill.justconcentration.ACTION_CANCEL_SESSION"
+        const val ACTION_SESSION_COMPLETE = "com.mobichill.justconcentration.ACTION_SESSION_COMPLETE"
         const val POLICY_URL =
             "https://www.privacypolicies.com/live/d032f7b3-71ba-48c9-83fe-27566be9254e"
         val EMAIL_REGEX: Pattern =
             Pattern.compile("^[0-9a-z]+(?:\\.[0-9a-z]+)*@[a-z0-9]{2,}(?:\\.[a-z]{2,})?$")
-
     }
 
     object INTENT_EXTRA {

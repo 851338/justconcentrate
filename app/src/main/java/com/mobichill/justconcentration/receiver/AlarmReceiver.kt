@@ -98,7 +98,7 @@ class AlarmReceiver : BroadcastReceiver() {
             context,
             task.requestCode + minutes,
             intent,
-            PendingIntent.FLAG_UPDATE_CURRENT
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
     }
 
@@ -107,7 +107,12 @@ class AlarmReceiver : BroadcastReceiver() {
             putExtra(TASK_ID, task.id)
             putExtra(REQUEST_CODE, task.requestCode)
         }
-        return PendingIntent.getBroadcast(context, task.id.hashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        return PendingIntent.getBroadcast(
+            context,
+            task.id.hashCode(),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
     }
 }
 

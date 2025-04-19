@@ -19,7 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class DismissReceiver : BroadcastReceiver() {
-    private val  TAG = javaClass.canonicalName
+    private val TAG = javaClass.canonicalName
 
     override fun onReceive(context: Context, intent: Intent) {
         val requestCode = intent.getIntExtra(REQUEST_CODE, 0)
@@ -27,11 +27,17 @@ class DismissReceiver : BroadcastReceiver() {
 
         // Cancel the alarm
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val pendingIntent = PendingIntent.getBroadcast(context, requestCode, Intent(context, AlarmReceiver::class.java), PendingIntent.FLAG_UPDATE_CURRENT)
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            requestCode,
+            Intent(context, AlarmReceiver::class.java),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
         alarmManager.cancel(pendingIntent)
 
         // Cancel the notification
-        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.cancel(requestCode)
 
         //Alarm completed

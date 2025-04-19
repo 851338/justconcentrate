@@ -47,7 +47,7 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
                     Utils.setAvatar(this@HomeActivity, user?.profilePic, binding.ivAvatar)
                 }
             }
-        } else binding.ivAvatar.setImageResource(R.drawable.baseline_settings_24)
+        } else binding.ivAvatar.setImageResource(R.drawable.ic_setting)
 
         binding.btnBack.setOnClickListener(
             object : OnSingleClickListener() {

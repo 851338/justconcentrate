@@ -71,6 +71,10 @@
             android:name=".receiver.DismissReceiver"
             android:enabled="true"
             android:exported="false" />
+        <receiver
+            android:name=".receiver.NotificationActionReceiver"
+            android:enabled="true"
+            android:exported="false" />
 
         <service
             android:name=".service.AlarmService"

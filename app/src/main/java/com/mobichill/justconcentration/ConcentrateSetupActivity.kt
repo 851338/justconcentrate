@@ -20,6 +20,7 @@ import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.FOCUS_AUDIO_U
 import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.FOCUS_DURATION
 import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.FOCUS_QUOTE
 import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.FOCUS_USER_GOAL
+import com.mobichill.justconcentration.util.Constants.OTHERS.ACTION_START_SESSION
 import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.FOCUS_SESSION_ACTIVE_KEY
 import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.FOCUS_SESSION_NAME
 import com.mobichill.justconcentration.util.OnSingleClickListener
@@ -34,6 +35,7 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
     private var selectedDuration: Int = 0
     override fun initViewBinding(): ActivityConcentrateSetupBinding =
         ActivityConcentrateSetupBinding.inflate(layoutInflater)
+
     private val prefs by lazy {
         getSharedPreferences(FOCUS_SESSION_NAME, MODE_PRIVATE)
     }
@@ -60,7 +62,13 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
     override fun initView() = with(binding) {
         super.initView()
 
-        val presetTimes = listOf("5 minutes", "10 minutes", "30 minutes", "1 hour", "Custom...")
+        val presetTimes = listOf(
+            getString(R.string._5_minutes),
+            getString(R.string._10_minutes),
+            getString(R.string._30_minutes),
+            getString(R.string._1_hour),
+            getString(R.string.custom)
+        )
 
         val adapter = ArrayAdapter(
             this@ConcentrateSetupActivity,
@@ -72,11 +80,11 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
         // Handle selection
         autoCompleteTxtDuration.setOnItemClickListener { _, _, position, _ ->
             val selected = adapter.getItem(position)
-
-            if (selected == "Custom...") {
+            if (selected == getString(R.string.custom)) {
                 showCustomTimeDialog()
             } else {
                 autoCompleteTxtDuration.setText(selected, false)
+                selectedDuration = selected?.split(" ")[0]?.toInt() ?: 0
             }
             txtInputDuration.error = null
         }
@@ -116,10 +124,10 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
         }
 
         val dialog = AlertDialog.Builder(this)
-            .setTitle("Enter custom time")
+            .setTitle(getString(R.string.enter_custom_time))
             .setView(editText)
             .setPositiveButton("OK", null)
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton(getString(R.string.cancel), null)
             .create()
         dialog.setOnShowListener {
             val okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
@@ -150,7 +158,7 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
                 Log.d(TAG, "Audio is valid")
                 binding.tvSelectedSound.error = null
             } else {
-                binding.tvSelectedSound.error = "Invalid audio file. Please select another!"
+                binding.tvSelectedSound.error = getString(R.string.invalid_audio)
                 Log.e(TAG, "Invalid audio file")
             }
         }
@@ -161,12 +169,15 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
         //Shared preference: Imagine the service crashes but the flag still says "active" — you'd block new sessions forever.
         //is Running: Some OEMs aggressively kill services in the background without notice.
         //So we use both
-        if (isActive || FocusService.isRunning) {
+        if (isActive &&
+            FocusService.isRunning
+        ) {
             Utils.showToast(this, getString(R.string.focus_session_already_running))
         } else {
             // Start foreground service with timer & sound
             val quote = ConcentrationQuotes.getRandomQuote()
             val intent = Intent(this, FocusService::class.java)
+            intent.action = ACTION_START_SESSION
             intent.putExtra(FOCUS_AUDIO_URI, audioUri)
             intent.putExtra(FOCUS_DURATION, duration)
             intent.putExtra(FOCUS_USER_GOAL, goal)

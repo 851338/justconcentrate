@@ -33,7 +33,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:visibility="gone"
-            app:srcCompat="@drawable/ic_baseline_arrow_back_ios_24" />
+            app:srcCompat="@drawable/ic_back" />
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/iv_avatar"
@@ -111,7 +111,7 @@
             style="@style/ButtonMainActivity"
             android:padding="5dp"
             android:scaleType="fitCenter"
-            app:srcCompat="@drawable/baseline_post_add_24"
+            app:srcCompat="@drawable/ic_add"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btn_concentrate"/>
     </androidx.constraintlayout.widget.ConstraintLayout>

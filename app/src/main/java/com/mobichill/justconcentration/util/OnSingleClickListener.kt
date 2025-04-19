@@ -9,7 +9,7 @@ abstract class OnSingleClickListener: View.OnClickListener {
     override fun onClick(view: View) {
         val currentTime = SystemClock.uptimeMillis()
         if (currentTime - lastClickTime < MIN_CLICK_INTERVAL) {
-            // Ignore click if it's within 500ms (adjust as needed)
+            // Ignore click if it's within 800ms (adjust as needed)
             return
         }
         lastClickTime = currentTime

@@ -24,16 +24,16 @@ class PrivacyConsentActivity : BaseViewBindingActivity<ActivityPrivacyConsentBin
         }
 
         // Launch Privacy Policy (external link or internal screen)
-        binding.viewPolicyButton.setOnClickListener {
+        binding.viewPolicyButton.setOnClickListener (
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
                     Utils.openPrivacyPolicy(this@PrivacyConsentActivity)
                 }
             }
-        }
+        )
 
         // Save acceptance and go to main/login
-        binding.continueButton.setOnClickListener {
+        binding.continueButton.setOnClickListener (
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
                     val prefs = getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE)
@@ -42,6 +42,6 @@ class PrivacyConsentActivity : BaseViewBindingActivity<ActivityPrivacyConsentBin
                     finish()
                 }
             }
-        }
+        )
     }
 }

@@ -52,11 +52,14 @@ class LoginActivity : BaseViewBindingActivity<ActivityLoginBinding>() {
                 if (task.isSuccessful) {
                     val uid = FirebaseAuth.getInstance().currentUser?.uid
                     if (uid != null) {
-                        FireStoreRepository().fetchUserFromFireStore(this@LoginActivity, uid)
                         //fetch and save local
+                        FireStoreRepository().fetchUserFromFireStore(this@LoginActivity, uid)
+                        //save shared preferences
+                        Utils.saveUserInfoToSF(this, uid)
                     }
                     Utils.showToast(this, getString(R.string.login_success))
                     Log.d(TAG, getString(R.string.login_success))
+
                     startActivity(Intent(this, HomeActivity::class.java))
                     finish()
                 } else {

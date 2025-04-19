@@ -36,6 +36,7 @@ object Constants {
         const val REQUEST_CODE_PREFS_KEY = "request_code"
         const val USERID_PREFS_KEY = "userid_prefs"
         const val ACCEPTED_POLICY_KEY = "accepted_privacy_policy"
+        const val SKIPPED_LOGIN_KEY = "skipped_login"
         const val THEME_KEY = "theme_mode"
     }
 

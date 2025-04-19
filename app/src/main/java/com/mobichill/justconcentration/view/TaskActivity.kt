@@ -78,22 +78,22 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
             }
         })
 
-        btnClear.setOnClickListener {
+        btnClear.setOnClickListener(
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
                     edtSearch.setText("")
                     taskViewModel.setSearchQuery("")
                 }
             }
-        }
+        )
 
-        edtSearch.setOnClickListener {
+        edtSearch.setOnClickListener(
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
                     Utils.showKeyboard(edtSearch)
                 }
             }
-        }
+        )
 
         edtSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}

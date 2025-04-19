@@ -30,17 +30,18 @@ class MainActivity : AppCompatActivity() {
         }
         val prefs = getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE)
         val hasAccepted = prefs.getBoolean(ACCEPTED_POLICY_KEY, false)
+        val skippedLogin = prefs.getBoolean(ACCEPTED_POLICY_KEY, false)
 
         // Check read policy first
         if (!hasAccepted) {
             startActivity(Intent(this, PrivacyConsentActivity::class.java))
         } else {
-            // Check login state
-            if (Utils.isUserLoggedIn(this)) {
-                // User is logged in, go to HomeActivity
+            // Check login state || User skipped login
+            // Directly go to home page
+            if (skippedLogin || Utils.isUserLoggedIn(this)) {
                 startActivity(Intent(this, HomeActivity::class.java))
             } else {
-                // User is NOT logged in, go to LoginActivity
+                // User is not logged in || user has not skipped login, go to welcome page
                 startActivity(Intent(this, WelcomeActivity::class.java))
             }
         }

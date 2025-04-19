@@ -15,7 +15,7 @@ import com.mobichill.justconcentration.repository.RoomRepository
 import com.mobichill.justconcentration.util.OnSingleClickListener
 import com.mobichill.justconcentration.util.Utils
 import com.mobichill.justconcentration.view.HomeActivity
-import com.mobichill.justconcentration.view.LoginActivity
+import com.mobichill.justconcentration.view.WelcomeActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -36,6 +36,7 @@ class UserPopup(private val context: Context) {
         //Get user name from local
         //if user logged in show name else turn name into login button
         if (Utils.isUserLoggedIn(context)) {
+            binding.tvLogout.visibility = View.VISIBLE
             val uid = Utils.getUserIdFromSF(context)
             CoroutineScope(Dispatchers.IO).launch {
                 val user = RoomRepository(RoomHelper.getInstance(context)).getUserById(uid)
@@ -45,20 +46,20 @@ class UserPopup(private val context: Context) {
                 }
             }
         } else {
+            binding.tvLogout.visibility = View.GONE
             binding.tvName.text = context.getString(R.string.login)
-            binding.tvName.setOnClickListener {
+            binding.tvName.setOnClickListener(
                 object : OnSingleClickListener() {
                     override fun onSingleClick(view: View) {
                         if (context is HomeActivity) {
-                            context.startActivity(Intent(context, LoginActivity::class.java))
-                            context.finish()
+                            context.startActivity(Intent(context, WelcomeActivity::class.java))
                         }
                     }
                 }
-            }
+            )
         }
         // Handle Clicks
-        binding.tvSubscription.setOnClickListener {
+        binding.tvSubscription.setOnClickListener(
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
                     if (!Utils.isNetworkAvailable(context))
@@ -69,9 +70,9 @@ class UserPopup(private val context: Context) {
                     }
                 }
             }
-        }
+        )
 
-        binding.tvAbout.setOnClickListener {
+        binding.tvAbout.setOnClickListener(
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
                     if (context is HomeActivity)
@@ -79,9 +80,9 @@ class UserPopup(private val context: Context) {
                     popupWindow.dismiss()
                 }
             }
-        }
+        )
 
-        binding.tvLogout.setOnClickListener {
+        binding.tvLogout.setOnClickListener(
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
                     if (!Utils.isNetworkAvailable(context))
@@ -92,13 +93,14 @@ class UserPopup(private val context: Context) {
                         Utils.showToast(context, context.getString(R.string.logged_out))
                         popupWindow.dismiss()
                         if (context is HomeActivity)
-                            context.setAvatarAfterLogout()
+                            context.setUIAfterLogout()
+                        binding.tvLogout.visibility = View.GONE
                         Utils.clearUserInfoPref(context)
                         //TODO reset subscription variable
                     }
                 }
             }
-        }
+        )
 
         // Show the popup
         popupWindow.elevation = 10f

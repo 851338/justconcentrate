@@ -22,26 +22,26 @@ class AboutFragment : BaseViewBindingFragment<FragmentAboutBinding>() {
     }
 
     override fun initView(): Unit = with(binding) {
-        binding.rateOnPlaystore.setOnClickListener {
+        binding.rateOnPlaystore.setOnClickListener(
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
                     Utils.gotoStore(requireActivity())
                 }
             }
-        }
-        binding.privacyPolicy.setOnClickListener {
+        )
+        binding.privacyPolicy.setOnClickListener(
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
                     Utils.openPrivacyPolicy(requireActivity())
                 }
             }
-        }
-        binding.viewLicenses.setOnClickListener {
+        )
+        binding.viewLicenses.setOnClickListener(
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
                     Utils.openLicensePage(requireActivity())
                 }
             }
-        }
+        )
     }
 }

@@ -23,22 +23,22 @@ class TaskViewHolder(private val binding: TaskItemBinding) : RecyclerView.ViewHo
         binding.deleteButton.visibility = if (isDelete) View.VISIBLE else View.GONE
 
         val button = if (isDelete) binding.deleteButton else binding.restoreButton
-        button.setOnClickListener {
+        button.setOnClickListener(
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
                     onDeleteOrRestore(taskModel)
                 }
             }
-        }
+        )
         binding.tvDesc.text = taskModel.taskText
         binding.tvTime.text = Utils.convertTimeMillisIntoText(taskModel.alarmTimeMillis)
-        binding.root.setOnClickListener {
+        binding.root.setOnClickListener(
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
                     onItemClick(taskModel)
                 }
             }
-        }
+        )
     }
 
     companion object {

@@ -22,6 +22,9 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.security.MessageDigest
 import java.util.UUID
+import androidx.core.content.edit
+import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.APP_PREFS_NAME
+import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.SKIPPED_LOGIN_KEY
 
 class WelcomeActivity : BaseViewBindingActivity<ActivityWelcomeBinding>() {
     override fun initViewBinding(): ActivityWelcomeBinding =
@@ -55,6 +58,10 @@ class WelcomeActivity : BaseViewBindingActivity<ActivityWelcomeBinding>() {
         })
         binding.txtSkip.setOnClickListener(object : OnSingleClickListener() {
             override fun onSingleClick(view: View) {
+                val sharedPref = getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE)
+                sharedPref.edit {
+                    putBoolean(SKIPPED_LOGIN_KEY, true)
+                }
                 goToHomeActivity()
             }
         })
@@ -132,6 +139,8 @@ class WelcomeActivity : BaseViewBindingActivity<ActivityWelcomeBinding>() {
                                 user.email,
                                 user.photoUrl.toString()
                             )
+                            //save shared preferences
+                            Utils.saveUserInfoToSF(this,user.uid)
                         }
                         //show toast & open main activity
                         Utils.showToast(this, getString(R.string.sign_in_successful))

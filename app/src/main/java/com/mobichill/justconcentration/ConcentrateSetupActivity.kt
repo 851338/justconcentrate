@@ -73,9 +73,10 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
             } else {
                 autoCompleteTxtDuration.setText(selected, false)
             }
+            txtInputDuration.error = null
         }
 
-        buttonSelectSound.setOnClickListener {
+        buttonSelectSound.setOnClickListener(
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
                     val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
@@ -85,19 +86,22 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
                     pickAudioLauncher.launch(intent)
                 }
             }
-        }
+        )
 
-        startConcentrateButton.setOnClickListener {
+        startConcentrateButton.setOnClickListener(
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
-                    startFocusSession(
-                        selectedDuration,
-                        edtGoal.text.toString(),
-                        selectedUri?.toString()
-                    )
+                    if (selectedDuration != 0)
+                        startFocusSession(
+                            selectedDuration,
+                            edtGoal.text.toString(),
+                            selectedUri?.toString()
+                        )
+                    else txtInputDuration.error =
+                        getString(R.string.you_haven_t_determined_duration)
                 }
             }
-        }
+        )
     }
 
     fun showCustomTimeDialog() {
@@ -106,20 +110,27 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
             inputType = InputType.TYPE_CLASS_NUMBER
         }
 
-        AlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setTitle("Enter custom time")
             .setView(editText)
-            .setPositiveButton("OK") { _, _ ->
-                if (editText.text.toString().toIntOrNull()?.let { it > 0 } == true) {
-                    binding.autoCompleteTxtDuration.setText(editText.text.toString(), false)
-                    selectedDuration = editText.text.toString().toInt() //NotNull
-                } else {
+            .setPositiveButton("OK", null)
+            .setNegativeButton("Cancel", null)
+            .create()
+        dialog.setOnShowListener {
+            val okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            okButton.setOnClickListener {
+                val duration = editText.text.toString().toIntOrNull()
+                if (duration == null || duration <= 0) {
                     editText.error = getString(R.string.really)
                     editText.requestFocus()
+                } else {
+                    binding.autoCompleteTxtDuration.setText(editText.text.toString(), false)
+                    selectedDuration = editText.text.toString().toInt()
+                    dialog.dismiss()
                 }
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+        }
+        dialog.show()
     }
 
     private fun checkAudioFile(uri: Uri) {

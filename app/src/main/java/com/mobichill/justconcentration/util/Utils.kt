@@ -25,8 +25,10 @@ import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.util.Constants.OTHERS.POLICY_URL
 import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.ALARM_PREFS_NAME
+import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.APP_PREFS_NAME
 import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.IS_LOGGED_IN_KEY
 import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.REQUEST_CODE_PREFS_KEY
+import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.SKIPPED_LOGIN_KEY
 import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.USERID_PREFS_KEY
 import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.USER_INFO_PREFS_NAME
 import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.USER_SESSION_PREFS_NAME
@@ -194,7 +196,7 @@ object Utils {
     }
 
     fun setAvatar(context: Context, avatarUrl: String?, avatarImageView: CircleImageView) {
-        if (avatarUrl.isNullOrEmpty()) {
+        if (!avatarUrl.isNullOrEmpty()) {
             // Load avatar from URL (Google sign-in)
             Glide.with(context)
                 .load(avatarUrl)

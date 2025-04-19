@@ -36,8 +36,6 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
             // Debug-specific behavior
             Log.d("HomeActivity", "This is a debug build!")
         }
-        //auto delete task in trash bin after 7 days
-        scheduleAutoDeleteWorker()
         //load user avatar
         if (Utils.isUserLoggedIn(this)) {
             val uid = Utils.getUserIdFromSF(this)
@@ -49,16 +47,19 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
                     Utils.setAvatar(this@HomeActivity, user?.profilePic, binding.ivAvatar)
                 }
             }
-        } else binding.ivAvatar.setImageResource(R.drawable.ic_setting)
+        } else binding.ivAvatar.setImageResource(R.drawable.baseline_settings_24)
 
-        binding.btnBack.setOnClickListener {
+        binding.btnBack.setOnClickListener(
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
                     onBackPressed()
                 }
             }
-        }
+        )
         binding.btnBack.visibility = View.GONE
+
+        //auto delete task in trash bin after 7 days
+        scheduleAutoDeleteWorker()
         super.onCreate(savedInstanceState)
     }
 
@@ -120,13 +121,13 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
                     showUserPopup(ivAvatar)
                 }
             })
-        btnConcentrate.setOnClickListener {
+        btnConcentrate.setOnClickListener(
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
                     openConcentrateSetup()
                 }
             }
-        }
+        )
         super.initView()
     }
 
@@ -150,7 +151,7 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
             .commit()
     }
 
-    fun setAvatarAfterLogout() {
+    fun setUIAfterLogout() {
         Utils.setAvatar(this, null, binding.ivAvatar)
     }
 }

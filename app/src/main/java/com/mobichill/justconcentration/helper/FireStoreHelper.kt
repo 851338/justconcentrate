@@ -10,7 +10,6 @@ import com.mobichill.justconcentration.model.TaskModel
 import com.mobichill.justconcentration.model.UserModel
 import com.mobichill.justconcentration.repository.RoomRepository
 import com.mobichill.justconcentration.util.Utils
-import com.mobichill.justconcentration.util.Utils.saveUserInfoToSF
 import kotlinx.coroutines.tasks.await
 
 
@@ -161,8 +160,6 @@ class FireStoreHelper private constructor() { // Private constructor to prevent 
                     .saveUserToRoom(
                         UserModel(uid, name, email, photoUrl, createdAt, lastLogin)
                     )
-                //save shared preferences
-                saveUserInfoToSF(context,uid)
             }
             .addOnFailureListener { e ->
                 Utils.showToast(context, e.message.toString())
@@ -238,8 +235,6 @@ class FireStoreHelper private constructor() { // Private constructor to prevent 
                 val userModel = UserModel(userId, name, email, null, now, now)
                 RoomRepository(RoomHelper.getInstance(context))
                     .saveUserToRoom(userModel)
-                //save shared preferences
-                saveUserInfoToSF(context, userId)
                 Utils.showToast(context, context.getString(R.string.signup_successful))
                 Log.d(TAG, context.getString(R.string.signup_successful))
             }
@@ -263,8 +258,6 @@ class FireStoreHelper private constructor() { // Private constructor to prevent 
                     //save room
                     RoomRepository(RoomHelper.getInstance(context))
                         .saveUserToRoom(user)
-                    //save shared preferences
-                    saveUserInfoToSF(context, userId)
                     Log.d(TAG, "UserInfo fetched successful")
                 }
             }

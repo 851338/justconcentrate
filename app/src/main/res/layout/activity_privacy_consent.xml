@@ -20,6 +20,7 @@
         android:id="@+id/privacy_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="24dp"
         android:text="@string/please_read_and_accept_our_privacy_policy_to_continue_using_the_app"
         android:textSize="16sp"
         android:layout_marginBottom="14dp" />
@@ -28,9 +29,7 @@
         android:id="@+id/view_policy_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:focusable="true"
         android:padding="10dp"
-        android:clickable="true"
         android:text="@string/view_privacy_policy"
         android:textColor="@color/blue"/>
 
@@ -45,6 +44,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/continue_button"
+        android:layout_marginHorizontal="24dp"
         android:layout_marginTop="14dp"
         android:enabled="false" />
 </LinearLayout>

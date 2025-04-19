@@ -5,7 +5,8 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.TaskActivity">
+    tools:context=".view.TaskActivity"
+    android:padding="24dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layout_action_bar"

@@ -32,11 +32,13 @@ object Constants {
         const val ALARM_PREFS_NAME = "alarm_prefs"
         const val USER_SESSION_PREFS_NAME = "user_session"
         const val USER_INFO_PREFS_NAME = "user_info"
+        const val FOCUS_SESSION_NAME = "focus_session"
         const val IS_LOGGED_IN_KEY = "is_logged_in"
         const val REQUEST_CODE_PREFS_KEY = "request_code"
         const val USERID_PREFS_KEY = "userid_prefs"
         const val ACCEPTED_POLICY_KEY = "accepted_privacy_policy"
         const val SKIPPED_LOGIN_KEY = "skipped_login"
+        const val FOCUS_SESSION_ACTIVE_KEY = "is_focus_active"
         const val THEME_KEY = "theme_mode"
     }
 

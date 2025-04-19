@@ -10,12 +10,15 @@ import android.os.Build
 import android.os.CountDownTimer
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
+import androidx.core.content.edit
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.FOCUS_AUDIO_URI
-import com.mobichill.justconcentration.util.Constants.OTHERS.FOCUS_CHANNEL
 import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.FOCUS_DURATION
 import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.FOCUS_QUOTE
 import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.FOCUS_USER_GOAL
+import com.mobichill.justconcentration.util.Constants.OTHERS.FOCUS_CHANNEL
+import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.FOCUS_SESSION_ACTIVE_KEY
+import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.FOCUS_SESSION_NAME
 import java.util.Locale
 
 class FocusService : Service() {
@@ -25,11 +28,18 @@ class FocusService : Service() {
     private var mediaPlayer: MediaPlayer? = null
     private var tickCount = 0 // Keep track of every tick
     private var isQuote = false
+    private val prefs = getSharedPreferences(FOCUS_SESSION_NAME, MODE_PRIVATE)
+
+    companion object {
+        var isRunning = false
+    }
 
     override fun onCreate() {
         super.onCreate()
         notificationManager = getSystemService(NotificationManager::class.java)
         createNotificationChannel()
+        isRunning = true
+        prefs.edit { putBoolean(FOCUS_SESSION_ACTIVE_KEY, true) }
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
@@ -56,6 +66,8 @@ class FocusService : Service() {
         super.onDestroy()
         countDownTimer.cancel()
         stopPlayingSound()
+        isRunning = false
+        prefs.edit { putBoolean(FOCUS_SESSION_ACTIVE_KEY, false) }
     }
 
     private fun startCountDownTimer(durationInMillis: Long, goal: String, quote: String) {

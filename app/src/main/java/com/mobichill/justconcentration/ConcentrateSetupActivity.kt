@@ -20,6 +20,8 @@ import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.FOCUS_AUDIO_U
 import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.FOCUS_DURATION
 import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.FOCUS_QUOTE
 import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.FOCUS_USER_GOAL
+import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.FOCUS_SESSION_ACTIVE_KEY
+import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.FOCUS_SESSION_NAME
 import com.mobichill.justconcentration.util.OnSingleClickListener
 import com.mobichill.justconcentration.util.Utils
 import com.mobichill.justconcentration.util.Utils.persistUriPermission
@@ -32,6 +34,8 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
     private var selectedDuration: Int = 0
     override fun initViewBinding(): ActivityConcentrateSetupBinding =
         ActivityConcentrateSetupBinding.inflate(layoutInflater)
+
+    private val prefs = getSharedPreferences(FOCUS_SESSION_NAME, MODE_PRIVATE)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -152,19 +156,27 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
     }
 
     fun startFocusSession(duration: Int, goal: String, audioUri: String?) {
-        // Start foreground service with timer & sound
-        val quote = ConcentrationQuotes.getRandomQuote()
-        val intent = Intent(this, FocusService::class.java)
-        intent.putExtra(FOCUS_AUDIO_URI, audioUri)
-        intent.putExtra(FOCUS_DURATION, duration)
-        intent.putExtra(FOCUS_USER_GOAL, goal)
-        intent.putExtra(FOCUS_QUOTE, quote)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(intent)
+        val isActive = prefs.getBoolean(FOCUS_SESSION_ACTIVE_KEY, false)
+        //Shared preference: Imagine the service crashes but the flag still says "active" — you'd block new sessions forever.
+        //is Running: Some OEMs aggressively kill services in the background without notice.
+        //So we use both
+        if (isActive || FocusService.isRunning) {
+            Utils.showToast(this, getString(R.string.focus_session_already_running))
         } else {
-            startService(intent)
+            // Start foreground service with timer & sound
+            val quote = ConcentrationQuotes.getRandomQuote()
+            val intent = Intent(this, FocusService::class.java)
+            intent.putExtra(FOCUS_AUDIO_URI, audioUri)
+            intent.putExtra(FOCUS_DURATION, duration)
+            intent.putExtra(FOCUS_USER_GOAL, goal)
+            intent.putExtra(FOCUS_QUOTE, quote)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(intent)
+            } else {
+                startService(intent)
+            }
+            openConcentrationActivity(quote)
         }
-        openConcentrationActivity(quote)
     }
 
     private fun openConcentrationActivity(quote: String) {
@@ -172,4 +184,5 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
         intent.putExtra(FOCUS_QUOTE, quote)
         startActivity(intent)
     }
+
 }

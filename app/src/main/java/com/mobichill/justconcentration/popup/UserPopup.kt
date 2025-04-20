@@ -9,10 +9,9 @@ import android.view.ViewGroup
 import android.widget.PopupWindow
 import com.google.firebase.auth.FirebaseAuth
 import com.mobichill.justconcentration.R
+import com.mobichill.justconcentration.application.MyApp
 import com.mobichill.justconcentration.databinding.DialogUserProfileBinding
-import com.mobichill.justconcentration.helper.RoomHelper
-import com.mobichill.justconcentration.repository.RoomRepository
-import com.mobichill.justconcentration.util.OnSingleClickListener
+import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.util.Utils
 import com.mobichill.justconcentration.view.HomeActivity
 import com.mobichill.justconcentration.view.WelcomeActivity
@@ -39,7 +38,7 @@ class UserPopup(private val context: Context) {
             binding.tvLogout.visibility = View.VISIBLE
             val uid = Utils.getUserIdFromSF(context)
             CoroutineScope(Dispatchers.IO).launch {
-                val user = RoomRepository(RoomHelper.getInstance(context)).getUserById(uid)
+                val user = MyApp.instance.userRepository.getUserById(uid)
                 //Update UI here
                 withContext(Dispatchers.Main) {
                     binding.tvName.text = context.getString(R.string.greeting, user?.name)
@@ -62,10 +61,14 @@ class UserPopup(private val context: Context) {
         binding.tvSubscription.setOnClickListener(
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
-                    if (!Utils.isNetworkAvailable(context))
-                        Utils.showToast(context, context.getString(R.string.no_internet_connection))
-                    else {
-                        popupWindow.dismiss()
+                    when {
+                        !Utils.isNetworkAvailable(context) ->
+                            Utils.showToast(context, context.getString(R.string.no_internet_connection))
+                        !Utils.isUserLoggedIn(context) ->
+                            Utils.showToast(context,
+                                context.getString(R.string.you_must_log_in_first))
+                        else ->
+                            popupWindow.dismiss()
                         //TODO subscription
                     }
                 }

@@ -12,18 +12,17 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.net.toUri
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.ads.AdRequest
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingFragment
 import com.mobichill.justconcentration.databinding.FragmentNewOrEditTaskBinding
-import com.mobichill.justconcentration.factory.TaskViewModelFactory
 import com.mobichill.justconcentration.helper.AlarmHelper
+import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.model.TaskModel
 import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.TASK_KEY
-import com.mobichill.justconcentration.util.OnSingleClickListener
 import com.mobichill.justconcentration.util.Utils
 import com.mobichill.justconcentration.util.Utils.persistUriPermission
 import com.mobichill.justconcentration.viewmodel.TaskViewModel
@@ -37,7 +36,9 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
     private var dateTime: Long = 0
     private var task: TaskModel? = null
     private var isEdit: Boolean = false
-    private lateinit var taskViewModel: TaskViewModel
+    private val taskViewModel: TaskViewModel by activityViewModels {
+        (requireActivity() as TaskActivity).taskViewModelFactory
+    }
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
     private lateinit var pickAudioLauncher: ActivityResultLauncher<Intent>
     private lateinit var selectedUri: Uri
@@ -78,11 +79,13 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
         val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (hasUnsavedChanges()) {
-                    if (activity is TaskActivity)
-                        (activity as TaskActivity).showExitConfirmation {
-                            isEnabled = false
-                            requireActivity().onBackPressedDispatcher.onBackPressed()
-                        }
+                    Utils.showConfirmDialog(
+                        requireActivity(),
+                        getString(R.string.discard_changes),
+                        getString(R.string.unsaved_changes_message),
+                        getString(R.string.yes),
+                        getString(R.string.cancel)
+                    ) { requireActivity().onBackPressedDispatcher.onBackPressed() }
                 } else {
                     // Let the system handle the back press
                     isEnabled = false
@@ -104,14 +107,6 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
                 if (isEdit) getString(R.string.edit_task_title)
                 else getString(R.string.new_task_title)
             )
-    }
-
-    override fun initViewModel() {
-        taskViewModel = ViewModelProvider(
-            this,
-            TaskViewModelFactory(requireContext())
-        )[TaskViewModel::class.java]
-        super.initViewModel()
     }
 
     override fun initData() {
@@ -184,24 +179,26 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
                 requireContext().getString(R.string.please_enter_a_task)
             )
         else {
+            var isSynced = false
             val newTask = TaskModel(
                 taskText = binding.etTaskTitle.text.toString(),
                 alarmTimeMillis = dateTime,
                 requestCode = Utils.getNextRequestCode(requireContext()),
                 alarmSoundUri = (if (::selectedUri.isInitialized) selectedUri.toString() else "")
             )
-            if (Utils.isNetworkAvailable(requireContext())) {
+            if (Utils.isNetworkAvailable(requireContext()) && Utils.isUserLoggedIn(requireContext())) {
+                isSynced = true
                 //save to fireStore
-                taskViewModel.saveTaskToFireStore(newTask) { complete, error ->
+                taskViewModel.saveTaskToFireStore(newTask.copy(isSynced = true)) { complete, error ->
                     if (complete) {
                         Log.d(TAG, getString(R.string.task_created_success))
                     } else {
                         Log.e(TAG, "Create task:" + error?.message.toString())
                     }
                 }
-            }
+            } else isSynced = false
             //save to room
-            taskViewModel.saveTaskToRoom(newTask)
+            taskViewModel.saveTaskToRoom(newTask.copy(isSynced = isSynced))
             setAlarm(newTask.requestCode, newTask.alarmSoundUri)
         }
     }
@@ -213,6 +210,7 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
                 requireContext().getString(R.string.please_enter_a_task)
             )
         else {
+            var isSynced = false
             val updatedTask = TaskModel(
                 id = taskModel.id,
                 taskText = binding.etTaskTitle.text.toString(),
@@ -220,18 +218,19 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
                 requestCode = taskModel.requestCode,
                 alarmSoundUri = (if (::selectedUri.isInitialized) selectedUri.toString() else "")
             )
-            if (Utils.isNetworkAvailable(requireContext())) {
+            if (Utils.isNetworkAvailable(requireContext()) && Utils.isUserLoggedIn(requireContext())) {
+                isSynced = true
                 //update to fireStore
-                taskViewModel.updateTaskToFireStore(taskModel) { onComplete, error ->
+                taskViewModel.updateTaskToFireStore(taskModel.copy(isSynced = true)) { onComplete, error ->
                     if (onComplete) {
                         Log.d(TAG, getString(R.string.task_created_success))
                     } else {
                         Log.e(TAG, "Update task:" + error?.message.toString())
                     }
                 }
-            }
+            } else isSynced = false
             //update to room
-            taskViewModel.updateTaskToRoom(updatedTask)
+            taskViewModel.updateTaskToRoom(updatedTask.copy(isSynced = isSynced))
             if (task?.alarmTimeMillis != dateTime && task?.alarmTimeMillis != 0L) {
                 cancelAlarm(taskModel.requestCode)
                 setAlarm(updatedTask.requestCode, updatedTask.alarmSoundUri)

@@ -9,6 +9,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import androidx.annotation.RequiresApi
+import com.mobichill.justconcentration.application.MyApp
 import com.mobichill.justconcentration.receiver.AlarmReceiver
 import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.ALARM_URI
 import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.REQUEST_CODE
@@ -81,7 +82,7 @@ class AlarmHelper {
     //rescheduleAlarms after reboot
     fun rescheduleAlarms(context: Context) {
         CoroutineScope(Dispatchers.IO).launch {
-            val tasks = RoomHelper.getInstance(context).taskDao().getAllActiveTasks()
+            val tasks = MyApp.instance.taskRepository.getAllActiveTasks()
             tasks.collect { list ->
                 list.forEach { task ->
                     if (task.alarmTimeMillis != 0L && task.alarmTimeMillis > System.currentTimeMillis()) {

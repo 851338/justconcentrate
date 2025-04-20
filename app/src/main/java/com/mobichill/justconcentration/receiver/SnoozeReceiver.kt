@@ -4,10 +4,9 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.mobichill.justconcentration.R
+import com.mobichill.justconcentration.application.MyApp
 import com.mobichill.justconcentration.helper.AlarmHelper
-import com.mobichill.justconcentration.helper.RoomHelper
 import com.mobichill.justconcentration.model.TaskModel
-import com.mobichill.justconcentration.repository.RoomRepository
 import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.SNOOZE_MINUTES
 import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.TASK_ID
 import com.mobichill.justconcentration.util.Utils
@@ -23,7 +22,7 @@ class SnoozeReceiver : BroadcastReceiver() {
         val snoozeMinutes = intent.getIntExtra(SNOOZE_MINUTES, 5) // Default 5 min
 
         CoroutineScope(Dispatchers.IO).launch {
-            RoomRepository(RoomHelper.Companion.getInstance(context)).getTaskById(taskId)
+            MyApp.instance.taskRepository.getTaskById(taskId)
                 .collect { t ->
                     task = t
                 }

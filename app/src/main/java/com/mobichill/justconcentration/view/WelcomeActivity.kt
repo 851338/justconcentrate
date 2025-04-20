@@ -16,7 +16,7 @@ import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.databinding.ActivityWelcomeBinding
 import com.mobichill.justconcentration.repository.FireStoreRepository
-import com.mobichill.justconcentration.util.OnSingleClickListener
+import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.util.Utils
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -133,7 +133,6 @@ class WelcomeActivity : BaseViewBindingActivity<ActivityWelcomeBinding>() {
                         if (user != null) {
                             //save user to firestore checking existence
                             FireStoreRepository().checkIfUserExists(
-                                this,
                                 user.uid,
                                 user.displayName,
                                 user.email,

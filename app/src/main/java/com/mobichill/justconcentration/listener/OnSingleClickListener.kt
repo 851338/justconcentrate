@@ -1,4 +1,4 @@
-package com.mobichill.justconcentration.util
+package com.mobichill.justconcentration.listener
 
 import android.os.SystemClock
 import android.view.View

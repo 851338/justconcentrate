@@ -16,17 +16,8 @@ interface TaskDAO {
     @Update
     suspend fun updateTask(task: TaskModel)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertTasks(tasks: List<TaskModel>)
-
     @Query("SELECT * FROM tasks WHERE deletedAt IS NULL")
     fun getAllActiveTasks(): Flow<List<TaskModel>>
-
-    @Query("SELECT * FROM tasks WHERE deletedAt IS NOT NULL")
-    fun getAllDeletedTasks(): Flow<List<TaskModel>>
-
-    @Query("DELETE FROM tasks WHERE deletedAt < :expiryTime")
-    fun permanentlyDeleteOldTasks(expiryTime: Long)
 
     @Query("DELETE FROM tasks")
     suspend fun clearTasks()
@@ -39,4 +30,10 @@ interface TaskDAO {
 
     @Query("SELECT * FROM tasks WHERE taskText LIKE '%' || :query || '%'")
     fun searchTasks(query: String): Flow<List<TaskModel>>
+
+    @Query("SELECT * FROM tasks WHERE isSynced = 0 AND deletedAt IS NULL")
+    suspend fun getUnsyncedActiveTasks(): List<TaskModel>
+
+    @Query("SELECT * FROM tasks WHERE isSynced = 0 AND deletedAt > 0")
+    suspend fun getUnsyncedDeletedTasks(): List<TaskModel>
 }

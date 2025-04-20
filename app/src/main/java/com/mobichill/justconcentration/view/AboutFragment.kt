@@ -4,7 +4,7 @@ import android.view.View
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingFragment
 import com.mobichill.justconcentration.databinding.FragmentAboutBinding
-import com.mobichill.justconcentration.util.OnSingleClickListener
+import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.util.Utils
 
 class AboutFragment : BaseViewBindingFragment<FragmentAboutBinding>() {

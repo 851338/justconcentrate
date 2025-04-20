@@ -8,7 +8,7 @@ import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.databinding.ActivityPrivacyConsentBinding
 import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.ACCEPTED_POLICY_KEY
 import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.APP_PREFS_NAME
-import com.mobichill.justconcentration.util.OnSingleClickListener
+import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.util.Utils
 
 class PrivacyConsentActivity : BaseViewBindingActivity<ActivityPrivacyConsentBinding>() {

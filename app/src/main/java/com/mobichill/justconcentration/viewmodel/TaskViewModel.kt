@@ -1,15 +1,13 @@
 package com.mobichill.justconcentration.viewmodel
 
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.mobichill.justconcentration.helper.RoomHelper
+import com.mobichill.justconcentration.application.MyApp
 import com.mobichill.justconcentration.model.TaskModel
 import com.mobichill.justconcentration.repository.FireStoreRepository
-import com.mobichill.justconcentration.repository.RoomRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,14 +19,15 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class TaskViewModel(context: Context) : ViewModel() {
+class TaskViewModel : ViewModel() {
     private val TAG = javaClass.canonicalName
     private val firestoreRepo = FireStoreRepository()
-    private val roomRepo = RoomRepository(RoomHelper.getInstance(context))
+    private val taskRepository = MyApp.instance.taskRepository
     private val _searchQuery = MutableStateFlow("")
+
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
-    val allTasks: LiveData<List<TaskModel>> = roomRepo.getAllActiveTasks().asLiveData()
-    val allDeletedTasks: LiveData<List<TaskModel>> = roomRepo.getAllDeletedTasks().asLiveData()
+
+    val allTasks: LiveData<List<TaskModel>> = taskRepository.getAllActiveTasks().asLiveData()
 
     fun syncTasks() = viewModelScope.launch {
         val tasks = mutableListOf<TaskModel>()
@@ -37,15 +36,15 @@ class TaskViewModel(context: Context) : ViewModel() {
                 tasks.addAll(taskList)
             else Log.e(TAG, error?.message.toString())
         }
-        roomRepo.saveTasksToRoom(tasks)
+        taskRepository.syncTasksToRoom(tasks)
     }
 
     fun saveTaskToRoom(task: TaskModel) = viewModelScope.launch {
-        roomRepo.saveTaskToRoom(task)
+        taskRepository.saveTaskToRoom(task)
     }
 
     fun updateTaskToRoom(task: TaskModel) = viewModelScope.launch {
-        roomRepo.updateTaskToRoom(task)
+        taskRepository.updateTaskToRoom(task)
     }
 
     fun saveTaskToFireStore(task: TaskModel, onComplete: (Boolean, Exception?) -> Unit) =
@@ -58,19 +57,15 @@ class TaskViewModel(context: Context) : ViewModel() {
             firestoreRepo.updateTaskToFireStore(task, onComplete)
         }
 
-    fun removeOrRestoreTaskWithFireStore(
-        task: TaskModel,
-        isRemove: Boolean,
-        onComplete: (Boolean, Exception?) -> Unit
-    ) {
+    fun deleteTaskFromFireStore(task: TaskModel) {
         viewModelScope.launch {
-            firestoreRepo.removeOrRestoreTask(task, onComplete, isRemove)
+            firestoreRepo.deleteTaskFromFireStore(task)
         }
     }
 
-    fun removeOrRestoreTaskWithRoom(task: TaskModel, isRemove: Boolean) {
+    fun deleteTaskFromRoom(task: TaskModel) {
         viewModelScope.launch {
-            roomRepo.removeOrRestoreTask(task, isRemove)
+            taskRepository.deleteTask(task)
         }
     }
 
@@ -78,7 +73,7 @@ class TaskViewModel(context: Context) : ViewModel() {
     val searchResults: StateFlow<List<TaskModel>> = searchQuery
         .debounce(300) //Don’t emit until the user stops typing for 300ms
         .flatMapLatest { query ->
-            roomRepo.searchTasks(query)
+            taskRepository.searchTasks(query)
         } //If a new value comes in, drop what you were doing, and only care about the latest one
         .stateIn(
             scope = viewModelScope,

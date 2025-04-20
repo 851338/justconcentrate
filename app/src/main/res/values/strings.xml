@@ -65,7 +65,7 @@
     <string name="task_not_updated">Task has not been updated due to %1$s.</string>
     <string name="alarm_updated_success">Alarm updated successful!</string>
     <string name="alarm_not_updated">Alarm has not been updated due to %1$s.</string>
-    <string name="task_removed">Task removed to trash.</string>
+    <string name="task_deleted">Task deleted.</string>
     <string name="task_description">This is the note show what to do\n</string>
     <string name="restore">Restore</string>
     <string name="delete">Delete</string>
@@ -90,7 +90,6 @@
     <string name="enter_your_name">Enter your name</string>
     <string name="enter_email">Enter email</string>
     <string name="empty_email">Email can not be empty.</string>
-    <string name="failed_to_fetch_user">Failed to fetch user: %1$s</string>
     <string name="app_version">Version 1.0.0</string>
     <string name="view_open_source_licenses">View Open Source Licenses</string>
     <string name="rate_on_play_store">Rate on Play Store</string>
@@ -118,9 +117,17 @@
     <string name="focus_session_already_running">A focus session is already running!</string>
     <string name="invalid_audio">Invalid audio file. Please select another!</string>
     <string name="enter_custom_time">Enter custom time</string>
-    <string name="custom">Custom...</string>
+    <string name="custom">Custom…</string>
     <string name="_5_minutes">5 minutes</string>
     <string name="_10_minutes">10 minutes</string>
     <string name="_30_minutes">30 minutes</string>
     <string name="_1_hour">1 hour</string>
+    <string name="focus_session_canceled">Focus session canceled</string>
+    <string name="focus_session_completed">Focus session completed 🎉</string>
+    <string name="you_must_log_in_first">You must log in first.</string>
+    <string name="yes">Yes</string>
+    <string name="discard_changes">Discard changes?</string>
+    <string name="unsaved_changes_message">You have unsaved changes. Do you want to discard them?</string>
+    <string name="delete_confirm">Delete confirm</string>
+    <string name="delete_confirm_message">Are you sure you want to delete this task?</string>
 </resources>

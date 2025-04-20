@@ -180,19 +180,6 @@
                 android:text="@string/deleted_tasks"
                 android:textColor="@android:color/black"
                 android:layout_marginEnd="8dp"/>
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fabDeletedTasks"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_deleted_tasks"
-                app:elevation="0dp"
-                app:tint="@color/red"
-                android:clickable="true"
-                android:focusable="true"
-                app:maxImageSize="40dp"
-                android:backgroundTint="@color/transparent"
-                android:contentDescription="@string/deleted_tasks"/>
         </LinearLayout>
     </LinearLayout>
 

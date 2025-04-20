@@ -8,9 +8,8 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import com.mobichill.justconcentration.R
-import com.mobichill.justconcentration.helper.RoomHelper
+import com.mobichill.justconcentration.application.MyApp
 import com.mobichill.justconcentration.repository.FireStoreRepository
-import com.mobichill.justconcentration.repository.RoomRepository
 import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.REQUEST_CODE
 import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.TASK_ID
 import com.mobichill.justconcentration.util.Utils
@@ -48,21 +47,32 @@ class DismissReceiver : BroadcastReceiver() {
     }
 
     private suspend fun updateTaskStatusToDismissed(context: Context, taskId: String) {
-        val roomRepository = RoomRepository(RoomHelper.getInstance(context))
-        val task = roomRepository.getTaskById(taskId)
+        val task = MyApp.instance.taskRepository.getTaskById(taskId)
         task.collect { t ->
-            t.completed = true
             //update to fire store if connected and logged in
-            if (Utils.isNetworkAvailable(context) && Utils.isUserLoggedIn(context))
-                FireStoreRepository().updateTaskToFireStore(t) { complete, error ->
+            var isSynced = false
+            if (Utils.isNetworkAvailable(context) && Utils.isUserLoggedIn(context)) {
+                isSynced = true
+                FireStoreRepository().updateTaskToFireStore(
+                    t.copy(
+                        isSynced = true,
+                        completed = true
+                    )
+                ) { complete, error ->
                     if (complete) {
                         Log.d(TAG, context.getString(R.string.alarm_updated_success))
                     } else {
                         Log.e(TAG, "Update alarm status:" + error?.message.toString())
                     }
                 }
+            } else isSynced = false
             //update to room
-            roomRepository.updateTaskToRoom(t)
+            MyApp.instance.taskRepository.updateTaskToRoom(
+                t.copy(
+                    completed = true,
+                    isSynced = isSynced
+                )
+            )
         }
     }
 }

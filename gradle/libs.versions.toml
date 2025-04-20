@@ -20,6 +20,7 @@ lifecycleViewmodelKtx = "2.8.7"
 material = "1.12.0"
 activity = "1.10.1"
 constraintlayout = "2.2.1"
+mpandroidchart = "v3.1.0"
 playServicesAds = "24.2.0"
 playServicesAuth = "21.3.0"
 playServicesOssLicenses = "17.0.1"
@@ -62,6 +63,7 @@ androidx-constraintlayout = { group = "androidx.constraintlayout", name = "const
 androidx-viewbinding = { group = "androidx.databinding", name = "viewbinding", version.ref = "viewbinding" }
 firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx", version.ref = "firebaseFirestoreKtx" }
 androidx-databinding-runtime = { group = "androidx.databinding", name = "databinding-runtime", version.ref = "databindingRuntime" }
+mpandroidchart = { module = "com.github.PhilJay:MPAndroidChart", version.ref = "mpandroidchart" }
 play-services-ads = { module = "com.google.android.gms:play-services-ads", version.ref = "playServicesAds" }
 play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
 androidx-annotation = { group = "androidx.annotation", name = "annotation", version.ref = "annotation" }

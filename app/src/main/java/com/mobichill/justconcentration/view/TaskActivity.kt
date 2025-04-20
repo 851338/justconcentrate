@@ -7,11 +7,11 @@ import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.firebase.auth.FirebaseAuth
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.adapter.TaskListAdapter
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
@@ -19,16 +19,20 @@ import com.mobichill.justconcentration.databinding.ActivityTaskBinding
 import com.mobichill.justconcentration.factory.TaskViewModelFactory
 import com.mobichill.justconcentration.helper.TaskItemTouchHelper
 import com.mobichill.justconcentration.listener.OnItemDismissListener
+import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.model.TaskModel
-import com.mobichill.justconcentration.util.OnSingleClickListener
+import com.mobichill.justconcentration.repository.FireStoreRepository
 import com.mobichill.justconcentration.util.Utils
 import com.mobichill.justconcentration.viewmodel.TaskViewModel
 
 class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
     private var isMenuOpen = false
     private lateinit var taskAdapter: TaskListAdapter
-    private val taskViewModel: TaskViewModel by viewModels {
-        TaskViewModelFactory(this@TaskActivity)
+    val taskViewModelFactory by lazy {
+        TaskViewModelFactory()
+    }
+    val taskViewModel: TaskViewModel by viewModels {
+        taskViewModelFactory
     }
 
     override fun onResume() {
@@ -62,13 +66,6 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
                 toggleFabMenu()
                 toggleSearch(true)
                 openSearchTasksFragment()
-            }
-        })
-
-        fabDeletedTasks.setOnClickListener(object : OnSingleClickListener() {
-            override fun onSingleClick(view: View) {
-                toggleFabMenu()
-                openDeletedTasksFragment()
             }
         })
 
@@ -120,11 +117,16 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
             },
             { taskModel ->
                 run {
-                    deleteTask(taskModel)
+                    Utils.showConfirmDialog(
+                        this@TaskActivity,
+                        getString(R.string.delete_confirm),
+                        getString(R.string.delete_confirm_message),
+                        getString(R.string.yes),
+                        getString(R.string.cancel)
+                    ) { deleteTask(taskModel) }
                 }
             },
-            onItemDismissListener,
-            true
+            onItemDismissListener
         )
         val itemTouchHelper = ItemTouchHelper(TaskItemTouchHelper(taskAdapter))
         itemTouchHelper.attachToRecyclerView(recyclerView)
@@ -140,7 +142,19 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
                 taskAdapter.updateItems(tasks)
             }
         }
-        taskViewModel.syncTasks()
+        if (Utils.isNetworkAvailable(this@TaskActivity)) {
+            val user = FirebaseAuth.getInstance().currentUser
+            if (user != null) {
+                try {
+                    //sync from room to fireStore
+                    FireStoreRepository().syncUnsyncedTasksToFireStore(user.uid)
+                    //sync from fireStore to room
+                    taskViewModel.syncTasks()
+                } catch (e: Exception) {
+                    Log.e(TAG, "Sync tasks: ", e)
+                }
+            }
+        }
         super.initView()
     }
 
@@ -189,13 +203,6 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
             .commit()
     }
 
-    private fun openDeletedTasksFragment() {
-        supportFragmentManager.beginTransaction()
-            .replace(binding.fragmentContainer.id, DeletedTasksFragment())
-            .addToBackStack(null)
-            .commit()
-    }
-
     fun openNewOrEditTaskFragment(taskModel: TaskModel?) {
         val newOrEditTaskFragment = NewOrEditTaskFragment().apply {
             arguments = Bundle().apply {
@@ -209,29 +216,34 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
     }
 
     private fun deleteTask(taskModel: TaskModel) {
-        taskViewModel.removeOrRestoreTaskWithRoom(taskModel, true)
-        taskViewModel.removeOrRestoreTaskWithFireStore(taskModel, true) { complete, error ->
-            if (complete) {
-                Log.d(TAG, getString(R.string.task_removed))
-            } else {
-                Log.e(TAG, "Task removed: ${error?.message.orEmpty()}")
-            }
-        }
+        var isSynced = false
+        if (Utils.isNetworkAvailable(this) && Utils.isUserLoggedIn(this)) {
+            isSynced = true
+            taskViewModel.deleteTaskFromFireStore(
+                taskModel.copy(isSynced = true)
+            )
+        } else isSynced = false
+        taskViewModel.deleteTaskFromRoom(taskModel.copy(isSynced = isSynced))
 
-        Utils.showToast(this, getString(R.string.task_removed))
+        Utils.showToast(this, getString(R.string.task_deleted))
     }
-
 
     private val onItemDismissListener = object : OnItemDismissListener {
         override fun onTaskDeleted(task: TaskModel) {
-            deleteTask(task)
+            Utils.showConfirmDialog(
+                this@TaskActivity,
+                getString(R.string.delete_confirm),
+                getString(R.string.delete_confirm_message),
+                getString(R.string.yes),
+                getString(R.string.cancel)
+            ) { deleteTask(task) }
         }
     }
 
     override fun onBackPressed() {
         val current = supportFragmentManager.findFragmentById(R.id.fragment_container)
         when (current) {
-            is NewOrEditTaskFragment, is DeletedTasksFragment ->
+            is NewOrEditTaskFragment ->
                 onBackPressedDispatcher.onBackPressed()
 
             is SearchTasksFragment -> {
@@ -242,14 +254,5 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
             else ->
                 super.onBackPressed()
         }
-    }
-
-    fun showExitConfirmation(onConfirmed: () -> Unit) {
-        AlertDialog.Builder(this)
-            .setTitle("Discard changes?")
-            .setMessage("You have unsaved changes. Do you want to discard them?")
-            .setPositiveButton("Yes") { _, _ -> onConfirmed() }
-            .setNegativeButton("Cancel", null)
-            .show()
     }
 }

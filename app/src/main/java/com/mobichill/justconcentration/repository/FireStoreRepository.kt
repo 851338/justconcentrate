@@ -2,9 +2,11 @@ package com.mobichill.justconcentration.repository
 
 import android.content.Context
 import com.mobichill.justconcentration.helper.FireStoreHelper
+import com.mobichill.justconcentration.model.ConcentrateSessionModel
 import com.mobichill.justconcentration.model.TaskModel
 
 class FireStoreRepository {
+    private val db = FireStoreHelper.getInstance()
     fun getTasksFromFireStore(onCompleted: (List<TaskModel>, Exception?) -> Unit) {
         FireStoreHelper.getInstance().getAllTasksFromFireStore { onComplete, e ->
             if (onComplete.isNotEmpty())
@@ -14,29 +16,24 @@ class FireStoreRepository {
     }
 
     fun saveTaskToFireStore(task: TaskModel, onComplete: (Boolean, Exception?) -> Unit) {
-        FireStoreHelper.getInstance().saveTaskToFireStore(task, onComplete)
+        db.saveTaskToFireStore(task, onComplete)
     }
 
     fun updateTaskToFireStore(task: TaskModel, onComplete: (Boolean, Exception?) -> Unit) {
-        FireStoreHelper.getInstance().updateTaskToFireStore(task, onComplete)
+        db.updateTaskToFireStore(task, onComplete)
     }
 
-    fun removeOrRestoreTask(
-        task: TaskModel,
-        onComplete: (Boolean, Exception?) -> Unit,
-        isRemove: Boolean
-    ) {
-        FireStoreHelper.getInstance().removeOrRestoreTask(task, onComplete, isRemove)
+    suspend fun deleteTaskFromFireStore(task: TaskModel) {
+        db.deleteTaskFromFireStore(task)
     }
 
     fun checkIfUserExists(
-        context: Context,
         uid: String,
         name: String?,
         email: String?,
         photoUrl: String?
     ) {
-        FireStoreHelper.getInstance().checkIfUserExistsAndSave(context, uid, name, email, photoUrl)
+        db.checkIfUserExistsAndSave(uid, name, email, photoUrl)
     }
 
     fun addNewUserBySigningUp(
@@ -45,11 +42,21 @@ class FireStoreRepository {
         email: String,
         name: String
     ) {
-        FireStoreHelper.getInstance()
-            .addNewUserBySigningUp(context, userId, email, name)
+        db.addNewUserBySigningUp(context, userId, email, name)
     }
 
-    fun fetchUserFromFireStore(context: Context, uid: String) {
-        FireStoreHelper.getInstance().fetchUserFromFireStore(context, uid)
+    fun fetchUserFromFireStore(uid: String) {
+        db.fetchUserFromFireStore(uid)
+    }
+
+    suspend fun getSessionsFromFireStore(): List<ConcentrateSessionModel> =
+        db.getSessionsFromFireStore()
+
+    fun syncUnsyncedTasksToFireStore(uid: String) {
+        db.syncUnsyncedTasksToFireStore(uid)
+    }
+
+    fun syncUnsyncedSessionToFireStore(uid: String) {
+        db.syncUnsyncedSessionsToFirestore(uid)
     }
 }

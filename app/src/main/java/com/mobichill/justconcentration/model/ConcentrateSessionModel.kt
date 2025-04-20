@@ -3,27 +3,27 @@ package com.mobichill.justconcentration.model
 import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.google.firebase.firestore.IgnoreExtraProperties
 import kotlinx.parcelize.Parcelize
 import java.util.UUID
 
 @Parcelize
-@Entity(tableName = "tasks")
-data class TaskModel(
+@IgnoreExtraProperties
+@Entity(tableName = "focus_sessions")
+data class ConcentrateSessionModel(
     @PrimaryKey
     val id: String = UUID.randomUUID().toString(), // Unique ID for both Room & FireStore
 
-    val taskText: String = "",
+    val goal: String = "",
 
-    val alarmTimeMillis: Long = 0L,
+    val startTime: Long = 0L,
 
-    val requestCode: Int = 0,
+    val endTime: Long = 0L,
 
-    val completed: Boolean = false,
+    val durationMinutes: Int = 0,
 
-    val alarmSoundUri: String = "",
-
-    val deletedAt: Long? = null,
+    val wasCompleted: Boolean = false,
 
     val isSynced: Boolean = false
-
-) : Parcelable
+) :
+    Parcelable

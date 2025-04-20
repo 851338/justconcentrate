@@ -6,28 +6,22 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.core.view.isVisible
-import androidx.work.Constraints
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.NetworkType
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
+import com.google.firebase.auth.FirebaseAuth
 import com.mobichill.justconcentration.BuildConfig
 import com.mobichill.justconcentration.ConcentrateSetupActivity
 import com.mobichill.justconcentration.R
+import com.mobichill.justconcentration.application.MyApp
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.databinding.ActivityHomeBinding
-import com.mobichill.justconcentration.helper.RoomHelper
+import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.popup.UserPopup
-import com.mobichill.justconcentration.repository.RoomRepository
+import com.mobichill.justconcentration.repository.FireStoreRepository
 import com.mobichill.justconcentration.util.MyContextWrapper
-import com.mobichill.justconcentration.util.OnSingleClickListener
 import com.mobichill.justconcentration.util.Utils
-import com.mobichill.justconcentration.worker.AutoDeleteOldTasksWorker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.concurrent.TimeUnit
 
 class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
 
@@ -41,7 +35,7 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
             val uid = Utils.getUserIdFromSF(this)
             CoroutineScope(Dispatchers.IO).launch {
                 val user =
-                    RoomRepository(RoomHelper.getInstance(this@HomeActivity)).getUserById(uid)
+                    MyApp.instance.userRepository.getUserById(uid)
                 // Update UI here
                 withContext(Dispatchers.Main) {
                     Utils.setAvatar(this@HomeActivity, user?.profilePic, binding.ivAvatar)
@@ -58,8 +52,32 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
         )
         binding.btnBack.visibility = View.GONE
 
-        //auto delete task in trash bin after 7 days
-        scheduleAutoDeleteWorker()
+        CoroutineScope(Dispatchers.IO).launch {
+            if (Utils.isNetworkAvailable(this@HomeActivity)) {
+                val user = FirebaseAuth.getInstance().currentUser
+                if (user != null) {
+                    //Sync sessions
+                    try {
+                        //sync from room to fireStore
+                        FireStoreRepository().syncUnsyncedSessionToFireStore(user.uid)
+                        //sync from fireStore to room
+                        val sessions = FireStoreRepository().getSessionsFromFireStore()
+                        MyApp.instance.concentrateSessionRepository.syncSessionsToRoom(sessions)
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Sync sessions: ", e)
+                    }
+                    //Sync deleted tasks
+                    try {
+                        val deletedRoomTasks = MyApp.instance.taskRepository.getUnsyncedDeletedTasks()
+                        deletedRoomTasks.forEach { t ->
+                            FireStoreRepository().deleteTaskFromFireStore(t)
+                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Sync deleted tasks: ", e)
+                    }
+                }
+            }
+        }
         super.onCreate(savedInstanceState)
     }
 
@@ -82,23 +100,6 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
             else ->
                 super.onBackPressed()
         }
-    }
-
-    //delete old tasks after 7 day, run daily
-    private fun scheduleAutoDeleteWorker() {
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED) // Only run when online
-            .build()
-
-        val workRequest = PeriodicWorkRequestBuilder<AutoDeleteOldTasksWorker>(
-            1, TimeUnit.DAYS
-        ).setConstraints(constraints).build()
-
-        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-            "AutoDeleteOldTasks",
-            ExistingPeriodicWorkPolicy.KEEP,
-            workRequest
-        )
     }
 
     override fun attachBaseContext(newBase: Context?) {

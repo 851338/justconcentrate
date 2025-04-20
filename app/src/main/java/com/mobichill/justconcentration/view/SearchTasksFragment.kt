@@ -40,8 +40,7 @@ class SearchTasksFragment : BaseViewBindingFragment<FragmentSearchTasksBinding>(
                     //do nothing
                 }
             },
-            null,
-            true
+            null
         )
 
         binding.recyclerView.adapter = taskAdapter

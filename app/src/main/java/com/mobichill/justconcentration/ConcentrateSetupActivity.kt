@@ -22,8 +22,8 @@ import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.FOCUS_QUOTE
 import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.FOCUS_USER_GOAL
 import com.mobichill.justconcentration.util.Constants.OTHERS.ACTION_START_SESSION
 import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.FOCUS_SESSION_ACTIVE_KEY
-import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.FOCUS_SESSION_NAME
-import com.mobichill.justconcentration.util.OnSingleClickListener
+import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.FOCUS_SESSION_PREFS_NAME
+import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.util.Utils
 import com.mobichill.justconcentration.util.Utils.persistUriPermission
 import com.mobichill.justconcentration.view.ConcentrationActivity
@@ -37,7 +37,7 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
         ActivityConcentrateSetupBinding.inflate(layoutInflater)
 
     private val prefs by lazy {
-        getSharedPreferences(FOCUS_SESSION_NAME, MODE_PRIVATE)
+        getSharedPreferences(FOCUS_SESSION_PREFS_NAME, MODE_PRIVATE)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

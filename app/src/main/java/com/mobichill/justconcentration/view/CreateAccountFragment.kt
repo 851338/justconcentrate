@@ -8,7 +8,7 @@ import com.mobichill.justconcentration.base.BaseViewBindingFragment
 import com.mobichill.justconcentration.databinding.FragmentCreateAccountBinding
 import com.mobichill.justconcentration.repository.FireStoreRepository
 import com.mobichill.justconcentration.util.Constants.OTHERS.EMAIL_REGEX
-import com.mobichill.justconcentration.util.OnSingleClickListener
+import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.util.Utils
 
 class CreateAccountFragment : BaseViewBindingFragment<FragmentCreateAccountBinding>() {

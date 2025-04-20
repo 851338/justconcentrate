@@ -9,7 +9,7 @@ import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.databinding.ActivityLoginBinding
 import com.mobichill.justconcentration.repository.FireStoreRepository
 import com.mobichill.justconcentration.util.Constants.OTHERS.EMAIL_REGEX
-import com.mobichill.justconcentration.util.OnSingleClickListener
+import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.util.Utils
 
 class LoginActivity : BaseViewBindingActivity<ActivityLoginBinding>() {
@@ -53,9 +53,10 @@ class LoginActivity : BaseViewBindingActivity<ActivityLoginBinding>() {
                     val uid = FirebaseAuth.getInstance().currentUser?.uid
                     if (uid != null) {
                         //fetch and save local
-                        FireStoreRepository().fetchUserFromFireStore(this@LoginActivity, uid)
+                        FireStoreRepository().fetchUserFromFireStore(uid)
                         //save shared preferences
                         Utils.saveUserInfoToSF(this, uid)
+
                     }
                     Utils.showToast(this, getString(R.string.login_success))
                     Log.d(TAG, getString(R.string.login_success))

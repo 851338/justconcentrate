@@ -8,9 +8,8 @@ import com.mobichill.justconcentration.model.TaskModel
 class TaskListAdapter(
     private var taskList: MutableList<TaskModel>,
     private val onItemClick: (TaskModel) -> Unit,
-    private val onDeleteOrRestore: (TaskModel) -> Unit,
-    private val listener: OnItemDismissListener?,
-    private var isActiveList: Boolean
+    private val onDelete: (TaskModel) -> Unit,
+    private val listener: OnItemDismissListener?
 ) : BaseAdapter<TaskModel, TaskViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = TaskViewHolder.from(parent)
@@ -18,7 +17,7 @@ class TaskListAdapter(
 
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
         val taskModel = taskList[position]
-        holder.onBind(taskModel, onItemClick, isActiveList, onDeleteOrRestore)
+        holder.onBind(taskModel, onItemClick, onDelete)
     }
 
     override fun getItemCount() = taskList.size

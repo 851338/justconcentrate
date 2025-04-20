@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.mobichill.justconcentration.databinding.TaskItemBinding
 import com.mobichill.justconcentration.model.TaskModel
-import com.mobichill.justconcentration.util.OnSingleClickListener
+import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.util.Utils
 
 
@@ -14,19 +14,15 @@ class TaskViewHolder(private val binding: TaskItemBinding) : RecyclerView.ViewHo
     fun onBind(
         taskModel: TaskModel,
         onItemClick: (TaskModel) -> Unit,
-        isActiveList: Boolean,
-        onDeleteOrRestore: (TaskModel) -> Unit
+        onDelete: (TaskModel) -> Unit
     ) {
-        val isDelete = isActiveList
+        binding.deleteButton.visibility = View.VISIBLE
 
-        binding.restoreButton.visibility = if (isDelete) View.GONE else View.VISIBLE
-        binding.deleteButton.visibility = if (isDelete) View.VISIBLE else View.GONE
-
-        val button = if (isDelete) binding.deleteButton else binding.restoreButton
+        val button = binding.deleteButton
         button.setOnClickListener(
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
-                    onDeleteOrRestore(taskModel)
+                    onDelete(taskModel)
                 }
             }
         )

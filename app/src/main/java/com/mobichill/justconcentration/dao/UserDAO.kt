@@ -8,7 +8,7 @@ import androidx.room.Update
 import com.mobichill.justconcentration.model.UserModel
 
 @Dao
-interface UserDao {
+interface UserDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertUser(user: UserModel)
 

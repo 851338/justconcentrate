@@ -25,10 +25,8 @@ import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.util.Constants.OTHERS.POLICY_URL
 import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.ALARM_PREFS_NAME
-import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.APP_PREFS_NAME
 import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.IS_LOGGED_IN_KEY
 import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.REQUEST_CODE_PREFS_KEY
-import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.SKIPPED_LOGIN_KEY
 import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.USERID_PREFS_KEY
 import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.USER_INFO_PREFS_NAME
 import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.USER_SESSION_PREFS_NAME
@@ -238,4 +236,17 @@ object Utils {
         }
     }
 
+    fun showConfirmDialog(context: Context,
+                          title: String, 
+                          message: String,
+                          positive: String,
+                          negative: String,
+                          onConfirmed: () -> Unit) {
+        AlertDialog.Builder(context)
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton(positive) { _, _ -> onConfirmed() }
+            .setNegativeButton(negative, null)
+            .show()
+    }
 }

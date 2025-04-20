@@ -6,10 +6,14 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.mobichill.justconcentration.R
+import com.mobichill.justconcentration.application.MyApp
+import com.mobichill.justconcentration.model.ConcentrateSessionModel
 import com.mobichill.justconcentration.model.TaskModel
 import com.mobichill.justconcentration.model.UserModel
-import com.mobichill.justconcentration.repository.RoomRepository
 import com.mobichill.justconcentration.util.Utils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 
@@ -25,10 +29,6 @@ class FireStoreHelper private constructor() { // Private constructor to prevent 
                 instance = FireStoreHelper()
             }
             return instance!!
-        }
-
-        fun getDatabase(): FirebaseFirestore {
-            return db
         }
     }
 
@@ -93,51 +93,78 @@ class FireStoreHelper private constructor() { // Private constructor to prevent 
             }
     }
 
-    fun removeOrRestoreTask(
-        taskModel: TaskModel,
-        onComplete: (Boolean, Exception?) -> Unit,
-        isRemove: Boolean
-    ) {
-        var updatedTask =
-            taskModel.copy(deletedAt = if (isRemove) System.currentTimeMillis() else null)
+    suspend fun deleteTaskFromFireStore(taskModel: TaskModel) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid
         if (userId == null) {
-            onComplete(false, null)  // User not logged in
             return
         }
+        // Completely delete from FireStore
         db.collection("users").document(userId)
             .collection("tasks").document(taskModel.id)
-            .update("deletedAt", updatedTask.deletedAt)
-            .addOnSuccessListener {
-                onComplete(true, null)
-            }
-            .addOnFailureListener { e ->
-                onComplete(false, e)
-            }
+            .delete().await()
     }
 
-    suspend fun permanentlyDeleteOldTasks(): Boolean {
-        val expiryTime = System.currentTimeMillis() - (7 * 24 * 60 * 60 * 1000)
+    fun syncUnsyncedTasksToFireStore(userId: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val unsyncedTasks =
+                MyApp.instance.taskRepository.getUnsyncedActiveTasks()
+            unsyncedTasks.forEach { task ->
+                try {
+                    db.collection("users")
+                        .document(userId)
+                        .collection("tasks")
+                        .document(task.id)
+                        .set(task)
+                        .await()
 
+                    MyApp.instance.taskRepository.updateTaskToRoom(task.copy(isSynced = true))
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to sync task: ${task.id}", e)
+                }
+            }
+        }
+    }
+
+    fun syncUnsyncedSessionsToFirestore(userId: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val unsynced =
+                MyApp.instance.concentrateSessionRepository.getUnsyncedSessions()
+            unsynced.forEach { s ->
+                try {
+                    db.collection("users")
+                        .document(userId)
+                        .collection("focus_sessions")
+                        .document(s.id)
+                        .set(s)
+                        .await()
+                    MyApp.instance.concentrateSessionRepository.updateSession(s.copy(isSynced = true))
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to sync session: ${s.id}", e)
+                }
+            }
+        }
+    }
+
+    suspend fun getSessionsFromFireStore(): List<ConcentrateSessionModel> {
         val userId = FirebaseAuth.getInstance().currentUser?.uid
         if (userId == null) {
-            return false
+            return emptyList()
         }
         return try {
-            val tasksToDelete = db.collection("users").document(userId)
-                .collection("tasks").whereLessThan("deletedAt", expiryTime)
-                .get().await()
-            tasksToDelete.documents.forEach { it.reference.delete() }
-            true
+            val sessionRef = db.collection("users")
+                .document(userId)
+                .collection("focus_sessions")
+                .get()
+                .await()
+            sessionRef.documents.mapNotNull { it.toObject(ConcentrateSessionModel::class.java) }
         } catch (e: Exception) {
-            Log.d(TAG, e.message.toString())
-            false
+            Log.e(TAG, "getSessionsFromFireStore: ", e)
+            emptyList()
         }
     }
 
     //Main function SignInWithGoogle
     fun checkIfUserExistsAndSave(
-        context: Context,
         uid: String,
         name: String?,
         email: String?,
@@ -156,14 +183,12 @@ class FireStoreHelper private constructor() { // Private constructor to prevent 
                 }
                 //Have to call these here because only when firestore success be the signIn done
                 val lastLogin = System.currentTimeMillis()
-                RoomRepository(RoomHelper.getInstance(context))
-                    .saveUserToRoom(
-                        UserModel(uid, name, email, photoUrl, createdAt, lastLogin)
-                    )
+                MyApp.instance.userRepository.saveUserToRoom(
+                    UserModel(uid, name, email, photoUrl, createdAt, lastLogin)
+                )
             }
             .addOnFailureListener { e ->
-                Utils.showToast(context, e.message.toString())
-                Log.e(TAG, e.message.toString())
+                Log.e(TAG, "checkIfUserExistsAndSave: ", e)
             }
     }
 
@@ -187,7 +212,7 @@ class FireStoreHelper private constructor() { // Private constructor to prevent 
                 Log.d(TAG, "User updated successfully!")
             }
             .addOnFailureListener { e ->
-                Log.e(TAG, e.message.toString())
+                Log.e(TAG, "updateGoogleUserToFireStore: ", e)
             }
     }
 
@@ -208,7 +233,7 @@ class FireStoreHelper private constructor() { // Private constructor to prevent 
                 Log.d(TAG, "User created successfully!")
             }
             .addOnFailureListener { e ->
-                Log.e(TAG, e.message.toString())
+                Log.e(TAG, "addNewUserByGoogle: ", e)
             }
     }
 
@@ -233,8 +258,7 @@ class FireStoreHelper private constructor() { // Private constructor to prevent 
                 //Have to call these here because only when firestore success be the signup done
                 //save userModel into db to load info offline
                 val userModel = UserModel(userId, name, email, null, now, now)
-                RoomRepository(RoomHelper.getInstance(context))
-                    .saveUserToRoom(userModel)
+                MyApp.instance.userRepository.saveUserToRoom(userModel)
                 Utils.showToast(context, context.getString(R.string.signup_successful))
                 Log.d(TAG, context.getString(R.string.signup_successful))
             }
@@ -244,7 +268,7 @@ class FireStoreHelper private constructor() { // Private constructor to prevent 
             }
     }
 
-    fun fetchUserFromFireStore(context: Context, uid: String) {
+    fun fetchUserFromFireStore(uid: String) {
         FirebaseFirestore.getInstance().collection("users").document(uid)
             .get()
             .addOnSuccessListener { document ->
@@ -256,13 +280,30 @@ class FireStoreHelper private constructor() { // Private constructor to prevent 
                     val createdAt = document.getLong("createdAt")
                     val user = UserModel(userId, name, email, null, createdAt, now)
                     //save room
-                    RoomRepository(RoomHelper.getInstance(context))
-                        .saveUserToRoom(user)
+                    MyApp.instance.userRepository.saveUserToRoom(user)
                     Log.d(TAG, "UserInfo fetched successful")
                 }
             }
             .addOnFailureListener {
-                Log.e(TAG, context.getString(R.string.failed_to_fetch_user, it.message))
+                Log.e(TAG, "Failed to fetch user: ${it.message}")
+            }
+    }
+
+    fun addConcentrateSessionToFireStore(session: ConcentrateSessionModel) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId == null) {
+            return
+        }
+        db.collection("users")
+            .document(userId)
+            .collection("focus_sessions")
+            .document(session.id)
+            .set(session)
+            .addOnSuccessListener {
+                Log.d(TAG, "UserInfo fetched successful")
+            }
+            .addOnFailureListener {
+                Log.e(TAG, "Failed to push Concentrate Session: ${it.message}")
             }
     }
 }

@@ -9,9 +9,8 @@ import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.mobichill.justconcentration.R
-import com.mobichill.justconcentration.helper.RoomHelper
+import com.mobichill.justconcentration.application.MyApp
 import com.mobichill.justconcentration.model.TaskModel
-import com.mobichill.justconcentration.repository.RoomRepository
 import com.mobichill.justconcentration.service.AlarmService
 import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.ALARM_URI
 import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.REQUEST_CODE
@@ -30,7 +29,7 @@ class AlarmReceiver : BroadcastReceiver() {
         val alarmUri = intent?.getStringExtra(ALARM_URI) ?: ""
         val requestCode = intent?.getIntExtra(REQUEST_CODE, 0) ?: 0
         CoroutineScope(Dispatchers.IO).launch {
-            RoomRepository(RoomHelper.getInstance(context)).getTaskByRequestCode(requestCode)
+            MyApp.instance.taskRepository.getTaskByRequestCode(requestCode)
                 .collect { t ->
                     task = t
                 }

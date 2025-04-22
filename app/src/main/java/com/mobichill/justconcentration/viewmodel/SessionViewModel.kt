@@ -10,6 +10,8 @@ import com.mobichill.justconcentration.model.ConcentrateSessionModel
 import com.mobichill.justconcentration.others.TimeRangeOption
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 class SessionViewModel : ViewModel() {
     private val TAG = javaClass.canonicalName
@@ -65,8 +67,9 @@ class SessionViewModel : ViewModel() {
             TimeRangeOption.ALL_TIME -> null to null
         }
 
+        val formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy", Locale.ENGLISH)
         return sessions.filter {
-            val sessionDate = LocalDate.parse(it.date)
+            val sessionDate = LocalDate.parse(it.date, formatter)
             val afterStart = from?.let { sessionDate >= it } != false
             val beforeEnd = to?.let { sessionDate <= it } != false
             afterStart && beforeEnd

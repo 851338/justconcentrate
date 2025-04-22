@@ -28,7 +28,7 @@ interface TaskDAO {
     @Query("SELECT * FROM tasks WHERE requestCode = :requestCode") //requestCode is unique
     fun getTaskByRequestCode(requestCode: Int): Flow<TaskModel>
 
-    @Query("SELECT * FROM tasks WHERE taskText LIKE '%' || :query || '%'")
+    @Query("SELECT * FROM tasks WHERE taskText LIKE '%' || :query || '%' AND deletedAt IS NULL")
     fun searchTasks(query: String): Flow<List<TaskModel>>
 
     @Query("SELECT * FROM tasks WHERE isSynced = 0 AND deletedAt IS NULL")

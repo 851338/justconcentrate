@@ -9,6 +9,7 @@ import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
+import com.github.mikephil.charting.formatter.ValueFormatter
 import com.google.android.gms.ads.AdRequest
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.mobichill.justconcentration.R
@@ -20,6 +21,8 @@ import com.mobichill.justconcentration.viewmodel.SessionViewModel
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 class ViewStatsFragment : BaseViewBindingFragment<FragmentViewStatsBinding>() {
     override fun initViewBinding(): FragmentViewStatsBinding =
@@ -42,9 +45,10 @@ class ViewStatsFragment : BaseViewBindingFragment<FragmentViewStatsBinding>() {
 
         setupSpinner()
 
+        val formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy", Locale.ENGLISH)
         viewModel.sessionStats.observe(viewLifecycleOwner) { sessions ->
             val barEntries = sessions
-                .groupBy { LocalDate.parse(it.date) }
+                .groupBy { LocalDate.parse(it.date, formatter) }
                 .map { (date, sessionList) ->
                     BarEntry(
                         date.toEpochDay().toFloat(),
@@ -61,7 +65,7 @@ class ViewStatsFragment : BaseViewBindingFragment<FragmentViewStatsBinding>() {
         binding.adView.loadAd(adRequest)
     }
 
-    fun updateChart(chartData: List<BarEntry>) = with(binding) {
+    private fun updateChart(chartData: List<BarEntry>) = with(binding) {
         // Create a BarDataSet from the chartData (List<BarEntry>)
         val barDataSet = BarDataSet(chartData, "Focus Duration")
 
@@ -83,6 +87,13 @@ class ViewStatsFragment : BaseViewBindingFragment<FragmentViewStatsBinding>() {
 
         // Optional: Customize X and Y axes
         val xAxis = barChart.xAxis
+        //
+        xAxis.valueFormatter = object : ValueFormatter() {
+            override fun getFormattedValue(value: Float): String {
+                val date = LocalDate.ofEpochDay(value.toLong())
+                return date.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))
+            }
+        }
         xAxis.position = XAxis.XAxisPosition.BOTTOM // Position of X axis
         xAxis.setDrawGridLines(false) // Hide grid lines for X axis
         xAxis.granularity = 1f // This controls how much space is between bars
@@ -98,11 +109,13 @@ class ViewStatsFragment : BaseViewBindingFragment<FragmentViewStatsBinding>() {
     private fun setupSpinner() = with(binding) {
         val timeOptions = listOf("Today", "This Week", "This Month", "All Time", "Custom")
 
-        timeRangeSpinner.adapter = ArrayAdapter(
+        val adapter = ArrayAdapter(
             requireContext(),
-            android.R.layout.simple_spinner_dropdown_item,
+            R.layout.spinner_item,
             timeOptions
         )
+        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
+        timeRangeSpinner.adapter = adapter
 
         timeRangeSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
@@ -137,8 +150,10 @@ class ViewStatsFragment : BaseViewBindingFragment<FragmentViewStatsBinding>() {
             val startMillis = dateRange.first ?: return@addOnPositiveButtonClickListener
             val endMillis = dateRange.second ?: return@addOnPositiveButtonClickListener
 
-            val startDate = Instant.ofEpochMilli(startMillis).atZone(ZoneId.systemDefault()).toLocalDate()
-            val endDate = Instant.ofEpochMilli(endMillis).atZone(ZoneId.systemDefault()).toLocalDate()
+            val startDate =
+                Instant.ofEpochMilli(startMillis).atZone(ZoneId.systemDefault()).toLocalDate()
+            val endDate =
+                Instant.ofEpochMilli(endMillis).atZone(ZoneId.systemDefault()).toLocalDate()
 
             onRangeSelected(startDate, endDate)
         }

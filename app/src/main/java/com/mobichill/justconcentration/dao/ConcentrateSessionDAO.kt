@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ConcentrateSessionDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertSession(session: ConcentrateSessionModel)
+    suspend fun insertSession(session: ConcentrateSessionModel): Long
 
     @Update
     suspend fun updateSession(session: ConcentrateSessionModel)
@@ -19,7 +19,7 @@ interface ConcentrateSessionDAO {
     @Query("SELECT * FROM focus_sessions WHERE id = :sessionId")
     fun getSessionById(sessionId: String) : Flow<ConcentrateSessionModel>
 
-    @Query("SELECT * FROM focus_sessions WHERE wasCompleted = 0 ORDER BY startTime DESC")
+    @Query("SELECT * FROM focus_sessions WHERE wasCompleted = 1 ORDER BY startTime DESC")
     fun getAllSessions(): Flow<List<ConcentrateSessionModel>>
 
     @Query("SELECT * FROM focus_sessions WHERE isSynced = 0")

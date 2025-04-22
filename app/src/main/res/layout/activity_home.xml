@@ -16,23 +16,20 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/ab_title"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            style="@style/TextTitleStyle"
             android:text="@string/main_title"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/btn_back"
             style="@style/ButtonActionBar"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:visibility="gone"
             app:srcCompat="@drawable/ic_back" />
 
         <de.hdodenhof.circleimageview.CircleImageView
@@ -40,8 +37,9 @@
             android:layout_width="56dp"
             android:layout_height="56dp"
             android:layout_marginEnd="10dp"
+            tools:src="@drawable/ic_setting"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintEnd_toEndOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -52,74 +50,144 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/layout_action_bar">
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/btn_task"
-            style="@style/ButtonMainActivity"
-            android:padding="5dp"
-            android:scaleType="fitCenter"
-            app:srcCompat="@drawable/ic_task"
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_tasks"
+            style="@style/CardViewMainActivity"
+            app:layout_constraintBottom_toTopOf="@id/card_stats"
+            app:layout_constraintEnd_toStartOf="@id/card_concentrate"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="@id/btn_task"
-            app:layout_constraintEnd_toEndOf="@id/btn_task"
-            app:layout_constraintTop_toBottomOf="@id/btn_task"
-            style="@style/TextStyle"
-            android:text="@string/task_title"/>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:orientation="vertical">
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/btn_concentrate"
-            style="@style/ButtonMainActivity"
-            android:padding="5dp"
-            android:scaleType="fitCenter"
-            app:srcCompat="@drawable/ic_concentrate"
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/btn_task"
+                    style="@style/ButtonMainActivity"
+                    android:padding="5dp"
+                    android:scaleType="fitCenter"
+                    app:srcCompat="@drawable/ic_task" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/TextStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/task_title" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_concentrate"
+            style="@style/CardViewMainActivity"
+            app:layout_constraintBottom_toTopOf="@id/card_subscription"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintStart_toEndOf="@id/card_tasks"
+            app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="@id/btn_concentrate"
-            app:layout_constraintEnd_toEndOf="@id/btn_concentrate"
-            app:layout_constraintTop_toBottomOf="@id/btn_concentrate"
-            style="@style/TextStyle"
-            android:text="@string/concentrate_title"/>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:orientation="vertical">
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/btn_guide"
-            style="@style/ButtonMainActivity"
-            android:padding="5dp"
-            android:scaleType="fitCenter"
-            app:srcCompat="@drawable/ic_guide"
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/btn_concentrate"
+                    style="@style/ButtonMainActivity"
+                    android:padding="5dp"
+                    android:scaleType="fitCenter"
+                    app:srcCompat="@drawable/ic_concentrate" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/TextStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/concentrate_title"
+                    app:layout_constraintEnd_toEndOf="@id/btn_concentrate"
+                    app:layout_constraintStart_toStartOf="@id/btn_concentrate"
+                    app:layout_constraintTop_toBottomOf="@id/btn_concentrate" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_stats"
+            style="@style/CardViewMainActivity"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/card_subscription"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/btn_task"/>
+            app:layout_constraintTop_toBottomOf="@id/card_tasks">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="@id/btn_guide"
-            app:layout_constraintEnd_toEndOf="@id/btn_guide"
-            app:layout_constraintTop_toBottomOf="@id/btn_guide"
-            style="@style/TextStyle"
-            android:text="@string/guide_title"/>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:orientation="vertical">
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/btn_subscription"
-            style="@style/ButtonMainActivity"
-            android:padding="5dp"
-            android:scaleType="fitCenter"
-            app:srcCompat="@drawable/ic_add"
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/btn_stats"
+                    style="@style/ButtonMainActivity"
+                    android:padding="5dp"
+                    android:scaleType="fitCenter"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/btn_task"
+                    app:srcCompat="@drawable/ic_stats" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/TextStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/stats_title"
+                    app:layout_constraintEnd_toEndOf="@id/btn_stats"
+                    app:layout_constraintStart_toStartOf="@id/btn_stats"
+                    app:layout_constraintTop_toBottomOf="@id/btn_stats" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_subscription"
+            style="@style/CardViewMainActivity"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/btn_concentrate"/>
+            app:layout_constraintStart_toEndOf="@id/card_stats"
+            app:layout_constraintTop_toBottomOf="@id/card_concentrate">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/btn_subscription"
+                    style="@style/ButtonMainActivity"
+                    android:padding="5dp"
+                    android:scaleType="fitCenter"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/btn_task"
+                    app:srcCompat="@drawable/ic_stats" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/TextStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/subscription"
+                    app:layout_constraintEnd_toEndOf="@id/btn_stats"
+                    app:layout_constraintStart_toStartOf="@id/btn_stats"
+                    app:layout_constraintTop_toBottomOf="@id/btn_stats" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/layout_action_bar"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/layout_action_bar" />
 </androidx.constraintlayout.widget.ConstraintLayout>

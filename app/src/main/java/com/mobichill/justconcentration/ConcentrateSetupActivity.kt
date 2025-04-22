@@ -13,16 +13,17 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.lifecycle.lifecycleScope
+import com.google.android.gms.ads.AdRequest
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.databinding.ActivityConcentrateSetupBinding
 import com.mobichill.justconcentration.service.FocusService
-import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.FOCUS_AUDIO_URI
-import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.FOCUS_DURATION
-import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.FOCUS_QUOTE
-import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.FOCUS_USER_GOAL
-import com.mobichill.justconcentration.util.Constants.OTHERS.ACTION_START_SESSION
-import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.FOCUS_SESSION_ACTIVE_KEY
-import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.FOCUS_SESSION_PREFS_NAME
+import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.FOCUS_AUDIO_URI
+import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.FOCUS_DURATION
+import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.FOCUS_QUOTE
+import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.FOCUS_USER_GOAL
+import com.mobichill.justconcentration.others.Constants.OTHERS.ACTION_START_SESSION
+import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.FOCUS_SESSION_ACTIVE_KEY
+import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.FOCUS_SESSION_PREFS_NAME
 import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.util.Utils
 import com.mobichill.justconcentration.util.Utils.persistUriPermission
@@ -89,6 +90,12 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
             txtInputDuration.error = null
         }
 
+        btnBack.setOnClickListener(object : OnSingleClickListener() {
+            override fun onSingleClick(view: View) {
+                onBackPressed()
+            }
+        })
+
         buttonSelectSound.setOnClickListener(
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
@@ -115,6 +122,10 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
                 }
             }
         )
+
+        //run ads
+        val adRequest = AdRequest.Builder().build()
+        binding.adView.loadAd(adRequest)
     }
 
     fun showCustomTimeDialog() {
@@ -182,11 +193,8 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
             intent.putExtra(FOCUS_DURATION, duration)
             intent.putExtra(FOCUS_USER_GOAL, goal)
             intent.putExtra(FOCUS_QUOTE, quote)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(intent)
-            } else {
-                startService(intent)
-            }
+
+            startForegroundService(intent)
             openConcentrationActivity(quote)
         }
     }

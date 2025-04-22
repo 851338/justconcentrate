@@ -5,30 +5,30 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/gradient_background"
-    tools:context=".view.WelcomeActivity"
-    android:padding="24dp">
+    android:padding="24dp"
+    tools:context=".view.WelcomeActivity">
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/txtSlogan"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
         android:gravity="center"
         android:text="@string/app_slogan"
         android:textColor="@android:color/white"
         android:textSize="24sp"
         android:textStyle="bold"
-        android:layout_marginBottom="5dp"
+        app:layout_constraintBottom_toTopOf="@id/txtSloganDescription"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/txtSloganDescription"/>
+        app:layout_constraintStart_toStartOf="parent" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/txtSloganDescription"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
         android:gravity="center"
         android:paddingTop="8dp"
-        android:layout_marginBottom="20dp"
         android:text="@string/slogan_description"
         android:textColor="@android:color/white"
         android:textSize="16sp"
@@ -59,10 +59,10 @@
 
         <Button
             android:id="@+id/btnCreateAccount"
+            style="@style/PositiveButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            style="@style/positiveButton"
             android:background="@drawable/create_account_btn_bg"
             android:text="@string/create_an_account"
             app:layout_constraintEnd_toEndOf="parent"
@@ -73,14 +73,14 @@
             android:id="@+id/txtAlreadyHaveAccount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
             android:clickable="true"
             android:focusable="true"
             android:gravity="center"
-            android:layout_marginTop="12dp"
+            android:padding="5dp"
             android:text="@string/already_have_an_account"
             android:textColor="@color/purple_500"
             android:textSize="14sp"
-            android:padding="5dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btnCreateAccount" />
@@ -90,6 +90,7 @@
         android:id="@+id/txtSkip"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
         android:clickable="true"
         android:focusable="true"
         android:gravity="center"
@@ -97,13 +98,12 @@
         android:text="@string/skip"
         android:textColor="@android:color/white"
         android:textSize="14sp"
-        android:layout_marginBottom="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent" />
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

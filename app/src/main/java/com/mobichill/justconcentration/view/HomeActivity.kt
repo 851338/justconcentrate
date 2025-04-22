@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.core.view.isVisible
+import androidx.core.view.setPadding
 import com.google.firebase.auth.FirebaseAuth
 import com.mobichill.justconcentration.BuildConfig
 import com.mobichill.justconcentration.ConcentrateSetupActivity
@@ -16,8 +17,9 @@ import com.mobichill.justconcentration.databinding.ActivityHomeBinding
 import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.popup.UserPopup
 import com.mobichill.justconcentration.repository.FireStoreRepository
-import com.mobichill.justconcentration.util.MyContextWrapper
+import com.mobichill.justconcentration.others.MyContextWrapper
 import com.mobichill.justconcentration.util.Utils
+import com.mobichill.justconcentration.util.Utils.px
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -38,10 +40,14 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
                     MyApp.instance.userRepository.getUserById(uid)
                 // Update UI here
                 withContext(Dispatchers.Main) {
+                    binding.ivAvatar.setPadding(0, 0, 0, 0)
                     Utils.setAvatar(this@HomeActivity, user?.profilePic, binding.ivAvatar)
                 }
             }
-        } else binding.ivAvatar.setImageResource(R.drawable.ic_setting)
+        } else {
+            binding.ivAvatar.setPadding(px(5), px(5), px(5), px(5))
+            binding.ivAvatar.setImageResource(R.drawable.ic_setting)
+        }
 
         binding.btnBack.setOnClickListener(
             object : OnSingleClickListener() {
@@ -94,9 +100,10 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
     override fun onBackPressed() {
         val current = supportFragmentManager.findFragmentById(R.id.fragment_container)
         when (current) {
-            is AboutFragment ->
+            is AboutFragment, is ViewStatsFragment -> {
                 onBackPressedDispatcher.onBackPressed()
-
+                setupToolbar(getString(R.string.main_title), false)
+            }
             else ->
                 super.onBackPressed()
         }
@@ -110,16 +117,16 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
         ActivityHomeBinding.inflate(layoutInflater)
 
     override fun initView(): Unit = with(binding) {
-        btnTask.setOnClickListener(
-            object : OnSingleClickListener() {
-                override fun onSingleClick(view: View) {
-                    openTaskActivity()
-                }
-            })
         ivAvatar.setOnClickListener(
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
                     showUserPopup(ivAvatar)
+                }
+            })
+        btnTask.setOnClickListener(
+            object : OnSingleClickListener() {
+                override fun onSingleClick(view: View) {
+                    openTaskActivity()
                 }
             })
         btnConcentrate.setOnClickListener(
@@ -129,11 +136,14 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
                 }
             }
         )
+        btnStats.setOnClickListener(
+            object : OnSingleClickListener() {
+                override fun onSingleClick(view: View) {
+                    openStatsFragment()
+                }
+            }
+        )
         super.initView()
-    }
-
-    private fun openTaskActivity() {
-        startActivity(Intent(this, TaskActivity::class.java))
     }
 
     private fun showUserPopup(view: View) {
@@ -144,9 +154,28 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
     private fun openConcentrateSetup() {
         startActivity(Intent(this, ConcentrateSetupActivity::class.java))
     }
+    
+    private fun openTaskActivity() {
+        startActivity(Intent(this, TaskActivity::class.java))
+    }
+    
+    private fun openStatsFragment() {
+        supportFragmentManager.beginTransaction()
+            .setCustomAnimations(
+                R.anim.slide_in_right,
+                R.anim.slide_out_left
+            )
+            .replace(binding.fragmentContainer.id, ViewStatsFragment())
+            .addToBackStack(null)
+            .commit()
+    }
 
     fun openAboutFragment() {
         supportFragmentManager.beginTransaction()
+            .setCustomAnimations(
+                R.anim.slide_in_right,
+                R.anim.slide_out_left
+            )
             .replace(binding.fragmentContainer.id, AboutFragment())
             .addToBackStack(null)
             .commit()

@@ -12,11 +12,11 @@ import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.application.MyApp
 import com.mobichill.justconcentration.model.TaskModel
 import com.mobichill.justconcentration.service.AlarmService
-import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.ALARM_URI
-import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.REQUEST_CODE
-import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.SNOOZE_MINUTES
-import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.TASK_ID
-import com.mobichill.justconcentration.util.Constants.OTHERS.ALARM_CHANNEL
+import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.ALARM_URI
+import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.REQUEST_CODE
+import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.SNOOZE_MINUTES
+import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.TASK_ID
+import com.mobichill.justconcentration.others.Constants.OTHERS.ALARM_CHANNEL
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -40,11 +40,7 @@ class AlarmReceiver : BroadcastReceiver() {
             putExtra(REQUEST_CODE, requestCode)
             putExtra(ALARM_URI, alarmUri)
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.startForegroundService(serviceIntent)
-        } else {
-            context.startService(serviceIntent)
-        }
+        context.startForegroundService(serviceIntent)
     }
 
     private fun showNotification(context: Context, taskTitle: String) {
@@ -68,12 +64,10 @@ class AlarmReceiver : BroadcastReceiver() {
         ).build()
 
         // Create Notification Channel (Android 8.0+)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                channelId, "Task Reminders", NotificationManager.IMPORTANCE_HIGH
-            )
-            notificationManager.createNotificationChannel(channel)
-        }
+        val channel = NotificationChannel(
+            channelId, "Task Reminders", NotificationManager.IMPORTANCE_HIGH
+        )
+        notificationManager.createNotificationChannel(channel)
 
         val builder = NotificationCompat.Builder(context, channelId)
             .setContentTitle("Reminder")

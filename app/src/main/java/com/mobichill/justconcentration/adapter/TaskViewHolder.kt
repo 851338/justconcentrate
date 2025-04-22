@@ -9,13 +9,14 @@ import com.mobichill.justconcentration.model.TaskModel
 import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.util.Utils
 
-
 class TaskViewHolder(private val binding: TaskItemBinding) : RecyclerView.ViewHolder(binding.root) {
     fun onBind(
-        taskModel: TaskModel,
+        taskModel: TaskModel?,
         onItemClick: (TaskModel) -> Unit,
         onDelete: (TaskModel) -> Unit
     ) {
+        if (taskModel == null)
+            return
         binding.deleteButton.visibility = View.VISIBLE
 
         val button = binding.deleteButton

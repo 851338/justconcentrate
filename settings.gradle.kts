@@ -8,7 +8,6 @@ pluginManagement {
             }
         }
         mavenCentral()
-        maven("https://jitpack.io") // Required for BlankJ
         gradlePluginPortal()
     }
 }
@@ -17,6 +16,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven{ url = uri("https://jitpack.io")}
     }
 }
 

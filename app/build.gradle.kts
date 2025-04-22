@@ -19,7 +19,7 @@ android {
     }
     defaultConfig {
         applicationId = "com.mobichill.justconcentration"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -98,6 +98,6 @@ dependencies {
     implementation(libs.play.services.oss.licenses)
     implementation(libs.glide)
     ksp(libs.compiler)
-//    implementation(libs.mpandroidchart)
+    implementation(libs.mpandroidchart)
 
 }

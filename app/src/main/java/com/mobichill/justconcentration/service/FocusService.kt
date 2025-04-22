@@ -7,28 +7,31 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
 import android.media.MediaPlayer
-import android.os.Build
 import android.os.CountDownTimer
 import android.os.IBinder
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.edit
+import androidx.core.net.toUri
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.model.ConcentrateSessionModel
+import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.FOCUS_AUDIO_URI
+import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.FOCUS_DURATION
+import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.FOCUS_QUOTE
+import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.FOCUS_SESSION
+import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.FOCUS_USER_GOAL
+import com.mobichill.justconcentration.others.Constants.OTHERS.ACTION_CANCEL_SESSION
+import com.mobichill.justconcentration.others.Constants.OTHERS.ACTION_SESSION_COMPLETE
+import com.mobichill.justconcentration.others.Constants.OTHERS.ACTION_START_SESSION
+import com.mobichill.justconcentration.others.Constants.OTHERS.FOCUS_CHANNEL
+import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.FOCUS_SESSION_ACTIVE_KEY
+import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.FOCUS_SESSION_PREFS_NAME
 import com.mobichill.justconcentration.receiver.NotificationActionReceiver
-import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.FOCUS_AUDIO_URI
-import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.FOCUS_DURATION
-import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.FOCUS_QUOTE
-import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.FOCUS_SESSION
-import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.FOCUS_USER_GOAL
-import com.mobichill.justconcentration.util.Constants.OTHERS.ACTION_CANCEL_SESSION
-import com.mobichill.justconcentration.util.Constants.OTHERS.ACTION_SESSION_COMPLETE
-import com.mobichill.justconcentration.util.Constants.OTHERS.FOCUS_CHANNEL
-import com.mobichill.justconcentration.util.Constants.OTHERS.ACTION_START_SESSION
-import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.FOCUS_SESSION_ACTIVE_KEY
-import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.FOCUS_SESSION_PREFS_NAME
+import com.mobichill.justconcentration.util.Utils
 import java.util.Locale
 
 class FocusService : Service() {
+    private val TAG = this::class.java.canonicalName
     private lateinit var countDownTimer: CountDownTimer
     private val NOTIFICATION_ID = 1001
     private lateinit var notificationManager: NotificationManager
@@ -56,15 +59,17 @@ class FocusService : Service() {
         val goal = intent.getStringExtra(FOCUS_USER_GOAL) ?: "Stay focused"
         val soundUri = intent.getStringExtra(FOCUS_AUDIO_URI)
         val quote = intent.getStringExtra(FOCUS_QUOTE) ?: "You can do it!"
-        val durationInMillis = durationInMinutes * 60 * 1000L
+        val durationInMillis = durationInMinutes * 5 * 1000L //fix cung 5s
+        val now = System.currentTimeMillis()
 
         val sessionCancel = ConcentrateSessionModel(
             goal = goal,
-            startTime = System.currentTimeMillis(),
-            endTime = System.currentTimeMillis() + durationInMillis,
+            startTime = now,
+            endTime = now + durationInMillis,
+            date = Utils.convertTimeMillisIntoDate(now),
             durationMinutes = durationInMinutes,
             wasCompleted = false
-            )
+        )
 
         // Create the cancel pending intent
         val cancelIntent = Intent(this, NotificationActionReceiver::class.java).apply {
@@ -85,7 +90,13 @@ class FocusService : Service() {
                 if (!soundUri.isNullOrEmpty()) {
                     startPlayingSound(soundUri)
                 }
-                startCountDownTimer(durationInMillis, goal, quote, cancelPendingIntent, sessionCancel)
+                startCountDownTimer(
+                    durationInMillis,
+                    goal,
+                    quote,
+                    cancelPendingIntent,
+                    sessionCancel
+                )
             }
         }
 
@@ -111,9 +122,10 @@ class FocusService : Service() {
         sessionCancel: ConcentrateSessionModel
     ) {
         val sessionFinish = sessionCancel.copy(wasCompleted = true)
-        val finishIntent = Intent(applicationContext, NotificationActionReceiver::class.java).apply {
-            action = ACTION_SESSION_COMPLETE
-        }
+        val finishIntent =
+            Intent(applicationContext, NotificationActionReceiver::class.java).apply {
+                action = ACTION_SESSION_COMPLETE
+            }
         finishIntent.putExtra(FOCUS_SESSION, sessionFinish)
         countDownTimer = object : CountDownTimer(durationInMillis, 1000) {
             override fun onTick(millisUntilFinished: Long) {
@@ -144,15 +156,13 @@ class FocusService : Service() {
     }
 
     private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                FOCUS_CHANNEL,
-                "Focus Session",
-                NotificationManager.IMPORTANCE_LOW
-            )
+        val channel = NotificationChannel(
+            FOCUS_CHANNEL,
+            "Focus Session",
+            NotificationManager.IMPORTANCE_LOW
+        )
 
-            notificationManager.createNotificationChannel(channel)
-        } // No else block needed as under 8.0 there is no channel
+        notificationManager.createNotificationChannel(channel)
     }
 
     private fun buildNotification(
@@ -195,12 +205,19 @@ class FocusService : Service() {
     }
 
     private fun startPlayingSound(uri: String) {
-        mediaPlayer = MediaPlayer().apply {
-            setDataSource(uri)
-            prepareAsync()
-            setOnPreparedListener {
-                start()
+        try {
+            val afd = contentResolver.openAssetFileDescriptor(uri.toUri(), "r")
+            afd?.use {
+                mediaPlayer = MediaPlayer().apply {
+                    setDataSource(it.fileDescriptor)
+                    prepareAsync()
+                    setOnPreparedListener {
+                        start()
+                    }
+                }
             }
+        } catch (e: Exception) {
+            Log.e(TAG, "startPlayingSound: ", e)
         }
     }
 

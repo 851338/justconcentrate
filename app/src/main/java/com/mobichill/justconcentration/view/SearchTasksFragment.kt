@@ -5,11 +5,11 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mobichill.justconcentration.adapter.TaskListAdapter
 import com.mobichill.justconcentration.base.BaseViewBindingFragment
 import com.mobichill.justconcentration.databinding.FragmentSearchTasksBinding
-import com.mobichill.justconcentration.model.TaskModel
 import com.mobichill.justconcentration.viewmodel.TaskViewModel
 import kotlinx.coroutines.launch
 
@@ -20,15 +20,10 @@ class SearchTasksFragment : BaseViewBindingFragment<FragmentSearchTasksBinding>(
     override fun initViewBinding(): FragmentSearchTasksBinding =
         FragmentSearchTasksBinding.inflate(layoutInflater)
 
-    override fun initData() {
-
-    }
+    override fun initData() {}
 
     override fun initView() {
-        binding.recyclerView.adapter = taskAdapter
-        binding.recyclerView.layoutManager = LinearLayoutManager(requireActivity())
         taskAdapter = TaskListAdapter(
-            emptyList<TaskModel>().toMutableList(),
             { taskModel ->
                 run {
                     if (requireActivity() is TaskActivity)
@@ -43,7 +38,14 @@ class SearchTasksFragment : BaseViewBindingFragment<FragmentSearchTasksBinding>(
             null
         )
 
+        binding.recyclerView.layoutManager = LinearLayoutManager(requireActivity())
         binding.recyclerView.adapter = taskAdapter
+        binding.recyclerView.addItemDecoration(
+            DividerItemDecoration(
+                requireActivity(),
+                LinearLayoutManager.VERTICAL
+            )
+        )
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {

@@ -17,4 +17,6 @@ class ConcentrateSessionRepository(private val concentrateSessionHelper: Concent
     suspend fun syncSessionsToRoom(sessions: List<ConcentrateSessionModel>) {
         concentrateSessionHelper.syncSessionsToRoom(sessions)
     }
+
+    fun getAllSessions() = concentrateSessionHelper.getAllSessions()
 }

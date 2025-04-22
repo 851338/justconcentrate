@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layout_task_list"
@@ -20,20 +20,20 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tv_time"
                 style="@style/TextStyle"
-                android:textStyle="bold"
+                android:layout_marginStart="20dp"
                 android:ellipsize="end"
                 android:lines="1"
-                tools:text="16:30 PM 17/03/2025"
-                android:layout_marginStart="20dp"
+                android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="16:30 PM 17/03/2025" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tv_desc"
@@ -41,9 +41,9 @@
                 android:layout_width="0dp"
                 android:ellipsize="end"
                 android:maxLines="2"
-                android:text="@string/task_description"
                 android:paddingStart="20dp"
                 android:paddingEnd="60dp"
+                android:text="@string/task_description"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tv_time"
@@ -51,12 +51,15 @@
 
             <Button
                 android:id="@+id/deleteButton"
+                style="@style/NegativeButton"
                 android:text="@string/delete"
                 android:visibility="visible"
-                style="@style/negativeButton"
+                android:paddingVertical="3dp"
+                android:minHeight="30dp"
+                android:minWidth="60dp"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"/>
+                app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

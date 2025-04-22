@@ -1,4 +1,4 @@
-package com.mobichill.justconcentration.util
+package com.mobichill.justconcentration.others
 
 import android.content.Context
 import android.content.ContextWrapper

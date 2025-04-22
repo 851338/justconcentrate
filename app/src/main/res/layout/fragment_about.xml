@@ -3,14 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    android:background="?android:attr/windowBackground">
+    android:background="?android:attr/windowBackground"
+    android:padding="16dp">
 
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
+        android:orientation="vertical"
         android:spacing="16dp">
 
         <!-- Header Card -->
@@ -22,34 +22,34 @@
             app:cardElevation="4dp">
 
             <LinearLayout
-                android:orientation="vertical"
-                android:padding="16dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_horizontal">
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:padding="16dp">
 
                 <ImageView
                     android:layout_width="80dp"
                     android:layout_height="80dp"
-                    android:src="@drawable/ic_launcher_foreground"
-                    android:contentDescription="@string/app_name" />
+                    android:contentDescription="@string/app_name"
+                    android:src="@drawable/ic_launcher_foreground" />
 
                 <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/TextStyle"
+                    android:layout_marginTop="8dp"
                     android:text="@string/app_name"
-                    style="@style/TextStyle"
-                    android:textStyle="bold"
                     android:textSize="20sp"
-                    android:layout_marginTop="8dp" />
+                    android:textStyle="bold" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     style="@style/TextStyle"
-                    android:text="@string/app_version"
-                    android:layout_marginTop="4dp" />
+                    android:layout_marginTop="4dp"
+                    android:text="@string/app_version" />
 
                 <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/TextStyle"
                     android:layout_marginTop="10dp"
-                    style="@style/TextStyle"
-                    android:text="@string/about_content"/>
+                    android:text="@string/about_content" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -57,30 +57,30 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
             app:cardCornerRadius="16dp"
-            app:cardElevation="4dp"
-            android:layout_marginBottom="16dp">
+            app:cardElevation="4dp">
 
             <LinearLayout
-                android:orientation="vertical"
-                android:padding="16dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
 
                 <androidx.appcompat.widget.AppCompatTextView
-                    android:text="@string/creator"
-                    android:textStyle="bold"
                     style="@style/TextStyle"
-                    android:textSize="16sp" />
+                    android:text="@string/creator"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
 
                 <androidx.appcompat.widget.AppCompatTextView
-                    android:text="@string/my_store_name"
-                    style="@style/TextStyle" />
+                    style="@style/TextStyle"
+                    android:text="@string/my_store_name" />
 
                 <androidx.appcompat.widget.AppCompatTextView
-                    android:text="@string/my_email"
+                    style="@style/TextStyle"
                     android:autoLink="email"
-                    style="@style/TextStyle" />
+                    android:text="@string/my_email" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -92,31 +92,31 @@
             app:cardElevation="4dp">
 
             <LinearLayout
-                android:orientation="vertical"
-                android:padding="16dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/rate_on_playstore"
-                    android:text="@string/rate_on_play_store"
                     style="@style/TextStyle"
-                    android:textColor="?attr/colorPrimary"
-                    android:paddingVertical="4dp" />
+                    android:paddingVertical="4dp"
+                    android:text="@string/rate_on_play_store"
+                    android:textColor="?attr/colorPrimary" />
 
                 <androidx.appcompat.widget.AppCompatTextView
-                    style="@style/TextStyle"
                     android:id="@+id/privacy_policy"
+                    style="@style/TextStyle"
+                    android:paddingVertical="4dp"
                     android:text="@string/privacy_policy"
-                    android:textColor="?attr/colorPrimary"
-                    android:paddingVertical="4dp" />
+                    android:textColor="?attr/colorPrimary" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/view_licenses"
                     style="@style/TextStyle"
+                    android:paddingVertical="4dp"
                     android:text="@string/view_open_source_licenses"
-                    android:textColor="?attr/colorPrimary"
-                    android:paddingVertical="4dp" />
+                    android:textColor="?attr/colorPrimary" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

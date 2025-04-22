@@ -9,9 +9,9 @@ import com.mobichill.justconcentration.application.MyApp
 import com.mobichill.justconcentration.helper.FireStoreHelper
 import com.mobichill.justconcentration.model.ConcentrateSessionModel
 import com.mobichill.justconcentration.service.FocusService
-import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.TASK_KEY
-import com.mobichill.justconcentration.util.Constants.OTHERS.ACTION_CANCEL_SESSION
-import com.mobichill.justconcentration.util.Constants.OTHERS.ACTION_SESSION_COMPLETE
+import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.FOCUS_SESSION
+import com.mobichill.justconcentration.others.Constants.OTHERS.ACTION_CANCEL_SESSION
+import com.mobichill.justconcentration.others.Constants.OTHERS.ACTION_SESSION_COMPLETE
 import com.mobichill.justconcentration.util.Utils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -20,9 +20,9 @@ import kotlinx.coroutines.launch
 class NotificationActionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val session = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getParcelableExtra(TASK_KEY, ConcentrateSessionModel::class.java) // API 33+
+            intent.getParcelableExtra(FOCUS_SESSION, ConcentrateSessionModel::class.java) // API 33+
         } else {
-            intent.getParcelableExtra(TASK_KEY) // API 24-32
+            intent.getParcelableExtra(FOCUS_SESSION) // API 26-32
         }
         CoroutineScope(Dispatchers.IO).launch {
             if (session != null) {

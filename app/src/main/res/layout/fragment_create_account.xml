@@ -1,75 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/gradient_background"
     android:orientation="vertical"
-    android:padding="24dp"
-    android:background="@drawable/gradient_background">
+    android:padding="24dp">
 
     <androidx.appcompat.widget.AppCompatTextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
         android:text="@string/create_account"
+        android:textColor="@android:color/white"
         android:textSize="24sp"
         android:textStyle="bold"
-        android:textColor="@android:color/white"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/etEmail"
-        android:layout_marginBottom="20dp"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <androidx.appcompat.widget.AppCompatEditText
         android:id="@+id/etEmail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:background="@android:drawable/editbox_background"
         android:hint="@string/enter_email"
         android:padding="12dp"
-        android:layout_marginBottom="5dp"
-        app:layout_constraintBottom_toTopOf="@id/etName"
-        android:background="@android:drawable/editbox_background"/>
+        app:layout_constraintBottom_toTopOf="@id/etName" />
 
     <androidx.appcompat.widget.AppCompatEditText
         android:id="@+id/etName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:background="@android:drawable/editbox_background"
         android:hint="@string/enter_your_name"
         android:padding="12dp"
-        android:layout_marginBottom="5dp"
-        app:layout_constraintBottom_toTopOf="@id/etPassword"
-        android:background="@android:drawable/editbox_background"/>
+        app:layout_constraintBottom_toTopOf="@id/etPassword" />
 
     <androidx.appcompat.widget.AppCompatEditText
         android:id="@+id/etPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:background="@android:drawable/editbox_background"
         android:hint="@string/password_min_6_characters"
         android:inputType="textEmailAddress"
         android:padding="12dp"
-        android:layout_marginBottom="5dp"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:background="@android:drawable/editbox_background"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.appcompat.widget.AppCompatEditText
         android:id="@+id/etReenterPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:background="@android:drawable/editbox_background"
         android:hint="@string/reenter_password"
         android:inputType="textPassword"
         android:padding="12dp"
-        android:layout_marginTop="5dp"
-        app:layout_constraintTop_toBottomOf="@id/etPassword"
-        android:background="@android:drawable/editbox_background"/>
+        app:layout_constraintTop_toBottomOf="@id/etPassword" />
 
     <Button
         android:id="@+id/btnSignup"
+        style="@style/PositiveButton"
+        android:layout_marginTop="16dp"
         android:paddingVertical="15dp"
-        style="@style/positiveButton"
         android:text="@string/sign_up"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/etReenterPassword"
-        android:layout_marginTop="16dp"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/etReenterPassword" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

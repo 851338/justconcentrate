@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.media.MediaPlayer
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
@@ -23,25 +24,41 @@ import androidx.documentfile.provider.DocumentFile
 import com.bumptech.glide.Glide
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import com.mobichill.justconcentration.R
-import com.mobichill.justconcentration.util.Constants.OTHERS.POLICY_URL
-import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.ALARM_PREFS_NAME
-import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.IS_LOGGED_IN_KEY
-import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.REQUEST_CODE_PREFS_KEY
-import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.USERID_PREFS_KEY
-import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.USER_INFO_PREFS_NAME
-import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.USER_SESSION_PREFS_NAME
+import com.mobichill.justconcentration.others.Constants.OTHERS.POLICY_URL
+import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.ALARM_PREFS_NAME
+import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.IS_LOGGED_IN_KEY
+import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.REQUEST_CODE_PREFS_KEY
+import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.USERID_PREFS_KEY
+import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.USER_INFO_PREFS_NAME
+import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.USER_SESSION_PREFS_NAME
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 
 object Utils {
+
+    fun dp(value: Int): Int = (value * Resources.getSystem().displayMetrics.density).toInt()
+
+    fun px(value: Int): Int = (value * Resources.getSystem().displayMetrics.density + 0.5f).toInt()
+
     fun convertTimeMillisIntoText(timeMillis: Long): String {
         val date = Date(timeMillis)
         val sdf = SimpleDateFormat("MMM dd, yyyy 'at' hh:mm a", Locale.getDefault())
         return sdf.format(date)
+    }
+
+    fun convertTimeMillisIntoDate(timeMillis: Long): String {
+        return Instant.ofEpochMilli(timeMillis)
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate()
+            .format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))
+        // result: "Apr 22, 2025"
     }
 
     fun getAudioNameFromUri(context: Context, uri: Uri): String? {

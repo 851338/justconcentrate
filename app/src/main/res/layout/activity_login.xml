@@ -58,7 +58,7 @@
 
     <Button
         android:id="@+id/loginButton"
-        style="@style/positiveButton"
+        style="@style/PositiveButton"
         android:layout_marginTop="16dp"
         android:text="@string/login"
         app:layout_constraintBottom_toBottomOf="parent"

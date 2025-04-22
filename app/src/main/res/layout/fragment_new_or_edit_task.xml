@@ -28,10 +28,10 @@
             android:layout_width="match_parent"
             android:layout_height="150dp"
             android:gravity="top|start"
-            android:scrollbars="vertical"
-            android:maxLines="5"
             android:inputType="textMultiLine"
+            android:maxLines="5"
             android:overScrollMode="ifContentScrolls"
+            android:scrollbars="vertical"
             android:scrollHorizontally="false"
             android:textSize="18sp" />
     </com.google.android.material.textfield.TextInputLayout>
@@ -56,12 +56,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
+        android:ellipsize="end"
         android:gravity="center"
+        android:maxLines="1"
         android:text="@string/no_date_selected"
         android:textColor="?android:textColorSecondary"
         android:textSize="16sp"
-        android:maxLines="1"
-        android:ellipsize="end"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btnPickDateTime" />
@@ -86,12 +86,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
+        android:ellipsize="end"
         android:gravity="center"
+        android:maxLines="1"
         android:text="@string/default_alarm_sound"
         android:textColor="?android:textColorSecondary"
         android:textSize="16sp"
-        android:maxLines="1"
-        android:ellipsize="end"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btnChooseAlarm" />
@@ -100,16 +100,16 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/tvSelectedAlarm"
-        android:layout_marginTop="24dp">
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@id/tvSelectedAlarm">
 
         <!-- Cancel Button -->
         <Button
             android:id="@+id/btnReset"
+            style="@style/NegativeButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/reset"
-            style="@style/negativeButton"
             android:textSize="17sp"
             app:layout_constraintEnd_toStartOf="@id/btnSave"
             app:layout_constraintStart_toStartOf="parent"
@@ -119,10 +119,10 @@
         <!-- Save Button -->
         <Button
             android:id="@+id/btnSave"
+            style="@style/PositiveButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/save_task"
-            style="@style/positiveButton"
             android:textSize="17sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/btnReset"
@@ -130,26 +130,26 @@
             app:layout_constraintWidth_percent="0.45" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <com.google.android.gms.ads.AdView
-        xmlns:ads="http://schemas.android.com/apk/res-auto"
+    <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
         android:id="@+id/adView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="3dp"
         ads:adSize="BANNER"
-        ads:layout_constraintBottom_toBottomOf="parent"
-        ads:adUnitId="ca-app-pub-3940256099942544/6300978111" />
+        ads:adUnitId="ca-app-pub-3940256099942544/6300978111"
+        ads:layout_constraintBottom_toBottomOf="parent" />
 
     <ProgressBar
         android:id="@+id/progressBar"
         style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Large"
-        android:visibility="gone"
-        tools:visibility="visible"
-        android:layout_gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:layout_marginBottom="40dp"
-        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" />
 </androidx.constraintlayout.widget.ConstraintLayout>

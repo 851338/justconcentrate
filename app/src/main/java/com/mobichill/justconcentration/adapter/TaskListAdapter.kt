@@ -6,7 +6,6 @@ import com.mobichill.justconcentration.listener.OnItemDismissListener
 import com.mobichill.justconcentration.model.TaskModel
 
 class TaskListAdapter(
-    private var taskList: MutableList<TaskModel>,
     private val onItemClick: (TaskModel) -> Unit,
     private val onDelete: (TaskModel) -> Unit,
     private val listener: OnItemDismissListener?
@@ -14,17 +13,12 @@ class TaskListAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = TaskViewHolder.from(parent)
 
-
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
-        val taskModel = taskList[position]
-        holder.onBind(taskModel, onItemClick, onDelete)
+        holder.onBind(getItem(position), onItemClick, onDelete)
     }
 
-    override fun getItemCount() = taskList.size
-
     fun onItemDismiss(position: Int) {
-        listener?.onTaskDeleted(taskList[position])
-        taskList.removeAt(position)
-        notifyItemRemoved(position)
+        listener?.onTaskDeleted(getItem(position))
+        removeItem(position)
     }
 }

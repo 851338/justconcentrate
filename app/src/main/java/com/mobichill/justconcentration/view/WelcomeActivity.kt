@@ -23,8 +23,8 @@ import kotlinx.coroutines.launch
 import java.security.MessageDigest
 import java.util.UUID
 import androidx.core.content.edit
-import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.APP_PREFS_NAME
-import com.mobichill.justconcentration.util.Constants.SHARED_PREFERENCES.SKIPPED_LOGIN_KEY
+import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.APP_PREFS_NAME
+import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.SKIPPED_LOGIN_KEY
 
 class WelcomeActivity : BaseViewBindingActivity<ActivityWelcomeBinding>() {
     override fun initViewBinding(): ActivityWelcomeBinding =
@@ -81,6 +81,10 @@ class WelcomeActivity : BaseViewBindingActivity<ActivityWelcomeBinding>() {
         val fragment = CreateAccountFragment().apply {
         }
         supportFragmentManager.beginTransaction()
+            .setCustomAnimations(
+                R.anim.slide_in_right,
+                R.anim.slide_out_left
+            )
             .replace(binding.fragmentContainer.id, fragment)
             .addToBackStack(null)
             .commit()

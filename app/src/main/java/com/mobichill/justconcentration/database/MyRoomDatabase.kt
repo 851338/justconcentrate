@@ -32,9 +32,9 @@ abstract class MyRoomDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     MyRoomDatabase::class.java,
-                    "task_database"
+                    "jc_database"
                 )
-                    .fallbackToDestructiveMigration() // Clears database if schema changes
+                    .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
                 instance

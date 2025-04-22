@@ -10,8 +10,8 @@ import android.util.Log
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.application.MyApp
 import com.mobichill.justconcentration.repository.FireStoreRepository
-import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.REQUEST_CODE
-import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.TASK_ID
+import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.REQUEST_CODE
+import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.TASK_ID
 import com.mobichill.justconcentration.util.Utils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

@@ -9,6 +9,7 @@ import android.view.View
 import androidx.activity.viewModels
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
@@ -17,6 +18,7 @@ import com.mobichill.justconcentration.adapter.TaskListAdapter
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.databinding.ActivityTaskBinding
 import com.mobichill.justconcentration.factory.TaskViewModelFactory
+import com.mobichill.justconcentration.helper.AlarmHelper
 import com.mobichill.justconcentration.helper.TaskItemTouchHelper
 import com.mobichill.justconcentration.listener.OnItemDismissListener
 import com.mobichill.justconcentration.listener.OnSingleClickListener
@@ -107,31 +109,36 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
             override fun afterTextChanged(s: Editable?) {}
         })
 
-        recyclerView.layoutManager = LinearLayoutManager(this@TaskActivity)
+        // Initialize the adapter once with an empty list
         taskAdapter = TaskListAdapter(
-            emptyList<TaskModel>().toMutableList(),
+            { taskModel -> openNewOrEditTaskFragment(taskModel) },
             { taskModel ->
-                run {
-                    openNewOrEditTaskFragment(taskModel)
-                }
-            },
-            { taskModel ->
-                run {
-                    Utils.showConfirmDialog(
-                        this@TaskActivity,
-                        getString(R.string.delete_confirm),
-                        getString(R.string.delete_confirm_message),
-                        getString(R.string.yes),
-                        getString(R.string.cancel)
-                    ) { deleteTask(taskModel) }
-                }
+                Utils.showConfirmDialog(
+                    this@TaskActivity,
+                    getString(R.string.delete_confirm),
+                    getString(R.string.delete_confirm_message),
+                    getString(R.string.yes),
+                    getString(R.string.cancel)
+                ) { deleteTask(taskModel) }
             },
             onItemDismissListener
         )
+
+        // Attach ItemTouchHelper for swipe gestures
         val itemTouchHelper = ItemTouchHelper(TaskItemTouchHelper(taskAdapter))
         itemTouchHelper.attachToRecyclerView(recyclerView)
-        recyclerView.adapter = taskAdapter
 
+        // Set RecyclerView's layout manager and adapter
+        recyclerView.layoutManager = LinearLayoutManager(this@TaskActivity)
+        recyclerView.adapter = taskAdapter
+        recyclerView.addItemDecoration(
+            DividerItemDecoration(
+                recyclerView.context,
+                LinearLayoutManager.VERTICAL
+            )
+        )
+
+        // Now observe the LiveData
         taskViewModel.allTasks.observe(this@TaskActivity) { tasks ->
             if (tasks.isEmpty()) {
                 recyclerView.visibility = View.GONE
@@ -139,9 +146,10 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
             } else {
                 recyclerView.visibility = View.VISIBLE
                 emptyMessage.visibility = View.GONE
-                taskAdapter.updateItems(tasks)
+                taskAdapter.updateItems(tasks) // Update the adapter with the new tasks
             }
         }
+
         if (Utils.isNetworkAvailable(this@TaskActivity)) {
             val user = FirebaseAuth.getInstance().currentUser
             if (user != null) {
@@ -198,6 +206,10 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
 
     private fun openSearchTasksFragment() {
         supportFragmentManager.beginTransaction()
+            .setCustomAnimations(
+                R.anim.slide_in_right,
+                R.anim.slide_out_left
+            )
             .replace(binding.fragmentContainer.id, SearchTasksFragment())
             .addToBackStack(null)
             .commit()
@@ -210,12 +222,18 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
             }
         }
         supportFragmentManager.beginTransaction()
+            .setCustomAnimations(
+                R.anim.slide_in_right,
+                R.anim.slide_out_left
+            )
             .replace(binding.fragmentContainer.id, newOrEditTaskFragment)
             .addToBackStack(null)
             .commit()
     }
 
-    private fun deleteTask(taskModel: TaskModel) {
+    private fun deleteTask(taskModel: TaskModel?) {
+        if (taskModel == null)
+            return
         var isSynced = false
         if (Utils.isNetworkAvailable(this) && Utils.isUserLoggedIn(this)) {
             isSynced = true
@@ -224,12 +242,16 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
             )
         } else isSynced = false
         taskViewModel.deleteTaskFromRoom(taskModel.copy(isSynced = isSynced))
-
+        cancelAlarm(taskModel.requestCode)
         Utils.showToast(this, getString(R.string.task_deleted))
     }
 
+    private fun cancelAlarm(requestCode: Int) {
+        AlarmHelper().cancelAlarm(this, requestCode)
+    }
+
     private val onItemDismissListener = object : OnItemDismissListener {
-        override fun onTaskDeleted(task: TaskModel) {
+        override fun onTaskDeleted(task: TaskModel?) {
             Utils.showConfirmDialog(
                 this@TaskActivity,
                 getString(R.string.delete_confirm),

@@ -12,8 +12,7 @@ class AboutFragment : BaseViewBindingFragment<FragmentAboutBinding>() {
     override fun initViewBinding(): FragmentAboutBinding =
         FragmentAboutBinding.inflate(layoutInflater)
 
-    override fun initData() {
-    }
+    override fun initData() {}
 
     override fun onResume() {
         super.onResume()

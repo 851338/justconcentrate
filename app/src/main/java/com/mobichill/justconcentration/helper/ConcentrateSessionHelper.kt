@@ -13,6 +13,8 @@ class ConcentrateSessionHelper(private val concentrateSessionDAO: ConcentrateSes
         concentrateSessionDAO.updateSession(session)
     }
 
+    fun getAllSessions() = concentrateSessionDAO.getAllSessions()
+
     suspend fun getUnsyncedSessions() = concentrateSessionDAO.getUnsyncedSessions()
 
     suspend fun syncSessionsToRoom(fireStoreSessions: List<ConcentrateSessionModel>) {

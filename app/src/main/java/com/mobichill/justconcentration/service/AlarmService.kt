@@ -10,7 +10,7 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import androidx.core.net.toUri
-import com.mobichill.justconcentration.util.Constants.INTENT_EXTRA.ALARM_URI
+import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.ALARM_URI
 
 class AlarmService: Service() {
     private lateinit var mediaPlayer: MediaPlayer

@@ -19,11 +19,8 @@ interface ConcentrateSessionDAO {
     @Query("SELECT * FROM focus_sessions WHERE id = :sessionId")
     fun getSessionById(sessionId: String) : Flow<ConcentrateSessionModel>
 
-    @Query("SELECT * FROM focus_sessions ORDER BY startTime DESC")
+    @Query("SELECT * FROM focus_sessions WHERE wasCompleted = 0 ORDER BY startTime DESC")
     fun getAllSessions(): Flow<List<ConcentrateSessionModel>>
-
-    @Query("SELECT * FROM focus_sessions WHERE date(endTime / 1000, 'unixepoch') = date('now')")
-    fun getTodaySessions(): Flow<List<ConcentrateSessionModel>>
 
     @Query("SELECT * FROM focus_sessions WHERE isSynced = 0")
     suspend fun getUnsyncedSessions(): List<ConcentrateSessionModel>

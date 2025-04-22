@@ -20,10 +20,11 @@ data class ConcentrateSessionModel(
 
     val endTime: Long = 0L,
 
+    val date: String = "",
+
     val durationMinutes: Int = 0,
 
     val wasCompleted: Boolean = false,
 
     val isSynced: Boolean = false
-) :
-    Parcelable
+) : Parcelable

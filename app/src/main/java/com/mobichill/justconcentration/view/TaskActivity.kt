@@ -173,6 +173,7 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
             Utils.showKeyboard(edtSearch)
         } else if (!show && edtSearch.isVisible) {
             edtSearch.visibility = View.GONE
+            btnClear.visibility = View.GONE
             Utils.hideKeyboard(edtSearch)
         }
     }

@@ -55,7 +55,7 @@ class SearchTasksFragment : BaseViewBindingFragment<FragmentSearchTasksBinding>(
                     } else {
                         showEmptyResultsView(false)
                     }
-                    taskAdapter.addItems(filteredList)
+                    taskAdapter.updateItems(filteredList)
                 }
             }
         }

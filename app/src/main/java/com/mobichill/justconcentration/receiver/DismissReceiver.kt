@@ -19,7 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class DismissReceiver : BroadcastReceiver() {
-    private val TAG = javaClass.canonicalName
+    private val TAG = javaClass.simpleName
 
     override fun onReceive(context: Context, intent: Intent) {
         val requestCode = intent.getIntExtra(REQUEST_CODE, 0)

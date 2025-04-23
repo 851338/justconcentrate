@@ -8,10 +8,10 @@ import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.application.MyApp
 import com.mobichill.justconcentration.helper.FireStoreHelper
 import com.mobichill.justconcentration.model.ConcentrateSessionModel
-import com.mobichill.justconcentration.service.FocusService
 import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.FOCUS_SESSION
 import com.mobichill.justconcentration.others.Constants.OTHERS.ACTION_CANCEL_SESSION
 import com.mobichill.justconcentration.others.Constants.OTHERS.ACTION_SESSION_COMPLETE
+import com.mobichill.justconcentration.service.FocusService
 import com.mobichill.justconcentration.util.Utils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

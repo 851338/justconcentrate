@@ -11,7 +11,7 @@ import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
 
 abstract class BaseFragment : Fragment(), BaseFragmentListener {
-    protected val TAG = javaClass.canonicalName
+    protected val TAG = javaClass.simpleName
     var isVisibleToUser: Boolean = false
     private var timeStartOnCreate: Long = 0
 

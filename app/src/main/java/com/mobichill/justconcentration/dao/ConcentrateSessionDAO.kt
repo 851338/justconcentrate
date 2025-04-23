@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ConcentrateSessionDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertSession(session: ConcentrateSessionModel): Long
+    suspend fun insertSession(session: ConcentrateSessionModel)
 
     @Update
     suspend fun updateSession(session: ConcentrateSessionModel)

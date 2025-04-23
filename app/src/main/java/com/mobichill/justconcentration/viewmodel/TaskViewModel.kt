@@ -20,7 +20,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class TaskViewModel : ViewModel() {
-    private val TAG = javaClass.canonicalName
+    private val TAG = javaClass.simpleName
     private val firestoreRepo = FireStoreRepository()
     private val taskRepository = MyApp.instance.taskRepository
     private val _searchQuery = MutableStateFlow("")

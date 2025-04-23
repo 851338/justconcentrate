@@ -21,7 +21,7 @@ import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.ALARM_URI
 import com.mobichill.justconcentration.others.Constants.NOTIFICATION.ALARM_AUDIO_SERVICE_NOTIFICATION_ID
 
 class AlarmService: Service() {
-    private val TAG = this::class.java.canonicalName
+    private val TAG = this::class.java.simpleName
     private lateinit var mediaPlayer: MediaPlayer
     override fun onCreate() {
         super.onCreate()

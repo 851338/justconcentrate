@@ -12,7 +12,7 @@ import com.mobichill.justconcentration.helper.ThemeHelper
 
 abstract class BaseActivity : AppCompatActivity(), BaseActivityListener {
 
-    protected val TAG = javaClass.canonicalName
+    protected val TAG = javaClass.simpleName
     private var timeStartOnCreate: Long = 0
     var isPaused = false
     private val isOverrideBackPressed = false

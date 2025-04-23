@@ -49,7 +49,7 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
                     val audioUri: Uri? = result.data?.data
                     if (audioUri != null) {
                         binding.buttonSelectSound.text =
-                            Utils.getAudioNameFromUri(this, audioUri)
+                            Utils.getAudioNameFromUri(R.string.unknown_audio_file, this, audioUri)
                         selectedUri = audioUri
                         checkAudioFile(audioUri)
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {

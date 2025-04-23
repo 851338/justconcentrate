@@ -2,6 +2,8 @@ package com.mobichill.justconcentration.util
 
 import android.Manifest
 import android.app.Activity
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -12,6 +14,8 @@ import android.net.NetworkCapabilities
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
@@ -24,6 +28,7 @@ import androidx.documentfile.provider.DocumentFile
 import com.bumptech.glide.Glide
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import com.mobichill.justconcentration.R
+import com.mobichill.justconcentration.databinding.CustomToastLayoutBinding
 import com.mobichill.justconcentration.others.Constants.OTHERS.POLICY_URL
 import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.ALARM_PREFS_NAME
 import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.IS_LOGGED_IN_KEY
@@ -38,6 +43,7 @@ import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -47,7 +53,9 @@ object Utils {
 
     fun px(value: Int): Int = (value * Resources.getSystem().displayMetrics.density + 0.5f).toInt()
 
-    fun convertTimeMillisIntoText(timeMillis: Long): String {
+    fun convertTimeMillisIntoText(context: Context, timeMillis: Long): String {
+        if (timeMillis == 0L)
+            return context.getString(R.string.no_date_selected)
         val date = Date(timeMillis)
         val sdf = SimpleDateFormat("MMM dd, yyyy 'at' hh:mm a", Locale.getDefault())
         return sdf.format(date)
@@ -61,7 +69,7 @@ object Utils {
         // result: "Apr 22, 2025"
     }
 
-    fun getAudioNameFromUri(context: Context, uri: Uri): String? {
+    fun getAudioNameFromUri(stringId: Int, context: Context, uri: Uri): String? {
         // Try to get DISPLAY_NAME via ContentResolver
         val projection = arrayOf(MediaStore.MediaColumns.DISPLAY_NAME)
         context.contentResolver.query(uri, projection, null, null, null)?.use { cursor ->
@@ -75,7 +83,7 @@ object Utils {
         // Fallback: try to extract filename from Uri
         return DocumentFile.fromSingleUri(context, uri)?.name
             ?: uri.lastPathSegment?.substringAfterLast('/')
-            ?: "Unknown_Audio_File"
+            ?: context.getString(stringId)
     }
 
     fun getNextRequestCode(context: Context): Int {
@@ -129,7 +137,17 @@ object Utils {
     }
 
     fun showToast(context: Context, message: String) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        val binding = CustomToastLayoutBinding.inflate(LayoutInflater.from(context))
+        binding.toastText.text = message
+
+        val toast = Toast(context)
+        toast.view = binding.root
+        toast.duration = Toast.LENGTH_SHORT
+        toast.setGravity(Gravity.CENTER, 0, 0) // Works because it's a custom toast
+        toast.show()
+//        val toast = Toast.makeText(context, message, Toast.LENGTH_SHORT)
+//        toast.setGravity(Gravity.CENTER, 0, 0)
+//        toast.show()
     }
 
     fun isNetworkAvailable(context: Context): Boolean {
@@ -253,17 +271,53 @@ object Utils {
         }
     }
 
-    fun showConfirmDialog(context: Context,
-                          title: String, 
-                          message: String,
-                          positive: String,
-                          negative: String,
-                          onConfirmed: () -> Unit) {
+    fun showConfirmDialog(
+        context: Context,
+        title: String,
+        message: String,
+        positive: String,
+        negative: String,
+        onConfirmed: () -> Unit
+    ) {
         AlertDialog.Builder(context)
             .setTitle(title)
             .setMessage(message)
             .setPositiveButton(positive) { _, _ -> onConfirmed() }
             .setNegativeButton(negative, null)
             .show()
+    }
+
+    fun showDateTimePicker(context: Context, onDateTimeSelected: (Calendar) -> Unit) {
+        val calendar = Calendar.getInstance()
+
+        // Show Date Picker
+        val datePicker = DatePickerDialog(
+            context,
+            { _, year, month, dayOfMonth ->
+                calendar.set(Calendar.YEAR, year)
+                calendar.set(Calendar.MONTH, month)
+                calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+
+                // Show Time Picker after date is picked
+                val timePicker = TimePickerDialog(
+                    context,
+                    { _, hourOfDay, minute ->
+                        calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
+                        calendar.set(Calendar.MINUTE, minute)
+                        calendar.set(Calendar.SECOND, 0)
+
+                        onDateTimeSelected(calendar)
+                    },
+                    calendar.get(Calendar.HOUR_OF_DAY),
+                    calendar.get(Calendar.MINUTE),
+                    false // is24HourView
+                )
+                timePicker.show()
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        )
+        datePicker.show()
     }
 }

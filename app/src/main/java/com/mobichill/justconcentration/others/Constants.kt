@@ -4,7 +4,13 @@ import java.util.regex.Pattern
 
 object Constants {
 
+    object NOTIFICATION {
+        const val FOCUS_SERVICE_NOTIFICATION_ID = 1001
+        const val ALARM_AUDIO_SERVICE_NOTIFICATION_ID = 1002
+    }
+
     object OTHERS {
+        const val TIME_FORMAT = "MMM dd, yyyy '-' hh:mm a"
         const val ALARM_CHANNEL = "task_alarm_channel"
         const val FOCUS_CHANNEL = "focus_session_channel"
         const val ACTION_START_SESSION = "com.mobichill.justconcentration.ACTION_START_SESSION"

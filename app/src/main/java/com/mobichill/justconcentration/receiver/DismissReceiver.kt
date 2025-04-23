@@ -12,6 +12,7 @@ import com.mobichill.justconcentration.application.MyApp
 import com.mobichill.justconcentration.repository.FireStoreRepository
 import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.REQUEST_CODE
 import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.TASK_ID
+import com.mobichill.justconcentration.service.AlarmService
 import com.mobichill.justconcentration.util.Utils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,7 +25,7 @@ class DismissReceiver : BroadcastReceiver() {
         val requestCode = intent.getIntExtra(REQUEST_CODE, 0)
         val taskId = intent.getStringExtra(TASK_ID) ?: return
 
-        // Cancel the alarm
+        // Cancel the alarm receiver
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val pendingIntent = PendingIntent.getBroadcast(
             context,
@@ -38,6 +39,10 @@ class DismissReceiver : BroadcastReceiver() {
         val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.cancel(requestCode)
+
+        // Stop the alarm sound service
+        val stopIntent = Intent(context, AlarmService::class.java)
+        context.stopService(stopIntent)
 
         //Alarm completed
         CoroutineScope(Dispatchers.IO).launch {

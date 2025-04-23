@@ -123,23 +123,30 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
                     showUserPopup(ivAvatar)
                 }
             })
-        btnTask.setOnClickListener(
+        cardTasks.setOnClickListener(
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
                     openTaskActivity()
                 }
             })
-        btnConcentrate.setOnClickListener(
+        cardConcentrate.setOnClickListener(
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
                     openConcentrateSetup()
                 }
             }
         )
-        btnStats.setOnClickListener(
+        cardStats.setOnClickListener(
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
                     openStatsFragment()
+                }
+            }
+        )
+        cardSubscription.setOnClickListener(
+            object : OnSingleClickListener() {
+                override fun onSingleClick(view: View) {
+                    //TODO
                 }
             }
         )

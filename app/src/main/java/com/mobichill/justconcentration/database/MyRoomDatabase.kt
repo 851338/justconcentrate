@@ -34,7 +34,7 @@ abstract class MyRoomDatabase : RoomDatabase() {
                     MyRoomDatabase::class.java,
                     "jc_database"
                 )
-                    .fallbackToDestructiveMigration()
+                    .fallbackToDestructiveMigration(false)
                     .build()
                 INSTANCE = instance
                 instance

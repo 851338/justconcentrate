@@ -1,20 +1,28 @@
 package com.mobichill.justconcentration.service
 
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.Service
 import android.content.Intent
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.media.RingtoneManager
 import android.net.Uri
+import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.util.Log
+import androidx.core.app.NotificationCompat
 import androidx.core.net.toUri
+import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.ALARM_URI
+import com.mobichill.justconcentration.others.Constants.NOTIFICATION.ALARM_AUDIO_SERVICE_NOTIFICATION_ID
 
 class AlarmService: Service() {
+    private val TAG = this::class.java.canonicalName
     private lateinit var mediaPlayer: MediaPlayer
-
     override fun onCreate() {
         super.onCreate()
     }
@@ -28,18 +36,26 @@ class AlarmService: Service() {
             alarmUri.toUri() // Selected alarm sound
         }
 
+        // Create and start foreground notification
+        startForeground(ALARM_AUDIO_SERVICE_NOTIFICATION_ID, createNotification())
+
         val audioAttributes = AudioAttributes.Builder()
             .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
             .setUsage(AudioAttributes.USAGE_MEDIA)
             .build()
 
-        mediaPlayer = MediaPlayer().apply {
-            setDataSource(this@AlarmService, soundUri)
-            setAudioAttributes(audioAttributes)
-            isLooping = true
-            prepare()
-            start()
+        try {
+            mediaPlayer = MediaPlayer().apply {
+                setDataSource(this@AlarmService, soundUri)
+                setAudioAttributes(audioAttributes)
+                isLooping = true
+                prepare()
+                start()
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Alarm play media: ", e)
         }
+
 
         // Stop the alarm after 1 minute (Optional)
         Handler(Looper.getMainLooper()).postDelayed({
@@ -56,4 +72,23 @@ class AlarmService: Service() {
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
+
+    private fun createNotification(): Notification {
+        val channelId = "alarm_service_channel"
+        val notificationManager = getSystemService(NotificationManager::class.java)
+
+        val channel = NotificationChannel(
+            channelId,
+            "Alarm Service",
+            NotificationManager.IMPORTANCE_MIN
+        )
+        notificationManager.createNotificationChannel(channel)
+
+        return NotificationCompat.Builder(this, channelId)
+            .setContentTitle("Alarm Playing")
+            .setContentText("Your alarm is currently ringing")
+            .setSmallIcon(R.drawable.ic_notification) // Replace with your own icon
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .build()
+    }
 }

@@ -17,21 +17,16 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-
 class AlarmHelper {
     fun setAlarm(context: Context, triggerTime: Long, requestCode: Int, alarmUri: String) {
-
-        var finalUri = ""
-        //set default alarm if user did not select any alarm
-        val defaultAlarmUri: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
-        finalUri = if (alarmUri.isEmpty()) {
-            defaultAlarmUri.toString()
+        val finalUri = if (alarmUri.isEmpty()) {
+            RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM).toString()
         } else alarmUri
 
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
         val intent = Intent(context, AlarmReceiver::class.java).apply {
             putExtra(REQUEST_CODE, requestCode)
-            putExtra(ALARM_URI, alarmUri)
+            putExtra(ALARM_URI, finalUri)
         }
         val pendingIntent = PendingIntent.getBroadcast(
             context,

@@ -24,6 +24,8 @@ data class TaskModel(
 
     val deletedAt: Long? = null,
 
+    val createdAt: Long = 0L,
+
     val isSynced: Boolean = false
 
 ) : Parcelable

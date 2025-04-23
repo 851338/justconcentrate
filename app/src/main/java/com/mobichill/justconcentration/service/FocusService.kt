@@ -20,6 +20,7 @@ import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.FOCUS_DURAT
 import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.FOCUS_QUOTE
 import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.FOCUS_SESSION
 import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.FOCUS_USER_GOAL
+import com.mobichill.justconcentration.others.Constants.NOTIFICATION.FOCUS_SERVICE_NOTIFICATION_ID
 import com.mobichill.justconcentration.others.Constants.OTHERS.ACTION_CANCEL_SESSION
 import com.mobichill.justconcentration.others.Constants.OTHERS.ACTION_SESSION_COMPLETE
 import com.mobichill.justconcentration.others.Constants.OTHERS.ACTION_START_SESSION
@@ -33,7 +34,6 @@ import java.util.Locale
 class FocusService : Service() {
     private val TAG = this::class.java.canonicalName
     private lateinit var countDownTimer: CountDownTimer
-    private val NOTIFICATION_ID = 1001
     private lateinit var notificationManager: NotificationManager
     private var mediaPlayer: MediaPlayer? = null
     private var tickCount = 0 // Keep track of every tick
@@ -84,7 +84,7 @@ class FocusService : Service() {
             ACTION_START_SESSION -> {
                 //Start service
                 startForeground(
-                    NOTIFICATION_ID,
+                    FOCUS_SERVICE_NOTIFICATION_ID,
                     buildNotification(goal, durationInMinutes, cancelPendingIntent)
                 )
                 if (!soundUri.isNullOrEmpty()) {
@@ -108,7 +108,7 @@ class FocusService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         stopPlayingSound()
-        notificationManager.cancel(NOTIFICATION_ID)
+        notificationManager.cancel(FOCUS_SERVICE_NOTIFICATION_ID)
         countDownTimer.cancel()
         isRunning = false
         prefs.edit { putBoolean(FOCUS_SESSION_ACTIVE_KEY, false) }
@@ -190,7 +190,7 @@ class FocusService : Service() {
             .addAction(R.drawable.ic_cancel, getString(R.string.cancel), cancelPendingIntent)
             .build()
 
-        notificationManager.notify(NOTIFICATION_ID, notification)
+        notificationManager.notify(FOCUS_SERVICE_NOTIFICATION_ID, notification)
     }
 
     private fun sendFinishedNotification() {
@@ -201,7 +201,7 @@ class FocusService : Service() {
             .setAutoCancel(true)
             .build()
 
-        notificationManager.notify(NOTIFICATION_ID + 1, notification)
+        notificationManager.notify(FOCUS_SERVICE_NOTIFICATION_ID + 1, notification)
     }
 
     private fun startPlayingSound(uri: String) {

@@ -135,4 +135,9 @@
     <string name="alarm">Alarm: %1$s</string>
     <string name="created_at">Created at: %1$s</string>
     <string name="unknown_audio_file">Unknown_Audio_File</string>
+    <string name="sessions_completed">Sessions Completed: %1$d</string>
+    <string name="current_streak_day">Current Streak: %1$d day%2$s</string>
+    <string name="session_stats_chart_label">Focus Duration</string>
+    <string name="share_progress">Share Progress</string>
+    <string name="total_focus_time">Total Concentrated Time: %1$s</string>
 </resources>

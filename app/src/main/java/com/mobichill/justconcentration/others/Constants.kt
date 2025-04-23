@@ -1,5 +1,7 @@
 package com.mobichill.justconcentration.others
 
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 import java.util.regex.Pattern
 
 object Constants {
@@ -20,6 +22,7 @@ object Constants {
             "https://www.privacypolicies.com/live/d032f7b3-71ba-48c9-83fe-27566be9254e"
         val EMAIL_REGEX: Pattern =
             Pattern.compile("^[0-9a-z]+(?:\\.[0-9a-z]+)*@[a-z0-9]{2,}(?:\\.[a-z]{2,})?$")
+        val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("MMM dd, yyyy", Locale.ENGLISH)
     }
 
     object INTENT_EXTRA {

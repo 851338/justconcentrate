@@ -16,13 +16,13 @@ import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingFragment
 import com.mobichill.justconcentration.databinding.FragmentViewStatsBinding
 import com.mobichill.justconcentration.factory.SessionViewModelFactory
+import com.mobichill.justconcentration.others.Constants.OTHERS.DATE_FORMATTER
 import com.mobichill.justconcentration.others.TimeRangeOption
 import com.mobichill.justconcentration.viewmodel.SessionViewModel
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 class ViewStatsFragment : BaseViewBindingFragment<FragmentViewStatsBinding>() {
     override fun initViewBinding(): FragmentViewStatsBinding =
@@ -44,11 +44,10 @@ class ViewStatsFragment : BaseViewBindingFragment<FragmentViewStatsBinding>() {
             (activity as HomeActivity).setupToolbar(getString(R.string.stats_title), true)
 
         setupSpinner()
-
-        val formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy", Locale.ENGLISH)
+        // Showing chart bar
         viewModel.sessionStats.observe(viewLifecycleOwner) { sessions ->
             val barEntries = sessions
-                .groupBy { LocalDate.parse(it.date, formatter) }
+                .groupBy { LocalDate.parse(it.date, DATE_FORMATTER) }
                 .map { (date, sessionList) ->
                     BarEntry(
                         date.toEpochDay().toFloat(),
@@ -59,17 +58,27 @@ class ViewStatsFragment : BaseViewBindingFragment<FragmentViewStatsBinding>() {
 
             updateChart(barEntries)
         }
-
+        // Showing total time
+        viewModel.getTotalFocusTime.observe(viewLifecycleOwner) { time ->
+            binding.totalFocusTime.text = getString(R.string.total_focus_time, time)
+        }
+        // Showing session number
+        viewModel.sessionCount.observe(viewLifecycleOwner) { count ->
+            binding.sessionCount.text = getString(R.string.sessions_completed, count)
+        }
+        // Showing streak
+        viewModel.currentStreak.observe(viewLifecycleOwner) { streak ->
+            binding.currentStreak.text =
+                getString(R.string.current_streak_day, streak, if (streak != 1) "s" else "")
+        }
         //run ads
         val adRequest = AdRequest.Builder().build()
         binding.adView.loadAd(adRequest)
     }
 
     private fun updateChart(chartData: List<BarEntry>) = with(binding) {
-        // Create a BarDataSet from the chartData (List<BarEntry>)
-        val barDataSet = BarDataSet(chartData, "Focus Duration")
+        val barDataSet = BarDataSet(chartData, getString(R.string.session_stats_chart_label))
 
-        // Customize the dataset appearance (optional)
         barDataSet.color = Color.BLUE // Set bar color
         barDataSet.valueTextColor = Color.WHITE // Set value text color
         barDataSet.valueTextSize = 12f // Set value text size
@@ -80,12 +89,12 @@ class ViewStatsFragment : BaseViewBindingFragment<FragmentViewStatsBinding>() {
         // Set the bar data to the chart
         barChart.data = barData
 
-        // Customize the chart appearance (optional)
-        barChart.setDrawGridBackground(false) // Optional, to hide grid
+        // Customize the chart appearance
+        barChart.setDrawGridBackground(false) // To hide grid
         barChart.description.isEnabled = false // Disable description text
-        barChart.setFitBars(true) // Optional, makes bars fit the width of the chart
+        barChart.setFitBars(true) // Makes bars fit the width of the chart
 
-        // Optional: Customize X and Y axes
+        // Customize X and Y axes
         val xAxis = barChart.xAxis
         //
         xAxis.valueFormatter = object : ValueFormatter() {

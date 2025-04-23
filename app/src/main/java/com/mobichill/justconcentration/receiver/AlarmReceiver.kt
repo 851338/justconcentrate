@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class AlarmReceiver : BroadcastReceiver() {
-    private val TAG = this::class.java.canonicalName
+    private val TAG = this::class.java.simpleName
     private var task: TaskModel? = null
 
     override fun onReceive(context: Context, intent: Intent?) {

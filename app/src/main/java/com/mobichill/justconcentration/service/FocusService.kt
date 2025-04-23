@@ -32,7 +32,7 @@ import com.mobichill.justconcentration.util.Utils
 import java.util.Locale
 
 class FocusService : Service() {
-    private val TAG = this::class.java.canonicalName
+    private val TAG = this::class.java.simpleName
     private lateinit var countDownTimer: CountDownTimer
     private lateinit var notificationManager: NotificationManager
     private var mediaPlayer: MediaPlayer? = null

@@ -18,7 +18,7 @@ import kotlinx.coroutines.tasks.await
 
 
 class FireStoreHelper private constructor() { // Private constructor to prevent instantiation
-    private val TAG = javaClass.canonicalName
+    private val TAG = javaClass.simpleName
 
     companion object {
         private var instance: FireStoreHelper? = null

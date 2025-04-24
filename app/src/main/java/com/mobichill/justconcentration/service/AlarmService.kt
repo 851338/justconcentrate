@@ -7,9 +7,7 @@ import android.app.Service
 import android.content.Intent
 import android.media.AudioAttributes
 import android.media.MediaPlayer
-import android.media.RingtoneManager
 import android.net.Uri
-import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
@@ -19,8 +17,9 @@ import androidx.core.net.toUri
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.ALARM_URI
 import com.mobichill.justconcentration.others.Constants.NOTIFICATION.ALARM_AUDIO_SERVICE_NOTIFICATION_ID
+import com.mobichill.justconcentration.util.AudioUtils
 
-class AlarmService: Service() {
+class AlarmService : Service() {
     private val TAG = this::class.java.simpleName
     private lateinit var mediaPlayer: MediaPlayer
     override fun onCreate() {
@@ -29,12 +28,8 @@ class AlarmService: Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val alarmUri = intent?.getStringExtra(ALARM_URI)
-
-        val soundUri: Uri = if (alarmUri.isNullOrEmpty()) {
-            RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM) // Default sound
-        } else {
-            alarmUri.toUri() // Selected alarm sound
-        }
+        val soundUri: Uri =
+            if (alarmUri.isNullOrEmpty()) AudioUtils.defaultAlarmUri else alarmUri.toUri()
 
         // Create and start foreground notification
         startForeground(ALARM_AUDIO_SERVICE_NOTIFICATION_ID, createNotification())

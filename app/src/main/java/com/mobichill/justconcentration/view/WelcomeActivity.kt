@@ -25,6 +25,7 @@ import java.util.UUID
 import androidx.core.content.edit
 import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.APP_PREFS_NAME
 import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.SKIPPED_LOGIN_KEY
+import com.mobichill.justconcentration.util.SFUtils
 
 class WelcomeActivity : BaseViewBindingActivity<ActivityWelcomeBinding>() {
     override fun initViewBinding(): ActivityWelcomeBinding =
@@ -143,7 +144,7 @@ class WelcomeActivity : BaseViewBindingActivity<ActivityWelcomeBinding>() {
                                 user.photoUrl.toString()
                             )
                             //save shared preferences
-                            Utils.saveUserInfoToSF(this,user.uid)
+                            SFUtils.saveUserInfoToSF(this,user.uid)
                         }
                         //show toast & open main activity
                         Utils.showToast(this, getString(R.string.sign_in_successful))

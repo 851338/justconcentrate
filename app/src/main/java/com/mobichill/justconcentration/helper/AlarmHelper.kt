@@ -4,24 +4,21 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.media.RingtoneManager
-import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import androidx.annotation.RequiresApi
 import com.mobichill.justconcentration.application.MyApp
-import com.mobichill.justconcentration.receiver.AlarmReceiver
 import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.ALARM_URI
 import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.REQUEST_CODE
+import com.mobichill.justconcentration.receiver.AlarmReceiver
+import com.mobichill.justconcentration.util.AudioUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class AlarmHelper {
     fun setAlarm(context: Context, triggerTime: Long, requestCode: Int, alarmUri: String) {
-        val finalUri = if (alarmUri.isEmpty()) {
-            RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM).toString()
-        } else alarmUri
+        val finalUri = if (alarmUri.isEmpty()) AudioUtils.defaultAlarmString else alarmUri
 
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
         val intent = Intent(context, AlarmReceiver::class.java).apply {

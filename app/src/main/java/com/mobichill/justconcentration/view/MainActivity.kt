@@ -8,10 +8,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.mobichill.justconcentration.R
-import com.mobichill.justconcentration.util.Utils
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.ACCEPTED_POLICY_KEY
 import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.APP_PREFS_NAME
+import com.mobichill.justconcentration.util.SFUtils
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity() {
         } else {
             // Check login state || User skipped login
             // Directly go to home page
-            if (skippedLogin || Utils.isUserLoggedIn(this)) {
+            if (skippedLogin || SFUtils.isUserLoggedIn(this)) {
                 startActivity(Intent(this, HomeActivity::class.java))
             } else {
                 // User is not logged in || user has not skipped login, go to welcome page

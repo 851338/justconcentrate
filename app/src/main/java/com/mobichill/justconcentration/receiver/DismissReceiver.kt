@@ -13,6 +13,7 @@ import com.mobichill.justconcentration.repository.FireStoreRepository
 import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.REQUEST_CODE
 import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.TASK_ID
 import com.mobichill.justconcentration.service.AlarmService
+import com.mobichill.justconcentration.util.SFUtils
 import com.mobichill.justconcentration.util.Utils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -56,7 +57,7 @@ class DismissReceiver : BroadcastReceiver() {
         task.collect { t ->
             //update to fire store if connected and logged in
             var isSynced = false
-            if (Utils.isNetworkAvailable(context) && Utils.isUserLoggedIn(context)) {
+            if (Utils.isNetworkAvailable(context) && SFUtils.isUserLoggedIn(context)) {
                 isSynced = true
                 FireStoreRepository().updateTaskToFireStore(
                     t.copy(

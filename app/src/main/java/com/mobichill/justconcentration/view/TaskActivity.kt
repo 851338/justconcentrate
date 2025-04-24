@@ -24,6 +24,7 @@ import com.mobichill.justconcentration.listener.OnItemDismissListener
 import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.model.TaskModel
 import com.mobichill.justconcentration.repository.FireStoreRepository
+import com.mobichill.justconcentration.util.SFUtils
 import com.mobichill.justconcentration.util.Utils
 import com.mobichill.justconcentration.viewmodel.TaskViewModel
 
@@ -236,7 +237,7 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
         if (taskModel == null)
             return
         var isSynced = false
-        if (Utils.isNetworkAvailable(this) && Utils.isUserLoggedIn(this)) {
+        if (Utils.isNetworkAvailable(this) && SFUtils.isUserLoggedIn(this)) {
             isSynced = true
             taskViewModel.deleteTaskFromFireStore(
                 taskModel.copy(isSynced = true)

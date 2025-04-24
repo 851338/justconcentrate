@@ -23,10 +23,14 @@ import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.model.TaskModel
 import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.TASK_KEY
 import com.mobichill.justconcentration.others.Constants.OTHERS.TIME_FORMAT
+import com.mobichill.justconcentration.util.AudioUtils
+import com.mobichill.justconcentration.util.ConvertUtils
+import com.mobichill.justconcentration.util.SFUtils
 import com.mobichill.justconcentration.util.Utils
-import com.mobichill.justconcentration.util.Utils.persistUriPermission
 import com.mobichill.justconcentration.viewmodel.TaskViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -64,16 +68,16 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
                 if (result.resultCode == Activity.RESULT_OK) {
                     val audioUri: Uri? = result.data?.data
                     if (audioUri != null) {
+                        checkAudioFile(audioUri)
                         binding.tvSelectedAlarmSound.text =
-                            Utils.getAudioNameFromUri(
+                            AudioUtils.getAudioNameFromUri(
                                 R.string.default_alarm_sound,
                                 requireContext(),
                                 audioUri
                             )
                         selectedUri = audioUri
-                        checkAudioFile(audioUri)
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                            persistUriPermission(requireActivity(), audioUri)
+                            AudioUtils.persistUriPermission(requireActivity(), audioUri)
                         }
                     }
                 }
@@ -119,6 +123,7 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
         task = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             arguments?.getParcelable(TASK_KEY, TaskModel::class.java) // API 33+
         } else {
+            @Suppress("DEPRECATION")
             arguments?.getParcelable(TASK_KEY) // API 24-32
         }
         isEdit = task != null
@@ -145,11 +150,7 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
 
         binding.btnChooseAlarm.setOnClickListener(object : OnSingleClickListener() {
             override fun onSingleClick(view: View) {
-                val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-                    type = "audio/*"
-                    addCategory(Intent.CATEGORY_OPENABLE)
-                }
-                pickAudioLauncher.launch(intent)
+                AudioUtils.showSoundChoiceDialog(requireActivity(), pickAudioLauncher)
             }
         })
         binding.btnPickDateTime.setOnClickListener(object : OnSingleClickListener() {
@@ -175,9 +176,9 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
         if (isEdit) {
             binding.etTaskTitle.setText(task?.taskText)
             binding.tvSelectedDateTime.text =
-                Utils.convertTimeMillisIntoText(requireContext(), task!!.alarmTimeMillis)
+                ConvertUtils.convertTimeMillisIntoText(requireContext(), task!!.alarmTimeMillis)
             binding.tvSelectedAlarmSound.text = if (task!!.alarmSoundUri.isNotEmpty())
-                Utils.getAudioNameFromUri(
+                AudioUtils.getAudioNameFromUri(
                     R.string.default_alarm_sound,
                     requireContext(),
                     task!!.alarmSoundUri.toUri()
@@ -206,7 +207,7 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
             alarmSoundUri = (if (::selectedUri.isInitialized) selectedUri.toString() else ""),
             createdAt = System.currentTimeMillis()
         )
-        if (Utils.isNetworkAvailable(requireContext()) && Utils.isUserLoggedIn(requireContext())) {
+        if (Utils.isNetworkAvailable(requireContext()) && SFUtils.isUserLoggedIn(requireContext())) {
             isSynced = true
             //save to fireStore
             taskViewModel.saveTaskToFireStore(newTask.copy(isSynced = true)) { complete, error ->
@@ -241,7 +242,7 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
             requestCode = taskModel.requestCode,
             alarmSoundUri = (if (::selectedUri.isInitialized) selectedUri.toString() else "")
         )
-        if (Utils.isNetworkAvailable(requireContext()) && Utils.isUserLoggedIn(requireContext())) {
+        if (Utils.isNetworkAvailable(requireContext()) && SFUtils.isUserLoggedIn(requireContext())) {
             isSynced = true
             //update to fireStore
             taskViewModel.updateTaskToFireStore(taskModel.copy(isSynced = true)) { onComplete, error ->
@@ -281,10 +282,10 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
 
     private fun hasUnsavedChanges(): Boolean = with(binding) {
         return if (task != null) {
-            val taskAlarm = Utils.convertTimeMillisIntoText(
+            val taskAlarm = ConvertUtils.convertTimeMillisIntoText(
                 requireContext(), task!!.alarmTimeMillis
             )
-            val taskAudio = Utils.getAudioNameFromUri(
+            val taskAudio = AudioUtils.getAudioNameFromUri(
                 R.string.default_alarm_sound,
                 requireContext(),
                 task!!.alarmSoundUri.toUri()
@@ -304,17 +305,19 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
         // Show loading
         binding.progressBar.visibility = View.VISIBLE
         lifecycleScope.launch {
-            val isValid = Utils.isValidAudioFile(requireContext(), uri)
+            val isValid = withContext(Dispatchers.IO) {
+                AudioUtils.isValidAudioFile(requireContext(), uri)
+            }
             // Hide loading
             binding.progressBar.visibility = View.GONE
             if (isValid) {
-                // Proceed with valid file
                 Log.d(TAG, "Audio is valid")
                 binding.tvSelectedAlarmSound.error = null
             } else {
-                binding.tvSelectedAlarmSound.error = "Invalid audio file. Please select another!"
                 Log.e(TAG, "Invalid audio file")
+                binding.tvSelectedAlarmSound.error = "Invalid audio file. Please select another!"
             }
         }
     }
+
 }

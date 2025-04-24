@@ -26,10 +26,13 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".view.SettingsActivity"
+            android:exported="false" />
+        <activity
             android:name=".view.ConcentrationActivity"
             android:exported="false" />
         <activity
-            android:name=".ConcentrateSetupActivity"
+            android:name=".view.ConcentrateSetupActivity"
             android:exported="false" />
         <activity
             android:name=".view.PrivacyConsentActivity"
@@ -59,7 +62,7 @@
         <receiver
             android:name=".receiver.AlarmReceiver"
             android:exported="true"
-            android:permission="com.mobichill.justconcentration.ALARM_PERMISSION"/>
+            android:permission="com.mobichill.justconcentration.ALARM_PERMISSION" />
         <receiver
             android:name=".receiver.BootReceiver"
             android:exported="true">
@@ -71,7 +74,7 @@
             android:name=".receiver.SnoozeReceiver"
             android:enabled="true"
             android:exported="true"
-            android:permission="com.mobichill.justconcentration.SNOOZE_PERMISSION"/>
+            android:permission="com.mobichill.justconcentration.SNOOZE_PERMISSION" />
         <receiver
             android:name=".receiver.DismissReceiver"
             android:enabled="true"

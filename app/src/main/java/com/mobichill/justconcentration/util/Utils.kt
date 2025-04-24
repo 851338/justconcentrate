@@ -7,13 +7,9 @@ import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.res.Resources
-import android.media.MediaPlayer
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import android.net.Uri
 import android.os.Build
-import android.provider.MediaStore
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -24,68 +20,17 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.core.net.toUri
-import androidx.documentfile.provider.DocumentFile
 import com.bumptech.glide.Glide
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.databinding.CustomToastLayoutBinding
 import com.mobichill.justconcentration.others.Constants.OTHERS.POLICY_URL
 import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.ALARM_PREFS_NAME
-import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.IS_LOGGED_IN_KEY
 import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.REQUEST_CODE_PREFS_KEY
-import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.USERID_PREFS_KEY
-import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.USER_INFO_PREFS_NAME
-import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.USER_SESSION_PREFS_NAME
 import de.hdodenhof.circleimageview.CircleImageView
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import java.text.SimpleDateFormat
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.util.Calendar
-import java.util.Date
-import java.util.Locale
 
 object Utils {
-
-    fun dp(value: Int): Int = (value * Resources.getSystem().displayMetrics.density).toInt()
-
-    fun px(value: Int): Int = (value * Resources.getSystem().displayMetrics.density + 0.5f).toInt()
-
-    fun convertTimeMillisIntoText(context: Context, timeMillis: Long): String {
-        if (timeMillis == 0L)
-            return context.getString(R.string.no_date_selected)
-        val date = Date(timeMillis)
-        val sdf = SimpleDateFormat("MMM dd, yyyy 'at' hh:mm a", Locale.getDefault())
-        return sdf.format(date)
-    }
-
-    fun convertTimeMillisIntoDate(timeMillis: Long): String {
-        return Instant.ofEpochMilli(timeMillis)
-            .atZone(ZoneId.systemDefault())
-            .toLocalDate()
-            .format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))
-        // result: "Apr 22, 2025"
-    }
-
-    fun getAudioNameFromUri(stringId: Int, context: Context, uri: Uri): String? {
-        // Try to get DISPLAY_NAME via ContentResolver
-        val projection = arrayOf(MediaStore.MediaColumns.DISPLAY_NAME)
-        context.contentResolver.query(uri, projection, null, null, null)?.use { cursor ->
-            if (cursor.moveToFirst()) {
-                val nameIndex = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
-                val name = cursor.getString(nameIndex)
-                if (!name.isNullOrEmpty()) return name
-            }
-        }
-
-        // Fallback: try to extract filename from Uri
-        return DocumentFile.fromSingleUri(context, uri)?.name
-            ?: uri.lastPathSegment?.substringAfterLast('/')
-            ?: context.getString(stringId)
-    }
-
     fun getNextRequestCode(context: Context): Int {
         val sharedPreferences =
             context.getSharedPreferences(ALARM_PREFS_NAME, Context.MODE_PRIVATE)
@@ -96,44 +41,6 @@ object Utils {
         sharedPreferences.edit { putInt(REQUEST_CODE_PREFS_KEY, nextRequestCode + 1) }
 
         return nextRequestCode
-    }
-
-    fun saveLoginState(context: Context, isLoggedIn: Boolean) {
-        val sharedPref =
-            context.getSharedPreferences(USER_SESSION_PREFS_NAME, Context.MODE_PRIVATE)
-        sharedPref.edit { putBoolean(IS_LOGGED_IN_KEY, isLoggedIn) }
-    }
-
-    fun isUserLoggedIn(context: Context): Boolean {
-        val sharedPref =
-            context.getSharedPreferences(USER_SESSION_PREFS_NAME, Context.MODE_PRIVATE)
-        return sharedPref.getBoolean(IS_LOGGED_IN_KEY, false)  // Default is false
-    }
-
-    fun saveUserInfoToSF(context: Context, userId: String) {
-        //Save userid to sharedPreference
-        saveUserIdAfterLogin(context, userId = userId)
-        // Store login state
-        saveLoginState(context, true)
-        //TODO Subscription info
-    }
-
-    fun saveUserIdAfterLogin(context: Context, userId: String) {
-        val sharedPref =
-            context.getSharedPreferences(USER_INFO_PREFS_NAME, Context.MODE_PRIVATE)
-        sharedPref.edit { putString(USERID_PREFS_KEY, userId) }
-    }
-
-    fun getUserIdFromSF(context: Context): String {
-        val sharedPref =
-            context.getSharedPreferences(USER_INFO_PREFS_NAME, Context.MODE_PRIVATE)
-        return sharedPref.getString(USERID_PREFS_KEY, "Unknown") ?: "Unknown"
-    }
-
-    fun clearUserInfoPref(context: Context) {
-        val sharedPreferences =
-            context.getSharedPreferences(USER_INFO_PREFS_NAME, Context.MODE_PRIVATE)
-        sharedPreferences.edit { clear() }
     }
 
     fun showToast(context: Context, message: String) {
@@ -156,12 +63,6 @@ object Utils {
         val network = connectivityManager.activeNetwork ?: return false
         val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
         return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-    }
-
-    fun persistUriPermission(context: Context, uri: Uri) {
-        val contentResolver = context.contentResolver
-        val takeFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION
-        contentResolver.takePersistableUriPermission(uri, takeFlags)
     }
 
     fun showCustomPermissionDialog(
@@ -239,35 +140,6 @@ object Utils {
         } else {
             // Manual login/signup -> use default avatar
             avatarImageView.setImageResource(R.drawable.default_avatar)
-        }
-    }
-
-    suspend fun isValidAudioFile(context: Context, uri: Uri): Boolean {
-        // Check MIME type
-        val mimeType = context.contentResolver.getType(uri)
-        if (mimeType != null && mimeType.startsWith("audio/")) {
-            return true
-        }
-
-        // Check file extension
-        val fileExtension = uri.lastPathSegment?.substringAfterLast(".")
-        val validExtensions = listOf("mp3", "wav", "ogg", "flac", "m4a")
-        if (fileExtension != null && fileExtension in validExtensions) {
-            return true
-        }
-
-        // Perform MediaPlayer check in the background to avoid blocking the UI thread
-        return withContext(Dispatchers.IO) {
-            try {
-                val mediaPlayer = MediaPlayer()
-                mediaPlayer.setDataSource(context, uri)
-                mediaPlayer.prepare()
-                mediaPlayer.release() // Release when done
-                true
-            } catch (e: Exception) {
-                e.printStackTrace()
-                false
-            }
         }
     }
 

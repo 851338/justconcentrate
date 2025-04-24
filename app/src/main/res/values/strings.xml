@@ -55,6 +55,7 @@
     <string name="no_date_selected">No date selected</string>
     <string name="choose_alarm_sound">Choose Alarm Sound</string>
     <string name="default_alarm_sound">Default alarm sound</string>
+    <string name="default_session_sound">Default concentrate session sound</string>
     <string name="cancel">Cancel</string>
     <string name="save_task">Save Task</string>
     <string name="alarm_dismissed">Alarm dismissed.</string>
@@ -140,4 +141,15 @@
     <string name="session_stats_chart_label">Focus Duration</string>
     <string name="share_progress">Share Progress</string>
     <string name="total_focus_time">Total Concentrated Time: %1$s</string>
+    <string name="dark_mode_text">Dark mode</string>
+    <string name="setting_title">Setting Title</string>
+    <string name="toggle_setting">Toggle Setting</string>
+    <string name="vibration">Vibration</string>
+    <string name="default_alarm_time">Default alarm time</string>
+    <string name="sync_with_cloud">Sync with Cloud</string>
+    <string name="change_password">Change password</string>
+    <string name="setting_general">General</string>
+    <string name="setting_account">Account</string>
+    <string name="setting_feature">Feature</string>
+    <string name="settings">Settings</string>
 </resources>

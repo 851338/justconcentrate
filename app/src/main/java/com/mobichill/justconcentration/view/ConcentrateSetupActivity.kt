@@ -1,4 +1,4 @@
-package com.mobichill.justconcentration
+package com.mobichill.justconcentration.view
 
 import android.content.Intent
 import android.net.Uri
@@ -14,20 +14,15 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.ads.AdRequest
+import com.mobichill.justconcentration.others.ConcentrationQuotes
+import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.databinding.ActivityConcentrateSetupBinding
-import com.mobichill.justconcentration.service.FocusService
-import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.FOCUS_AUDIO_URI
-import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.FOCUS_DURATION
-import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.FOCUS_QUOTE
-import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.FOCUS_USER_GOAL
-import com.mobichill.justconcentration.others.Constants.OTHERS.ACTION_START_SESSION
-import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.FOCUS_SESSION_ACTIVE_KEY
-import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.FOCUS_SESSION_PREFS_NAME
 import com.mobichill.justconcentration.listener.OnSingleClickListener
+import com.mobichill.justconcentration.others.Constants
+import com.mobichill.justconcentration.service.FocusService
+import com.mobichill.justconcentration.util.AudioUtils
 import com.mobichill.justconcentration.util.Utils
-import com.mobichill.justconcentration.util.Utils.persistUriPermission
-import com.mobichill.justconcentration.view.ConcentrationActivity
 import kotlinx.coroutines.launch
 
 class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetupBinding>() {
@@ -38,7 +33,7 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
         ActivityConcentrateSetupBinding.inflate(layoutInflater)
 
     private val prefs by lazy {
-        getSharedPreferences(FOCUS_SESSION_PREFS_NAME, MODE_PRIVATE)
+        getSharedPreferences(Constants.SHARED_PREFERENCES.FOCUS_SESSION_PREFS_NAME, MODE_PRIVATE)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,11 +44,11 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
                     val audioUri: Uri? = result.data?.data
                     if (audioUri != null) {
                         binding.buttonSelectSound.text =
-                            Utils.getAudioNameFromUri(R.string.unknown_audio_file, this, audioUri)
+                            AudioUtils.getAudioNameFromUri(R.string.unknown_audio_file, this, audioUri)
                         selectedUri = audioUri
                         checkAudioFile(audioUri)
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                            persistUriPermission(this, audioUri)
+                            AudioUtils.persistUriPermission(this, audioUri)
                         }
                     }
                 }
@@ -161,7 +156,7 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
         // Show loading
         binding.progressBar.visibility = View.VISIBLE
         lifecycleScope.launch {
-            val isValid = Utils.isValidAudioFile(this@ConcentrateSetupActivity, uri)
+            val isValid = AudioUtils.isValidAudioFile(this@ConcentrateSetupActivity, uri)
             // Hide loading
             binding.progressBar.visibility = View.GONE
             if (isValid) {
@@ -176,23 +171,23 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
     }
 
     fun startFocusSession(duration: Int, goal: String, audioUri: String?) {
-        val isActive = prefs.getBoolean(FOCUS_SESSION_ACTIVE_KEY, false)
+        val isActive = prefs.getBoolean(Constants.SHARED_PREFERENCES.FOCUS_SESSION_ACTIVE_KEY, false)
         //Shared preference: Imagine the service crashes but the flag still says "active" — you'd block new sessions forever.
         //is Running: Some OEMs aggressively kill services in the background without notice.
         //So we use both
         if (isActive &&
-            FocusService.isRunning
+            FocusService.Companion.isRunning
         ) {
             Utils.showToast(this, getString(R.string.focus_session_already_running))
         } else {
             // Start foreground service with timer & sound
             val quote = ConcentrationQuotes.getRandomQuote()
             val intent = Intent(this, FocusService::class.java)
-            intent.action = ACTION_START_SESSION
-            intent.putExtra(FOCUS_AUDIO_URI, audioUri)
-            intent.putExtra(FOCUS_DURATION, duration)
-            intent.putExtra(FOCUS_USER_GOAL, goal)
-            intent.putExtra(FOCUS_QUOTE, quote)
+            intent.action = Constants.OTHERS.ACTION_START_SESSION
+            intent.putExtra(Constants.INTENT_EXTRA.FOCUS_AUDIO_URI, audioUri)
+            intent.putExtra(Constants.INTENT_EXTRA.FOCUS_DURATION, duration)
+            intent.putExtra(Constants.INTENT_EXTRA.FOCUS_USER_GOAL, goal)
+            intent.putExtra(Constants.INTENT_EXTRA.FOCUS_QUOTE, quote)
 
             startForegroundService(intent)
             openConcentrationActivity(quote)
@@ -201,7 +196,7 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
 
     private fun openConcentrationActivity(quote: String) {
         val intent = Intent(this, ConcentrationActivity::class.java)
-        intent.putExtra(FOCUS_QUOTE, quote)
+        intent.putExtra(Constants.INTENT_EXTRA.FOCUS_QUOTE, quote)
         startActivity(intent)
     }
 

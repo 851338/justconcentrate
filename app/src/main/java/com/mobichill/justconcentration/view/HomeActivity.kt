@@ -6,10 +6,9 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.core.view.isVisible
-import androidx.core.view.setPadding
 import com.google.firebase.auth.FirebaseAuth
 import com.mobichill.justconcentration.BuildConfig
-import com.mobichill.justconcentration.ConcentrateSetupActivity
+import com.mobichill.justconcentration.view.ConcentrateSetupActivity
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.application.MyApp
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
@@ -18,8 +17,9 @@ import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.popup.UserPopup
 import com.mobichill.justconcentration.repository.FireStoreRepository
 import com.mobichill.justconcentration.others.MyContextWrapper
+import com.mobichill.justconcentration.util.ConvertUtils.px
+import com.mobichill.justconcentration.util.SFUtils
 import com.mobichill.justconcentration.util.Utils
-import com.mobichill.justconcentration.util.Utils.px
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -33,8 +33,8 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
             Log.d("HomeActivity", "This is a debug build!")
         }
         //load user avatar
-        if (Utils.isUserLoggedIn(this)) {
-            val uid = Utils.getUserIdFromSF(this)
+        if (SFUtils.isUserLoggedIn(this)) {
+            val uid = SFUtils.getUserIdFromSF(this)
             CoroutineScope(Dispatchers.IO).launch {
                 val user =
                     MyApp.instance.userRepository.getUserById(uid)
@@ -100,7 +100,7 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
     override fun onBackPressed() {
         val current = supportFragmentManager.findFragmentById(R.id.fragment_container)
         when (current) {
-            is AboutFragment, is ViewStatsFragment -> {
+            is ViewStatsFragment -> {
                 onBackPressedDispatcher.onBackPressed()
                 setupToolbar(getString(R.string.main_title), false)
             }
@@ -165,7 +165,11 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
     private fun openTaskActivity() {
         startActivity(Intent(this, TaskActivity::class.java))
     }
-    
+
+    fun openSettingsActivity() {
+        startActivity(Intent(this, SettingsActivity::class.java))
+    }
+
     private fun openStatsFragment() {
         supportFragmentManager.beginTransaction()
             .setCustomAnimations(
@@ -173,17 +177,6 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
                 R.anim.slide_out_left
             )
             .replace(binding.fragmentContainer.id, ViewStatsFragment())
-            .addToBackStack(null)
-            .commit()
-    }
-
-    fun openAboutFragment() {
-        supportFragmentManager.beginTransaction()
-            .setCustomAnimations(
-                R.anim.slide_in_right,
-                R.anim.slide_out_left
-            )
-            .replace(binding.fragmentContainer.id, AboutFragment())
             .addToBackStack(null)
             .commit()
     }

@@ -16,8 +16,8 @@ class AboutFragment : BaseViewBindingFragment<FragmentAboutBinding>() {
 
     override fun onResume() {
         super.onResume()
-        if (activity is HomeActivity)
-            (activity as HomeActivity).setupToolbar(getString(R.string.about_title), true)
+        if (activity is SettingsActivity)
+            (activity as SettingsActivity).setupToolbar(getString(R.string.about_title))
     }
 
     override fun initView(): Unit = with(binding) {

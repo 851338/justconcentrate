@@ -8,7 +8,7 @@ import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.databinding.TaskItemBinding
 import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.model.TaskModel
-import com.mobichill.justconcentration.util.Utils
+import com.mobichill.justconcentration.util.ConvertUtils
 
 class TaskViewHolder(private val binding: TaskItemBinding) : RecyclerView.ViewHolder(binding.root) {
     fun onBind(
@@ -33,11 +33,11 @@ class TaskViewHolder(private val binding: TaskItemBinding) : RecyclerView.ViewHo
             binding.tvAlarm.text =context.getString(R.string.no_alarm_set)
         else binding.tvAlarm.text = context.getString(
             R.string.alarm,
-            Utils.convertTimeMillisIntoText(context, taskModel.alarmTimeMillis)
+            ConvertUtils.convertTimeMillisIntoText(context, taskModel.alarmTimeMillis)
         )
         binding.tvCreatedAt.text = context.getString(
             R.string.created_at,
-            Utils.convertTimeMillisIntoText(context, taskModel.createdAt)
+            ConvertUtils.convertTimeMillisIntoText(context, taskModel.createdAt)
         )
         binding.tvDesc.text = taskModel.taskText
         binding.root.setOnClickListener(

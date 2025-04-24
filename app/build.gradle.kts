@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.parcelize)
 
     // Add the Google services Gradle plugin
+    id("com.google.android.gms.oss-licenses-plugin")
     id("com.google.gms.google-services")
     id("com.google.devtools.ksp")
     id("kotlin-parcelize")

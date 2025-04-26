@@ -88,7 +88,10 @@ class SettingsActivity : BaseViewBindingActivity<ActivitySettingsBinding>() {
                 Handler(Looper.getMainLooper()).postDelayed({
                     switch.isEnabled = true
                 }, 1000)
-            } else Utils.showToast(this@SettingsActivity, getString(R.string.you_must_log_in_first))
+            } else {
+                switch.isChecked = !isChecked
+                Utils.showToast(this@SettingsActivity, getString(R.string.you_must_log_in_first))
+            }
         }
 
         // Change password button

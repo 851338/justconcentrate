@@ -209,8 +209,7 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
                     requireContext(),
                     task!!.alarmSoundUri.toUri()
                 )
-            }
-            else {
+            } else {
                 selectedUri = AudioUtils.defaultAlarmUri(requireContext())
                 AudioUtils.defaultAlarmName(requireContext())
             }
@@ -235,7 +234,8 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
             taskText = binding.etTaskTitle.text.toString(),
             alarmTimeMillis = dateTime,
             requestCode = Utils.getNextRequestCode(requireContext()),
-            alarmSoundUri = (if (::selectedUri.isInitialized) selectedUri.toString() else ""),
+            alarmSoundUri = (if (::selectedUri.isInitialized) selectedUri.toString()
+            else AudioUtils.defaultAlarmUri(requireContext()).toString()),
             createdAt = System.currentTimeMillis()
         )
         if (Utils.isNetworkAvailable(requireContext()) && SFUtils.isUserLoggedIn(requireContext())) {
@@ -271,7 +271,8 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
             taskText = binding.etTaskTitle.text.toString(),
             alarmTimeMillis = dateTime,
             requestCode = taskModel.requestCode,
-            alarmSoundUri = (if (::selectedUri.isInitialized) selectedUri.toString() else "")
+            alarmSoundUri = (if (::selectedUri.isInitialized) selectedUri.toString()
+            else AudioUtils.defaultAlarmUri(requireContext()).toString()),
         )
         if (Utils.isNetworkAvailable(requireContext()) && SFUtils.isUserLoggedIn(requireContext())) {
             isSynced = true
@@ -312,12 +313,13 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
     }
 
     private fun hasUnsavedChanges(): Boolean = with(binding) {
+        val defaultAlarmName = AudioUtils.defaultAlarmName(requireContext())
         return if (task != null) {
             val taskAlarm = ConvertUtils.convertTimeMillisIntoText(
                 requireContext(), task!!.alarmTimeMillis
             )
             val taskAudio = AudioUtils.getAudioNameFromUri(
-                R.string.default_alarm_sound,
+                R.string.unknown_audio_file,
                 requireContext(),
                 task!!.alarmSoundUri.toUri()
             )
@@ -328,11 +330,11 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
         } else {
             etTaskTitle.text.toString().isNotEmpty() ||
                     tvSelectedDateTime.text.toString() != getString(R.string.no_date_selected) ||
-                    tvSelectedAlarmSound.text.toString() != getString(R.string.default_alarm_sound)
+                    tvSelectedAlarmSound.text.toString() != defaultAlarmName
         }
     }
 
-    private fun checkAndSaveAudioFile(uri: Uri) {
+    fun checkAndSaveAudioFile(uri: Uri) {
         // Show loading
         binding.progressBar.visibility = View.VISIBLE
         lifecycleScope.launch {
@@ -342,11 +344,11 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
             // Hide loading
             binding.progressBar.visibility = View.GONE
             if (isValid) {
+                selectedUri = uri
                 Log.d(TAG, "Audio is valid")
-                prefs.edit { putString(SETTINGS_DEFAULT_ALARM_KEY, uri.toString()) }
                 binding.tvSelectedAlarmSound.text =
                     AudioUtils.getAudioNameFromUri(
-                        R.string.default_alarm_sound,
+                        R.string.unknown_audio_file,
                         requireContext(),
                         uri
                     )
@@ -357,5 +359,4 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
             }
         }
     }
-
 }

@@ -1,6 +1,10 @@
 package com.mobichill.justconcentration.view
 
 import android.animation.ObjectAnimator
+import android.content.Intent
+import android.media.RingtoneManager
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -286,5 +290,23 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
             else ->
                 super.onBackPressed()
         }
+    }
+
+
+    // Case choose ringtone of NewOrEditTaskFragment
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode != RESULT_OK || data == null) return
+        val uri: Uri? =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI, Uri::class.java)
+            else
+                @Suppress("DEPRECATION")
+                data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI) ?: return
+        if (uri == null)
+            return
+        val current = supportFragmentManager.findFragmentById(R.id.fragment_container)
+        if (current !is NewOrEditTaskFragment) return
+        current.checkAndSaveAudioFile(uri)
     }
 }

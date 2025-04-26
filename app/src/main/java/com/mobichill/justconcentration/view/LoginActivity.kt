@@ -1,6 +1,8 @@
 package com.mobichill.justconcentration.view
 
 import android.content.Intent
+import android.text.SpannableString
+import android.text.style.UnderlineSpan
 import android.util.Log
 import android.view.View
 import com.google.firebase.auth.FirebaseAuth
@@ -10,6 +12,7 @@ import com.mobichill.justconcentration.databinding.ActivityLoginBinding
 import com.mobichill.justconcentration.repository.FireStoreRepository
 import com.mobichill.justconcentration.others.Constants.OTHERS.EMAIL_REGEX
 import com.mobichill.justconcentration.listener.OnSingleClickListener
+import com.mobichill.justconcentration.util.SFUtils
 import com.mobichill.justconcentration.util.Utils
 
 class LoginActivity : BaseViewBindingActivity<ActivityLoginBinding>() {
@@ -20,6 +23,10 @@ class LoginActivity : BaseViewBindingActivity<ActivityLoginBinding>() {
 
     override fun initView() = with(binding) {
         auth = FirebaseAuth.getInstance()
+
+        val content = SpannableString(getString(R.string.forgot_password))
+        content.setSpan(UnderlineSpan(), 0, content.length, 0)
+        forgotPassword.text = content
 
         loginButton.setOnClickListener(object : OnSingleClickListener() {
             override fun onSingleClick(view: View) {
@@ -38,12 +45,23 @@ class LoginActivity : BaseViewBindingActivity<ActivityLoginBinding>() {
             }
         })
 
+        forgotPassword.setOnClickListener(object : OnSingleClickListener() {
+            override fun onSingleClick(view: View) {
+                openForgotPasswordActivity()
+            }
+        })
+
         btnBack.setOnClickListener(object : OnSingleClickListener() {
             override fun onSingleClick(view: View) {
                 onBackPressed()
             }
         })
+
         super.initView()
+    }
+
+    private fun openForgotPasswordActivity() {
+        startActivity(Intent(this, ForgotPasswordActivity::class.java))
     }
 
     private fun loginUser(email: String, password: String) {
@@ -55,7 +73,7 @@ class LoginActivity : BaseViewBindingActivity<ActivityLoginBinding>() {
                         //fetch and save local
                         FireStoreRepository().fetchUserFromFireStore(uid)
                         //save shared preferences
-                        Utils.saveUserInfoToSF(this, uid)
+                        SFUtils.saveUserInfoToSF(this, uid)
 
                     }
                     Utils.showToast(this, getString(R.string.login_success))

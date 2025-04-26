@@ -1,4 +1,4 @@
-package com.mobichill.justconcentration
+package com.mobichill.justconcentration.others
 
 object ConcentrationQuotes {
     val quotes = listOf(

@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.parcelize)
 
     // Add the Google services Gradle plugin
+    id("com.google.android.gms.oss-licenses-plugin")
     id("com.google.gms.google-services")
     id("com.google.devtools.ksp")
     id("kotlin-parcelize")
@@ -75,6 +76,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.googleid)
     implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

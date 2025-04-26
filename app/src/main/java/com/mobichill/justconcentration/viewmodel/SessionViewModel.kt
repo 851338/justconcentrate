@@ -12,8 +12,6 @@ import com.mobichill.justconcentration.others.Constants.OTHERS.DATE_FORMATTER
 import com.mobichill.justconcentration.others.TimeRangeOption
 import java.time.DayOfWeek
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 class SessionViewModel : ViewModel() {
     private val TAG = javaClass.simpleName

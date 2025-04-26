@@ -14,12 +14,12 @@
         <item name="colorPrimaryVariant">@color/purple_700</item>
         <item name="colorOnPrimary">@color/white</item>
         <item name="android:forceDarkAllowed">false</item>
-<!--        Fcking darkmode bugs-->
+        <!--        Fcking darkmode bugs-->
         <item name="android:theme">@style/Theme.MaterialComponents.Light</item>
 
     </style>
 
-    <style name="Theme.JustConcentration" parent="Base.Theme.JustConcentration" >
-<!--        <item name="android:windowBackground">@drawable/app_bg</item>-->
+    <style name="Theme.JustConcentration" parent="Base.Theme.JustConcentration">
+        <!--        <item name="android:windowBackground">@drawable/app_bg</item>-->
     </style>
 </resources>

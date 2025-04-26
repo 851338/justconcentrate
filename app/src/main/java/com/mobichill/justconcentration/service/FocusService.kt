@@ -28,7 +28,7 @@ import com.mobichill.justconcentration.others.Constants.OTHERS.FOCUS_CHANNEL
 import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.FOCUS_SESSION_ACTIVE_KEY
 import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.FOCUS_SESSION_PREFS_NAME
 import com.mobichill.justconcentration.receiver.NotificationActionReceiver
-import com.mobichill.justconcentration.util.Utils
+import com.mobichill.justconcentration.util.ConvertUtils
 import java.util.Locale
 
 class FocusService : Service() {
@@ -66,7 +66,7 @@ class FocusService : Service() {
             goal = goal,
             startTime = now,
             endTime = now + durationInMillis,
-            date = Utils.convertTimeMillisIntoDate(now),
+            date = ConvertUtils.convertTimeMillisIntoDate(now),
             durationMinutes = durationInMinutes,
             wasCompleted = false
         )

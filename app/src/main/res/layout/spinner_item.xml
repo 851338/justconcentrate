@@ -6,5 +6,6 @@
     android:layout_height="wrap_content"
     android:textColor="@color/black"
     android:padding="8dp"
+    android:background="@color/white"
     tools:text="Cai gi zay ba noi"
     android:textSize="16sp" />

@@ -6,35 +6,40 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.core.view.isVisible
-import androidx.core.view.setPadding
 import com.google.firebase.auth.FirebaseAuth
 import com.mobichill.justconcentration.BuildConfig
-import com.mobichill.justconcentration.ConcentrateSetupActivity
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.application.MyApp
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.databinding.ActivityHomeBinding
 import com.mobichill.justconcentration.listener.OnSingleClickListener
+import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.SETTINGS_PREFS_NAME
+import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.SETTINGS_SYNC_KEY
+import com.mobichill.justconcentration.others.MyContextWrapper
 import com.mobichill.justconcentration.popup.UserPopup
 import com.mobichill.justconcentration.repository.FireStoreRepository
-import com.mobichill.justconcentration.others.MyContextWrapper
+import com.mobichill.justconcentration.util.ConvertUtils.px
+import com.mobichill.justconcentration.util.SFUtils
 import com.mobichill.justconcentration.util.Utils
-import com.mobichill.justconcentration.util.Utils.px
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
+    private val prefs by lazy {
+        getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         if (BuildConfig.DEBUG) {
             // Debug-specific behavior
             Log.d("HomeActivity", "This is a debug build!")
         }
         //load user avatar
-        if (Utils.isUserLoggedIn(this)) {
-            val uid = Utils.getUserIdFromSF(this)
+        if (SFUtils.isUserLoggedIn(this)) {
+            val uid = SFUtils.getUserIdFromSF(this)
             CoroutineScope(Dispatchers.IO).launch {
                 val user =
                     MyApp.instance.userRepository.getUserById(uid)
@@ -58,6 +63,10 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
         )
         binding.btnBack.visibility = View.GONE
 
+        // Sync feature
+        val isSynced = prefs.getBoolean(SETTINGS_SYNC_KEY, false)
+        val fireStoreRepo = FireStoreRepository()
+        if (!isSynced) return
         CoroutineScope(Dispatchers.IO).launch {
             if (Utils.isNetworkAvailable(this@HomeActivity)) {
                 val user = FirebaseAuth.getInstance().currentUser
@@ -65,18 +74,19 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
                     //Sync sessions
                     try {
                         //sync from room to fireStore
-                        FireStoreRepository().syncUnsyncedSessionToFireStore(user.uid)
+                        fireStoreRepo.syncUnsyncedSessionToFireStore(user.uid)
                         //sync from fireStore to room
-                        val sessions = FireStoreRepository().getSessionsFromFireStore()
+                        val sessions = fireStoreRepo.getSessionsFromFireStore()
                         MyApp.instance.concentrateSessionRepository.syncSessionsToRoom(sessions)
                     } catch (e: Exception) {
                         Log.e(TAG, "Sync sessions: ", e)
                     }
                     //Sync deleted tasks
                     try {
-                        val deletedRoomTasks = MyApp.instance.taskRepository.getUnsyncedDeletedTasks()
+                        val deletedRoomTasks =
+                            MyApp.instance.taskRepository.getUnsyncedDeletedTasks()
                         deletedRoomTasks.forEach { t ->
-                            FireStoreRepository().deleteTaskFromFireStore(t)
+                            fireStoreRepo.deleteTaskFromFireStore(t)
                         }
                     } catch (e: Exception) {
                         Log.e(TAG, "Sync deleted tasks: ", e)
@@ -84,7 +94,6 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
                 }
             }
         }
-        super.onCreate(savedInstanceState)
     }
 
     fun setupToolbar(title: String, isBackEnabled: Boolean) {
@@ -100,10 +109,11 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
     override fun onBackPressed() {
         val current = supportFragmentManager.findFragmentById(R.id.fragment_container)
         when (current) {
-            is AboutFragment, is ViewStatsFragment -> {
+            is ViewStatsFragment -> {
                 onBackPressedDispatcher.onBackPressed()
                 setupToolbar(getString(R.string.main_title), false)
             }
+
             else ->
                 super.onBackPressed()
         }
@@ -161,11 +171,15 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
     private fun openConcentrateSetup() {
         startActivity(Intent(this, ConcentrateSetupActivity::class.java))
     }
-    
+
     private fun openTaskActivity() {
         startActivity(Intent(this, TaskActivity::class.java))
     }
-    
+
+    fun openSettingsActivity() {
+        startActivity(Intent(this, SettingsActivity::class.java))
+    }
+
     private fun openStatsFragment() {
         supportFragmentManager.beginTransaction()
             .setCustomAnimations(
@@ -173,17 +187,6 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
                 R.anim.slide_out_left
             )
             .replace(binding.fragmentContainer.id, ViewStatsFragment())
-            .addToBackStack(null)
-            .commit()
-    }
-
-    fun openAboutFragment() {
-        supportFragmentManager.beginTransaction()
-            .setCustomAnimations(
-                R.anim.slide_in_right,
-                R.anim.slide_out_left
-            )
-            .replace(binding.fragmentContainer.id, AboutFragment())
             .addToBackStack(null)
             .commit()
     }

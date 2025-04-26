@@ -12,6 +12,7 @@ import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.FOCUS_SESSI
 import com.mobichill.justconcentration.others.Constants.OTHERS.ACTION_CANCEL_SESSION
 import com.mobichill.justconcentration.others.Constants.OTHERS.ACTION_SESSION_COMPLETE
 import com.mobichill.justconcentration.service.FocusService
+import com.mobichill.justconcentration.util.SFUtils
 import com.mobichill.justconcentration.util.Utils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,12 +23,13 @@ class NotificationActionReceiver : BroadcastReceiver() {
         val session = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent.getParcelableExtra(FOCUS_SESSION, ConcentrateSessionModel::class.java) // API 33+
         } else {
+            @Suppress("DEPRECATION")
             intent.getParcelableExtra(FOCUS_SESSION) // API 26-32
         }
         CoroutineScope(Dispatchers.IO).launch {
             if (session != null) {
                 var isSynced = false
-                if (Utils.isUserLoggedIn(context) && Utils.isNetworkAvailable(context)) {
+                if (SFUtils.isUserLoggedIn(context) && Utils.isNetworkAvailable(context)) {
                     isSynced = true
                     FireStoreHelper.getInstance()
                         .addConcentrateSessionToFireStore(session.copy(isSynced = true))

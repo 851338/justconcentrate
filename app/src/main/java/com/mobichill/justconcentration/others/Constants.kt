@@ -11,6 +11,11 @@ object Constants {
         const val ALARM_AUDIO_SERVICE_NOTIFICATION_ID = 1002
     }
 
+    object REQUEST_CODE {
+        const val REQUEST_SYSTEM_RINGTONE = 10001
+        const val REQUEST_LOCAL_SOUND = 10002
+    }
+
     object OTHERS {
         const val TIME_FORMAT = "MMM dd, yyyy '-' hh:mm a"
         const val ALARM_CHANNEL = "task_alarm_channel"
@@ -40,6 +45,7 @@ object Constants {
 
     object SHARED_PREFERENCES {
         const val APP_PREFS_NAME = "app_prefs"
+        const val SETTINGS_PREFS_NAME = "settings_prefs"
         const val ALARM_PREFS_NAME = "alarm_prefs"
         const val USER_SESSION_PREFS_NAME = "user_session"
         const val USER_INFO_PREFS_NAME = "user_info"
@@ -50,6 +56,11 @@ object Constants {
         const val ACCEPTED_POLICY_KEY = "accepted_privacy_policy"
         const val SKIPPED_LOGIN_KEY = "skipped_login"
         const val FOCUS_SESSION_ACTIVE_KEY = "is_focus_active"
+        const val SETTINGS_SYNC_KEY = "sync_with_cloud"
+        const val SETTINGS_VIBRATION_KEY = "is_vibration_enabled"
+        const val SETTINGS_DARK_MODE_KEY = "is_dark_mode_enabled"
+        const val SETTINGS_DEFAULT_ALARM_KEY = "settings_default_alarm"
+        const val SETTING_DEFAULT_SESSION_SOUND_KEY = "settings_default_session_sound"
         const val THEME_KEY = "theme_mode"
     }
 

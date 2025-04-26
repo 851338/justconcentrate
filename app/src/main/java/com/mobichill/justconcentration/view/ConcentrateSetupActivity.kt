@@ -14,11 +14,11 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.ads.AdRequest
-import com.mobichill.justconcentration.others.ConcentrationQuotes
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.databinding.ActivityConcentrateSetupBinding
 import com.mobichill.justconcentration.listener.OnSingleClickListener
+import com.mobichill.justconcentration.others.ConcentrationQuotes
 import com.mobichill.justconcentration.others.Constants
 import com.mobichill.justconcentration.service.FocusService
 import com.mobichill.justconcentration.util.AudioUtils
@@ -44,7 +44,11 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
                     val audioUri: Uri? = result.data?.data
                     if (audioUri != null) {
                         binding.buttonSelectSound.text =
-                            AudioUtils.getAudioNameFromUri(R.string.unknown_audio_file, this, audioUri)
+                            AudioUtils.getAudioNameFromUri(
+                                R.string.unknown_audio_file,
+                                this,
+                                audioUri
+                            )
                         selectedUri = audioUri
                         checkAudioFile(audioUri)
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -57,34 +61,12 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
 
     override fun initView() = with(binding) {
         super.initView()
+        // Setup view
+        binding.tvSelectedSound.text = AudioUtils.defaultSessionName(this@ConcentrateSetupActivity)
+        selectedUri = AudioUtils.defaultSessionUri(this@ConcentrateSetupActivity)
+        setupSpinner()
 
-        val presetTimes = listOf(
-            getString(R.string._5_minutes),
-            getString(R.string._10_minutes),
-            getString(R.string._30_minutes),
-            getString(R.string._1_hour),
-            getString(R.string.custom)
-        )
-
-        val adapter = ArrayAdapter(
-            this@ConcentrateSetupActivity,
-            android.R.layout.simple_dropdown_item_1line,
-            presetTimes
-        )
-        autoCompleteTxtDuration.setAdapter(adapter)
-
-        // Handle selection
-        autoCompleteTxtDuration.setOnItemClickListener { _, _, position, _ ->
-            val selected = adapter.getItem(position)
-            if (selected == getString(R.string.custom)) {
-                showCustomTimeDialog()
-            } else {
-                autoCompleteTxtDuration.setText(selected, false)
-                selectedDuration = selected?.split(" ")[0]?.toInt() ?: 0
-            }
-            txtInputDuration.error = null
-        }
-
+        //Setup onClick
         btnBack.setOnClickListener(object : OnSingleClickListener() {
             override fun onSingleClick(view: View) {
                 onBackPressed()
@@ -152,6 +134,34 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
         dialog.show()
     }
 
+    private fun setupSpinner() = with(binding) {
+        val presetTimes = listOf(
+            getString(R.string._5_minutes),
+            getString(R.string._10_minutes),
+            getString(R.string._30_minutes),
+            getString(R.string._1_hour),
+            getString(R.string.custom)
+        )
+
+        val adapter = ArrayAdapter(
+            this@ConcentrateSetupActivity,
+            android.R.layout.simple_dropdown_item_1line,
+            presetTimes
+        )
+        autoCompleteTxtDuration.setAdapter(adapter)
+
+        autoCompleteTxtDuration.setOnItemClickListener { _, _, position, _ ->
+            val selected = adapter.getItem(position)
+            if (selected == getString(R.string.custom)) {
+                showCustomTimeDialog()
+            } else {
+                autoCompleteTxtDuration.setText(selected, false)
+                selectedDuration = selected?.split(" ")[0]?.toInt() ?: 0
+            }
+            txtInputDuration.error = null
+        }
+    }
+
     private fun checkAudioFile(uri: Uri) {
         // Show loading
         binding.progressBar.visibility = View.VISIBLE
@@ -171,7 +181,8 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
     }
 
     fun startFocusSession(duration: Int, goal: String, audioUri: String?) {
-        val isActive = prefs.getBoolean(Constants.SHARED_PREFERENCES.FOCUS_SESSION_ACTIVE_KEY, false)
+        val isActive =
+            prefs.getBoolean(Constants.SHARED_PREFERENCES.FOCUS_SESSION_ACTIVE_KEY, false)
         //Shared preference: Imagine the service crashes but the flag still says "active" — you'd block new sessions forever.
         //is Running: Some OEMs aggressively kill services in the background without notice.
         //So we use both

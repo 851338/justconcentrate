@@ -1,7 +1,11 @@
 package com.mobichill.justconcentration.view
 
 import android.app.Activity
+import android.content.Context
+import android.content.Context.MODE_PRIVATE
 import android.content.Intent
+import android.content.SharedPreferences
+import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -11,6 +15,7 @@ import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -23,6 +28,8 @@ import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.model.TaskModel
 import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.TASK_KEY
 import com.mobichill.justconcentration.others.Constants.OTHERS.TIME_FORMAT
+import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.SETTINGS_DEFAULT_ALARM_KEY
+import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.SETTINGS_PREFS_NAME
 import com.mobichill.justconcentration.util.AudioUtils
 import com.mobichill.justconcentration.util.ConvertUtils
 import com.mobichill.justconcentration.util.SFUtils
@@ -42,16 +49,23 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
     private val taskViewModel: TaskViewModel by activityViewModels {
         (requireActivity() as TaskActivity).taskViewModelFactory
     }
+    private lateinit var prefs: SharedPreferences
+
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
     private lateinit var pickAudioLauncher: ActivityResultLauncher<Intent>
     private lateinit var selectedUri: Uri
+    private var isPickingSystemRingtone = false
 
     override fun initViewBinding(): FragmentNewOrEditTaskBinding =
         FragmentNewOrEditTaskBinding.inflate(layoutInflater)
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        prefs = requireActivity().getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         //must be called before onCreated() finishes, does not work in bg service
         requestPermissionLauncher = registerForActivityResult(
             ActivityResultContracts.RequestPermission()
@@ -63,18 +77,28 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
                 Utils.showCustomPermissionDialog(requireContext(), requestPermissionLauncher)
             }
         }
+        // Use one register for both ringtone and audio picker
         pickAudioLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                 if (result.resultCode == Activity.RESULT_OK) {
-                    val audioUri: Uri? = result.data?.data
+                    val resultData = result.data ?: return@registerForActivityResult
+
+                    val audioUri: Uri? =
+                        if (isPickingSystemRingtone) {
+
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                                resultData.getParcelableExtra(
+                                    RingtoneManager.EXTRA_RINGTONE_PICKED_URI,
+                                    Uri::class.java
+                                )
+                            else
+                                @Suppress("DEPRECATION")
+                                resultData.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI)
+
+                        } else resultData.data
+
                     if (audioUri != null) {
-                        checkAudioFile(audioUri)
-                        binding.tvSelectedAlarmSound.text =
-                            AudioUtils.getAudioNameFromUri(
-                                R.string.default_alarm_sound,
-                                requireContext(),
-                                audioUri
-                            )
+                        checkAndSaveAudioFile(audioUri)
                         selectedUri = audioUri
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                             AudioUtils.persistUriPermission(requireActivity(), audioUri)
@@ -177,17 +201,24 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
             binding.etTaskTitle.setText(task?.taskText)
             binding.tvSelectedDateTime.text =
                 ConvertUtils.convertTimeMillisIntoText(requireContext(), task!!.alarmTimeMillis)
-            binding.tvSelectedAlarmSound.text = if (task!!.alarmSoundUri.isNotEmpty())
+
+            binding.tvSelectedAlarmSound.text = if (task!!.alarmSoundUri.isNotEmpty()) {
+                selectedUri = task!!.alarmSoundUri.toUri()
                 AudioUtils.getAudioNameFromUri(
-                    R.string.default_alarm_sound,
+                    R.string.unknown_audio_file,
                     requireContext(),
                     task!!.alarmSoundUri.toUri()
                 )
-            else getString(R.string.default_alarm_sound)
+            }
+            else {
+                selectedUri = AudioUtils.defaultAlarmUri(requireContext())
+                AudioUtils.defaultAlarmName(requireContext())
+            }
         } else {
             binding.etTaskTitle.setText("")
             binding.tvSelectedDateTime.text = getString(R.string.no_date_selected)
-            binding.tvSelectedAlarmSound.text = getString(R.string.default_alarm_sound)
+            binding.tvSelectedAlarmSound.text = AudioUtils.defaultAlarmName(requireContext())
+            selectedUri = AudioUtils.defaultAlarmUri(requireContext())
         }
     }
 
@@ -301,7 +332,7 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
         }
     }
 
-    private fun checkAudioFile(uri: Uri) {
+    private fun checkAndSaveAudioFile(uri: Uri) {
         // Show loading
         binding.progressBar.visibility = View.VISIBLE
         lifecycleScope.launch {
@@ -312,6 +343,13 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
             binding.progressBar.visibility = View.GONE
             if (isValid) {
                 Log.d(TAG, "Audio is valid")
+                prefs.edit { putString(SETTINGS_DEFAULT_ALARM_KEY, uri.toString()) }
+                binding.tvSelectedAlarmSound.text =
+                    AudioUtils.getAudioNameFromUri(
+                        R.string.default_alarm_sound,
+                        requireContext(),
+                        uri
+                    )
                 binding.tvSelectedAlarmSound.error = null
             } else {
                 Log.e(TAG, "Invalid audio file")

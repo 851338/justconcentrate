@@ -29,7 +29,7 @@ class AlarmService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val alarmUri = intent?.getStringExtra(ALARM_URI)
         val soundUri: Uri =
-            if (alarmUri.isNullOrEmpty()) AudioUtils.defaultAlarmUri else alarmUri.toUri()
+            if (alarmUri.isNullOrEmpty()) AudioUtils.defaultAlarmUri(this) else alarmUri.toUri()
 
         // Create and start foreground notification
         startForeground(ALARM_AUDIO_SERVICE_NOTIFICATION_ID, createNotification())

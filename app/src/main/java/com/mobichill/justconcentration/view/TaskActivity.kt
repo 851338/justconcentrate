@@ -23,6 +23,8 @@ import com.mobichill.justconcentration.helper.TaskItemTouchHelper
 import com.mobichill.justconcentration.listener.OnItemDismissListener
 import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.model.TaskModel
+import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.SETTINGS_PREFS_NAME
+import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.SETTINGS_SYNC_KEY
 import com.mobichill.justconcentration.repository.FireStoreRepository
 import com.mobichill.justconcentration.util.SFUtils
 import com.mobichill.justconcentration.util.Utils
@@ -36,6 +38,9 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
     }
     val taskViewModel: TaskViewModel by viewModels {
         taskViewModelFactory
+    }
+    private val prefs by lazy {
+        getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE)
     }
 
     override fun onResume() {
@@ -51,6 +56,7 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
         ActivityTaskBinding.inflate(layoutInflater)
 
     override fun initView(): Unit = with(binding) {
+        super.initView()
         fabMain.setOnClickListener(object : OnSingleClickListener() {
             override fun onSingleClick(view: View) {
                 toggleFabMenu()
@@ -139,7 +145,7 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
             )
         )
 
-        // Now observe the LiveData
+        // Observe the LiveData
         taskViewModel.allTasks.observe(this@TaskActivity) { tasks ->
             if (tasks.isEmpty()) {
                 recyclerView.visibility = View.GONE
@@ -151,20 +157,22 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
             }
         }
 
+        // Sync feature
+        val isSynced = prefs.getBoolean(SETTINGS_SYNC_KEY, false)
+        if (!isSynced) return
         if (Utils.isNetworkAvailable(this@TaskActivity)) {
             val user = FirebaseAuth.getInstance().currentUser
             if (user != null) {
                 try {
-                    //sync from room to fireStore
+                    // Sync from room to fireStore
                     FireStoreRepository().syncUnsyncedTasksToFireStore(user.uid)
-                    //sync from fireStore to room
+                    // Sync from fireStore to room
                     taskViewModel.syncTasks()
                 } catch (e: Exception) {
                     Log.e(TAG, "Sync tasks: ", e)
                 }
             }
         }
-        super.initView()
     }
 
     private fun toggleSearch(show: Boolean) = with(binding) {

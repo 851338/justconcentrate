@@ -2,15 +2,10 @@ package com.mobichill.justconcentration.util
 
 import android.content.Context
 import androidx.core.content.edit
-import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.IS_LOGGED_IN_KEY
-import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.SETTINGS_DEFAULT_ALARM_KEY
-import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.SETTINGS_PREFS_NAME
-import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.SETTING_DEFAULT_SESSION_SOUND_KEY
 import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.USERID_PREFS_KEY
 import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.USER_INFO_PREFS_NAME
 import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.USER_SESSION_PREFS_NAME
-import com.mobichill.justconcentration.util.AudioUtils.defaultAlarmName
 
 object SFUtils {
     fun saveLoginState(context: Context, isLoggedIn: Boolean) {
@@ -49,20 +44,5 @@ object SFUtils {
         val sharedPreferences =
             context.getSharedPreferences(USER_INFO_PREFS_NAME, Context.MODE_PRIVATE)
         sharedPreferences.edit { clear() }
-    }
-
-    fun getDefaultAlarmSound(context: Context): String {
-        val sharedPref =
-            context.getSharedPreferences(SETTINGS_PREFS_NAME, Context.MODE_PRIVATE)
-        return sharedPref.getString(SETTINGS_DEFAULT_ALARM_KEY, defaultAlarmName(context))
-            ?: defaultAlarmName(context)
-    }
-
-    fun getDefaultSessionSound(context: Context): String {
-        val sharedPref =
-            context.getSharedPreferences(SETTINGS_PREFS_NAME, Context.MODE_PRIVATE)
-        return sharedPref.getString(
-            SETTING_DEFAULT_SESSION_SOUND_KEY, context.getString(R.string.silence)
-        ) ?: context.getString(R.string.silence)
     }
 }

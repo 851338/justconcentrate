@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 
 class AlarmHelper {
     fun setAlarm(context: Context, triggerTime: Long, requestCode: Int, alarmUri: String) {
-        val finalUri = if (alarmUri.isEmpty()) AudioUtils.defaultAlarmString else alarmUri
+        val finalUri = if (alarmUri.isEmpty()) AudioUtils.defaultAlarmString(context) else alarmUri
 
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
         val intent = Intent(context, AlarmReceiver::class.java).apply {

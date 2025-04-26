@@ -10,17 +10,45 @@ import android.provider.OpenableColumns
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AlertDialog
+import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.others.Constants.REQUEST_CODE.REQUEST_SYSTEM_RINGTONE
+import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.SETTINGS_DEFAULT_ALARM_KEY
+import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.SETTINGS_PREFS_NAME
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import android.content.Context.MODE_PRIVATE
+import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.SETTING_DEFAULT_SESSION_SOUND_KEY
 
 object AudioUtils {
-    val defaultAlarmUri: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
-    val defaultAlarmString = defaultAlarmUri.toString()
+    // Alarm sound
+    fun defaultAlarmUri(context: Context): Uri {
+        val prefs = context.getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE)
+        val alarmString = prefs.getString(SETTINGS_DEFAULT_ALARM_KEY, "")
+        return if (alarmString.isNullOrEmpty())
+            RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+        else alarmString.toUri()
+    }
+    fun defaultAlarmString(context: Context): String = defaultAlarmUri(context).toString()
     fun defaultAlarmName(context: Context): String =
-        getAudioNameFromUri(R.string.default_alarm_sound, context, defaultAlarmUri)
+        getAudioNameFromUri(R.string.unknown_audio_file, context, defaultAlarmUri(context))
+
+    // Session sound
+    fun defaultSessionUri(context: Context): Uri? {
+        val prefs = context.getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE)
+        val sessionString = prefs.getString(SETTING_DEFAULT_SESSION_SOUND_KEY, "")
+        return if (sessionString.isNullOrEmpty())
+            null
+        else sessionString.toUri()
+    }
+    fun defaultSessionString(context: Context): String = defaultSessionUri(context).toString()
+    fun defaultSessionName(context: Context): String {
+        val defaultSessionUri = defaultSessionUri(context)
+        return if (defaultSessionUri == null)
+            context.getString(R.string.silence)
+        else getAudioNameFromUri(R.string.unknown_audio_file, context, defaultSessionUri)
+    }
 
     fun showSoundChoiceDialog(
         activity: Activity,

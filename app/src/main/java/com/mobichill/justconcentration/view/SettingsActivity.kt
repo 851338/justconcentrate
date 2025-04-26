@@ -1,16 +1,25 @@
 package com.mobichill.justconcentration.view
 
+import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Color
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
+import android.widget.PopupWindow
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.edit
+import androidx.core.graphics.drawable.toDrawable
 import androidx.lifecycle.lifecycleScope
+import com.google.firebase.auth.FirebaseAuth
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.databinding.ActivitySettingsBinding
@@ -23,6 +32,7 @@ import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.SETTI
 import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.SETTING_DEFAULT_SESSION_SOUND_KEY
 import com.mobichill.justconcentration.util.AudioUtils
 import com.mobichill.justconcentration.util.SFUtils
+import com.mobichill.justconcentration.util.Utils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -60,21 +70,6 @@ class SettingsActivity : BaseViewBindingActivity<ActivitySettingsBinding>() {
 
     override fun initView() = with(binding) {
         super.initView()
-        // Setup view
-        selectedAlarmSound.text = SFUtils.getDefaultAlarmSound(this@SettingsActivity)
-        selectedSessionSound.text = SFUtils.getDefaultSessionSound(this@SettingsActivity)
-
-        itemSyncWithCloud.settingToggleTitle.text = getString(R.string.sync_with_cloud)
-        itemChangePassword.settingTitle.text = getString(R.string.change_password)
-
-        itemVibrationSwitch.settingToggleTitle.text = getString(R.string.vibration)
-        itemReminderTime.settingTitle.text = getString(R.string.default_alarm_time)
-        itemAlarmSound.settingTitle.text = getString(R.string.default_alarm_sound)
-        itemSessionSound.settingTitle.text = getString(R.string.default_session_sound)
-
-        itemDarkMode.settingToggleTitle.text = getString(R.string.dark_mode_text)
-        itemAbout.settingTitle.text = getString(R.string.about)
-
         // Back button
         btnBack.setOnClickListener(object : OnSingleClickListener() {
             override fun onSingleClick(view: View) {
@@ -83,26 +78,72 @@ class SettingsActivity : BaseViewBindingActivity<ActivitySettingsBinding>() {
         })
 
         // Sync with cloud switch
+        itemSyncWithCloud.settingToggleTitle.text = getString(R.string.sync_with_cloud)
         val isSynced = prefs.getBoolean(SETTINGS_SYNC_KEY, false)
-        binding.itemSyncWithCloud.settingToggleSwitch.isChecked = isSynced
-        itemSyncWithCloud.settingToggleSwitch.setOnCheckedChangeListener { _, isChecked ->
-            prefs.edit { putBoolean(SETTINGS_SYNC_KEY, isChecked) }
+        itemSyncWithCloud.settingToggleSwitch.isChecked = isSynced
+        itemSyncWithCloud.settingToggleSwitch.setOnCheckedChangeListener { switch, isChecked ->
+            switch.isEnabled = false
+            if (SFUtils.isUserLoggedIn(this@SettingsActivity)) {
+                prefs.edit { putBoolean(SETTINGS_SYNC_KEY, isChecked) }
+                Handler(Looper.getMainLooper()).postDelayed({
+                    switch.isEnabled = true
+                }, 1000)
+            } else Utils.showToast(this@SettingsActivity, getString(R.string.you_must_log_in_first))
         }
 
         // Change password button
-        //TODO
+        itemChangePassword.settingTitle.text = getString(R.string.change_password)
+        val isGoogleUser = FirebaseAuth.getInstance()
+            .currentUser
+            ?.providerData
+            ?.any { it.providerId == "google.com" } == true
+        itemChangePassword.root.setOnClickListener(
+            object : OnSingleClickListener() {
+                override fun onSingleClick(view: View) {
+                    // Do not let google user change password in-app
+                    if (!SFUtils.isUserLoggedIn(this@SettingsActivity)) {
+                        Utils.showToast(
+                            this@SettingsActivity,
+                            getString(R.string.you_must_log_in_first)
+                        )
+                        return
+                    }
+                    if (isGoogleUser) {
+                        Utils.showToast(
+                            this@SettingsActivity,
+                            getString(R.string.google_signed_password_change_not_available)
+                        )
+                    } else {
+                        openChangePasswordFragment()
+                    }
+                }
+            })
+
 
         // Vibration switch
+        itemVibrationSwitch.settingToggleTitle.text = getString(R.string.vibration)
         val vibrationEnabled = prefs.getBoolean(SETTINGS_VIBRATION_KEY, false)
-        binding.itemVibrationSwitch.settingToggleSwitch.isChecked = vibrationEnabled
-        itemVibrationSwitch.settingToggleSwitch.setOnCheckedChangeListener { _, isChecked ->
+        itemVibrationSwitch.settingToggleSwitch.isChecked = vibrationEnabled
+        itemVibrationSwitch.settingToggleSwitch.setOnCheckedChangeListener { switch, isChecked ->
+            switch.isEnabled = false
             prefs.edit { putBoolean(SETTINGS_VIBRATION_KEY, isChecked) }
+            Handler(Looper.getMainLooper()).postDelayed({
+                switch.isEnabled = true
+            }, 1000)
         }
 
-        // Default alarm time
-
         // Default alarm sound
-        binding.itemAlarmSound.root.setOnClickListener(
+        selectedAlarmSound.text = AudioUtils.defaultAlarmName(this@SettingsActivity)
+        itemAlarmSound.apply {
+            settingTitle.text = getString(R.string.default_alarm_sound)
+            toolTip.visibility = View.VISIBLE
+            toolTip.setOnClickListener(object : OnSingleClickListener() {
+                override fun onSingleClick(view: View) {
+                    showToolTip(getString(R.string.default_alarm_tooltip), toolTip)
+                }
+            })
+        }
+        itemAlarmSound.root.setOnClickListener(
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
                     currentSoundType = SoundType.ALARM
@@ -112,23 +153,39 @@ class SettingsActivity : BaseViewBindingActivity<ActivitySettingsBinding>() {
         )
 
         //Default session sound
-        binding.itemSessionSound.root.setOnClickListener(
+        selectedSessionSound.text = AudioUtils.defaultSessionName(this@SettingsActivity)
+        itemSessionSound.apply {
+            settingTitle.text = getString(R.string.default_session_sound)
+            toolTip.visibility = View.VISIBLE
+            toolTip.setOnClickListener(object : OnSingleClickListener() {
+                override fun onSingleClick(view: View) {
+                    showToolTip(getString(R.string.default_session_tooltip), toolTip)
+                }
+            })
+        }
+        itemSessionSound.root.setOnClickListener(
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
                     currentSoundType = SoundType.FOCUS
-                    AudioUtils.showSoundChoiceDialog(this@SettingsActivity, pickAudioLauncher)
+                    AudioUtils.openFilePicker(pickAudioLauncher)
                 }
             }
         )
 
         // Dark mode
+        itemDarkMode.settingToggleTitle.text = getString(R.string.dark_mode_text)
         val darkModeEnabled = prefs.getBoolean(SETTINGS_DARK_MODE_KEY, false)
-        binding.itemDarkMode.settingToggleSwitch.isChecked = darkModeEnabled
-        itemDarkMode.settingToggleSwitch.setOnCheckedChangeListener { _, isChecked ->
+        itemDarkMode.settingToggleSwitch.isChecked = darkModeEnabled
+        itemDarkMode.settingToggleSwitch.setOnCheckedChangeListener { switch, isChecked ->
+            switch.isEnabled = false
             prefs.edit { putBoolean(SETTINGS_DARK_MODE_KEY, isChecked) }
+            Handler(Looper.getMainLooper()).postDelayed({
+                switch.isEnabled = true
+            }, 1000)
         }
 
         // About button
+        itemAbout.settingTitle.text = getString(R.string.about)
         itemAbout.root.setOnClickListener(object : OnSingleClickListener() {
             override fun onSingleClick(view: View) {
                 openAboutFragment()
@@ -151,13 +208,23 @@ class SettingsActivity : BaseViewBindingActivity<ActivitySettingsBinding>() {
             .commit()
     }
 
+    private fun openChangePasswordFragment() {
+        supportFragmentManager.beginTransaction()
+            .setCustomAnimations(
+                R.anim.slide_in_right,
+                R.anim.slide_out_left
+            )
+            .replace(binding.fragmentContainer.id, ChangePasswordFragment())
+            .addToBackStack(null)
+            .commit()
+    }
+
     override fun onBackPressed() {
+        setupToolbar(getString(R.string.settings))
         val current = supportFragmentManager.findFragmentById(R.id.fragment_container)
         when (current) {
-            is AboutFragment -> {
+            is AboutFragment, is ChangePasswordFragment ->
                 onBackPressedDispatcher.onBackPressed()
-                setupToolbar(getString(R.string.settings))
-            }
 
             else ->
                 super.onBackPressed()
@@ -224,6 +291,7 @@ class SettingsActivity : BaseViewBindingActivity<ActivitySettingsBinding>() {
         }
     }
 
+    // Case choose ringtone
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode != RESULT_OK || data == null) return
@@ -236,5 +304,24 @@ class SettingsActivity : BaseViewBindingActivity<ActivitySettingsBinding>() {
         if (uri == null)
             return
         checkAndSaveAudioFile(uri)
+    }
+
+    @SuppressLint("InflateParams")
+    private fun showToolTip(content: String, view: View) {
+        val popupView = layoutInflater.inflate(R.layout.tooltip_layout, null)
+
+        val popupWindow = PopupWindow(
+            popupView,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            true // Focusable: enables outside touch to dismiss
+        )
+        val tooltipText = popupView.findViewById<AppCompatTextView>(R.id.tooltipText)
+        tooltipText.text = content
+        popupWindow.setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
+        popupWindow.isOutsideTouchable = true
+        popupWindow.elevation = 10f
+
+        popupWindow.showAsDropDown(view, 0, 10)
     }
 }

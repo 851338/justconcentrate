@@ -1,6 +1,8 @@
 package com.mobichill.justconcentration.view
 
 import android.content.Intent
+import android.text.SpannableString
+import android.text.style.UnderlineSpan
 import android.util.Log
 import android.view.View
 import com.google.firebase.auth.FirebaseAuth
@@ -22,6 +24,10 @@ class LoginActivity : BaseViewBindingActivity<ActivityLoginBinding>() {
     override fun initView() = with(binding) {
         auth = FirebaseAuth.getInstance()
 
+        val content = SpannableString(getString(R.string.forgot_password))
+        content.setSpan(UnderlineSpan(), 0, content.length, 0)
+        forgotPassword.text = content
+
         loginButton.setOnClickListener(object : OnSingleClickListener() {
             override fun onSingleClick(view: View) {
                 val email = emailEditText.text.toString().trim()
@@ -39,12 +45,23 @@ class LoginActivity : BaseViewBindingActivity<ActivityLoginBinding>() {
             }
         })
 
+        forgotPassword.setOnClickListener(object : OnSingleClickListener() {
+            override fun onSingleClick(view: View) {
+                openForgotPasswordActivity()
+            }
+        })
+
         btnBack.setOnClickListener(object : OnSingleClickListener() {
             override fun onSingleClick(view: View) {
                 onBackPressed()
             }
         })
+
         super.initView()
+    }
+
+    private fun openForgotPasswordActivity() {
+        startActivity(Intent(this, ForgotPasswordActivity::class.java))
     }
 
     private fun loginUser(email: String, password: String) {

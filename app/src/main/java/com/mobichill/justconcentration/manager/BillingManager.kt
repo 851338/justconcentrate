@@ -1,4 +1,4 @@
-package com.mobichill.justconcentration
+package com.mobichill.justconcentration.manager
 
 import android.content.Context
 import com.android.billingclient.api.BillingClient

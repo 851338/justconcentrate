@@ -10,6 +10,7 @@ import android.util.Log
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.application.MyApp
 import com.mobichill.justconcentration.helper.AlarmHelper
+import com.mobichill.justconcentration.manager.VibrationManager
 import com.mobichill.justconcentration.model.TaskModel
 import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.SNOOZE_MINUTES
 import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.TASK_ID
@@ -63,7 +64,7 @@ class SnoozeReceiver : BroadcastReceiver() {
                 )
             }
             Log.d(TAG, "Setting new alarm at $newReminderTime for task: ${task.taskText}")
-
+            VibrationManager.stopVibration()
         }
     }
 }

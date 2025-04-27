@@ -122,7 +122,6 @@ class SettingsActivity : BaseViewBindingActivity<ActivitySettingsBinding>() {
                 }
             })
 
-
         // Vibration switch
         itemVibrationSwitch.settingToggleTitle.text = getString(R.string.vibration)
         val vibrationEnabled = prefs.getBoolean(SETTINGS_VIBRATION_KEY, false)

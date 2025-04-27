@@ -144,7 +144,7 @@
     <string name="dark_mode_text">Dark mode (Coming soon)</string>
     <string name="setting_title">Setting Title</string>
     <string name="toggle_setting">Toggle Setting</string>
-    <string name="vibration">Vibration</string>
+    <string name="vibration">Alarm vibration</string>
     <string name="default_alarm_time">Default alarm time</string>
     <string name="sync_with_cloud">Sync with Cloud</string>
     <string name="change_password">Change password</string>

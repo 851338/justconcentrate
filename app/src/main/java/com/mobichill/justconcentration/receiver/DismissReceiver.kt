@@ -18,7 +18,6 @@ import com.mobichill.justconcentration.util.SFUtils
 import com.mobichill.justconcentration.util.Utils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 
@@ -52,7 +51,7 @@ class DismissReceiver : BroadcastReceiver() {
         //Alarm completed
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                withTimeout(3000) { // 3 seconds timeout
+                withTimeout(8000) { // 3 seconds timeout
                     updateTaskStatusToDismissed(context, taskId)
                 }
             } catch (e: Exception) {

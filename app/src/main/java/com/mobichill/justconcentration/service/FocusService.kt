@@ -59,7 +59,7 @@ class FocusService : Service() {
         val goal = intent.getStringExtra(FOCUS_USER_GOAL) ?: "Stay focused"
         val soundUri = intent.getStringExtra(FOCUS_AUDIO_URI)
         val quote = intent.getStringExtra(FOCUS_QUOTE) ?: "You can do it!"
-        val durationInMillis = durationInMinutes * 5 * 1000L //fix cung 5s
+        val durationInMillis = durationInMinutes * 5 * 1000L //Hard code 5s for testing
         val now = System.currentTimeMillis()
 
         val sessionCancel = ConcentrateSessionModel(
@@ -172,7 +172,7 @@ class FocusService : Service() {
     ): Notification {
         return NotificationCompat.Builder(this, FOCUS_CHANNEL)
             .setContentTitle("Concentration Mode")
-            .setContentText("🎯 Goal: $goal\n⏳ Duration: $durationInMinutes mins")
+            .setContentText("🎯 Goal: $goal\n⏳ Duration: $durationInMinutes minutes")
             .setSmallIcon(R.drawable.ic_concentrate)
             .setOnlyAlertOnce(true)
             .setOngoing(true)

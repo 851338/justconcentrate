@@ -102,5 +102,5 @@ dependencies {
     implementation(libs.glide)
     ksp(libs.compiler)
     implementation(libs.mpandroidchart)
-
+    implementation(libs.androidx.media)
 }

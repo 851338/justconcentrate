@@ -173,6 +173,14 @@ class SettingsActivity : BaseViewBindingActivity<ActivitySettingsBinding>() {
                 }
             }
         )
+        removeSound.setOnClickListener(
+            object : OnSingleClickListener() {
+                override fun onSingleClick(view: View) {
+                    selectedSessionSound.text = getString(R.string.silence)
+                    prefs.edit { remove(SETTING_DEFAULT_SESSION_SOUND_KEY) }
+                }
+            }
+        )
 
         // Dark mode
         itemDarkMode.settingToggleTitle.text = getString(R.string.dark_mode_text)

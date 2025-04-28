@@ -31,7 +31,13 @@ class SessionViewModel : ViewModel() {
                 val range = _selectedTimeRange.value ?: TimeRangeOption.TODAY
                 val start = _customStart.value
                 val end = _customEnd.value
-                value = filterSessions(sessions, range, start, end)
+
+                val newValue = filterSessions(sessions, range, start, end)
+
+                // *** Check if value actually changed before emitting ***
+                if (value != newValue) {
+                    value = newValue
+                }
             }
             addSource(allSessions) { update() }
             addSource(_selectedTimeRange) { update() }

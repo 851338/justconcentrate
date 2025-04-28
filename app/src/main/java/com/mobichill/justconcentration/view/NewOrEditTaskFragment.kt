@@ -37,6 +37,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Locale
 
 class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBinding>() {
@@ -62,7 +63,7 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
         prefs = requireActivity().getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?) = with(binding){
         super.onCreate(savedInstanceState)
         //must be called before onCreated() finishes, does not work in bg service
         requestPermissionLauncher = registerForActivityResult(
@@ -105,6 +106,13 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
                 }
             }
 
+        //run ads
+        val adRequest = AdRequest.Builder().build()
+        adView.loadAd(adRequest)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (hasUnsavedChanges()) {
@@ -125,11 +133,7 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
                 }
             }
         }
-        requireActivity().onBackPressedDispatcher.addCallback(this, callback)
-
-        //run ads
-        val adRequest = AdRequest.Builder().build()
-        binding.adView.loadAd(adRequest)
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
     }
 
     override fun onResume() {
@@ -152,15 +156,17 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
         resetData()
     }
 
-    override fun initView() {
+    override fun initView() = with(binding){
         // Scroll task content
-        binding.etTaskTitle.movementMethod = ScrollingMovementMethod.getInstance()
-        binding.etTaskTitle.isVerticalScrollBarEnabled = true
+        etTaskTitle.movementMethod = ScrollingMovementMethod.getInstance()
+        etTaskTitle.isVerticalScrollBarEnabled = true
 
-        binding.btnSave.setOnClickListener(object : OnSingleClickListener() {
+        btnSave.setOnClickListener(object : OnSingleClickListener() {
             override fun onSingleClick(view: View) {
+                // Make sure dateTime is always the new set one
+                dateTime = ConvertUtils.convertTextIntoTimeMillis(tvSelectedDateTime.text.toString())
                 // Check if user selected an already passed alarm
-                if (dateTime != 0L && dateTime <= System.currentTimeMillis())
+                if (!isEdit && dateTime != 0L && dateTime <= System.currentTimeMillis())
                     Utils.showToast(
                         requireContext(), getString(R.string.time_choosen_has_passed),
                     )
@@ -170,23 +176,25 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
             }
         })
 
-        binding.btnChooseAlarm.setOnClickListener(object : OnSingleClickListener() {
+        btnChooseAlarm.setOnClickListener(object : OnSingleClickListener() {
             override fun onSingleClick(view: View) {
                 AudioUtils.showSoundChoiceDialog(requireActivity(), pickAudioLauncher)
             }
         })
-        binding.btnPickDateTime.setOnClickListener(object : OnSingleClickListener() {
+        btnPickDateTime.setOnClickListener(object : OnSingleClickListener() {
             override fun onSingleClick(view: View) {
                 Utils.showDateTimePicker(requireContext()) { calendar ->
+                    calendar.set(Calendar.SECOND, 0)
+                    calendar.set(Calendar.MILLISECOND, 0)
                     val format = SimpleDateFormat(TIME_FORMAT, Locale.getDefault())
                     val formattedString = format.format(calendar.time)
                     timeString = formattedString
-                    binding.tvSelectedDateTime.text = timeString
+                    tvSelectedDateTime.text = timeString
                     dateTime = calendar.timeInMillis
                 }
             }
         })
-        binding.btnReset.setOnClickListener(
+        btnReset.setOnClickListener(
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
                     resetData()
@@ -194,13 +202,13 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
             })
     }
 
-    private fun resetData() {
+    private fun resetData() = with(binding){
         if (isEdit) {
-            binding.etTaskTitle.setText(task?.taskText)
-            binding.tvSelectedDateTime.text =
+            etTaskTitle.setText(task?.taskText)
+            tvSelectedDateTime.text =
                 ConvertUtils.convertTimeMillisIntoText(requireContext(), task!!.alarmTimeMillis)
 
-            binding.tvSelectedAlarmSound.text = if (task!!.alarmSoundUri.isNotEmpty()) {
+            tvSelectedAlarmSound.text = if (task!!.alarmSoundUri.isNotEmpty()) {
                 selectedUri = task!!.alarmSoundUri.toUri()
                 AudioUtils.getAudioNameFromUri(
                     R.string.unknown_audio_file,
@@ -212,15 +220,15 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
                 AudioUtils.defaultAlarmName(requireContext())
             }
         } else {
-            binding.etTaskTitle.setText("")
-            binding.tvSelectedDateTime.text = getString(R.string.no_date_selected)
-            binding.tvSelectedAlarmSound.text = AudioUtils.defaultAlarmName(requireContext())
+            etTaskTitle.setText("")
+            tvSelectedDateTime.text = getString(R.string.no_date_selected)
+            tvSelectedAlarmSound.text = AudioUtils.defaultAlarmName(requireContext())
             selectedUri = AudioUtils.defaultAlarmUri(requireContext())
         }
     }
 
-    private fun createNewTask() {
-        if (binding.etTaskTitle.text.isNullOrEmpty()) {
+    private fun createNewTask() = with(binding){
+        if (etTaskTitle.text.isNullOrEmpty()) {
             Utils.showToast(
                 requireContext(),
                 requireContext().getString(R.string.please_enter_a_task)
@@ -229,7 +237,7 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
         }
         var isSynced = false
         val newTask = TaskModel(
-            taskText = binding.etTaskTitle.text.toString(),
+            taskText = etTaskTitle.text.toString(),
             alarmTimeMillis = dateTime,
             requestCode = Utils.getNextRequestCode(requireContext()),
             alarmSoundUri = (if (::selectedUri.isInitialized) selectedUri.toString()
@@ -255,8 +263,8 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
         requireActivity().supportFragmentManager.popBackStack()
     }
 
-    private fun updateExistedTask(taskModel: TaskModel) {
-        if (binding.etTaskTitle.text.isNullOrEmpty()) {
+    private fun updateExistedTask(taskModel: TaskModel) = with(binding){
+        if (etTaskTitle.text.isNullOrEmpty()) {
             Utils.showToast(
                 requireContext(),
                 requireContext().getString(R.string.please_enter_a_task)
@@ -264,9 +272,9 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
             return
         }
         var isSynced = false
-        val updatedTask = TaskModel(
+        val updatedTask = taskModel.copy(
             id = taskModel.id,
-            taskText = binding.etTaskTitle.text.toString(),
+            taskText = etTaskTitle.text.toString(),
             alarmTimeMillis = dateTime,
             requestCode = taskModel.requestCode,
             alarmSoundUri = (if (::selectedUri.isInitialized) selectedUri.toString()
@@ -285,16 +293,12 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
         } else isSynced = false
         //update to room
         taskViewModel.updateTaskToRoom(updatedTask.copy(isSynced = isSynced))
-        if (task?.alarmTimeMillis != dateTime && task?.alarmTimeMillis != 0L) {
-            cancelAlarm(taskModel.requestCode)
+        if (task?.alarmTimeMillis != dateTime) {
+            AlarmHelper().cancelAlarm(requireContext(), taskModel.requestCode)
             setAlarm(updatedTask.requestCode, updatedTask.alarmSoundUri)
         }
 
         requireActivity().supportFragmentManager.popBackStack()
-    }
-
-    private fun cancelAlarm(requestCode: Int) {
-        AlarmHelper().cancelAlarm(requireContext(), requestCode)
     }
 
     private fun setAlarm(requestCode: Int, alarmUri: String) {
@@ -332,28 +336,28 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
         }
     }
 
-    fun checkAndSaveAudioFile(uri: Uri) {
+    fun checkAndSaveAudioFile(uri: Uri) = with(binding){
         // Show loading
-        binding.progressBar.visibility = View.VISIBLE
+        progressBar.visibility = View.VISIBLE
         lifecycleScope.launch {
             val isValid = withContext(Dispatchers.IO) {
                 AudioUtils.isValidAudioFile(requireContext(), uri)
             }
             // Hide loading
-            binding.progressBar.visibility = View.GONE
+            progressBar.visibility = View.GONE
             if (isValid) {
                 selectedUri = uri
                 Log.d(TAG, "Audio is valid")
-                binding.tvSelectedAlarmSound.text =
+                tvSelectedAlarmSound.text =
                     AudioUtils.getAudioNameFromUri(
                         R.string.unknown_audio_file,
                         requireContext(),
                         uri
                     )
-                binding.tvSelectedAlarmSound.error = null
+                tvSelectedAlarmSound.error = null
             } else {
                 Log.e(TAG, "Invalid audio file")
-                binding.tvSelectedAlarmSound.error = "Invalid audio file. Please select another!"
+                tvSelectedAlarmSound.error = "Invalid audio file. Please select another!"
             }
         }
     }

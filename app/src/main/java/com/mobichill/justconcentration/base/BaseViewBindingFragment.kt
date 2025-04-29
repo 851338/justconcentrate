@@ -31,6 +31,7 @@ abstract class BaseViewBindingFragment<VB : ViewBinding> : BaseFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         initViewModel()
+
         return binding.root
     }
 

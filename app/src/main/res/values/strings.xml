@@ -144,7 +144,7 @@
     <string name="dark_mode_text">Dark mode (Coming soon)</string>
     <string name="setting_title">Setting Title</string>
     <string name="toggle_setting">Toggle Setting</string>
-    <string name="vibration">Vibration</string>
+    <string name="vibration">Alarm vibration</string>
     <string name="default_alarm_time">Default alarm time</string>
     <string name="sync_with_cloud">Sync with Cloud</string>
     <string name="change_password">Change password</string>
@@ -168,5 +168,5 @@
     <string name="wait_sec">Wait %1$d sec</string>
     <string name="send_reset_email">Send Reset Email</string>
     <string name="default_alarm_tooltip">This is the default sound used for your task alarms if you haven\'t chosen a custom one.</string>
-    <string name="default_session_tooltip">This is the default sound played during your concentrate session if no custom sound is selected.</string>
+    <string name="default_session_tooltip">This is the default sound played during your concentrate session if no custom sound is selected. Can be removed.</string>
 </resources>

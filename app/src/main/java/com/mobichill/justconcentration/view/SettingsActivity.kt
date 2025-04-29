@@ -88,7 +88,10 @@ class SettingsActivity : BaseViewBindingActivity<ActivitySettingsBinding>() {
                 Handler(Looper.getMainLooper()).postDelayed({
                     switch.isEnabled = true
                 }, 1000)
-            } else Utils.showToast(this@SettingsActivity, getString(R.string.you_must_log_in_first))
+            } else {
+                switch.isChecked = !isChecked
+                Utils.showToast(this@SettingsActivity, getString(R.string.you_must_log_in_first))
+            }
         }
 
         // Change password button
@@ -118,7 +121,6 @@ class SettingsActivity : BaseViewBindingActivity<ActivitySettingsBinding>() {
                     }
                 }
             })
-
 
         // Vibration switch
         itemVibrationSwitch.settingToggleTitle.text = getString(R.string.vibration)
@@ -168,6 +170,14 @@ class SettingsActivity : BaseViewBindingActivity<ActivitySettingsBinding>() {
                 override fun onSingleClick(view: View) {
                     currentSoundType = SoundType.FOCUS
                     AudioUtils.openFilePicker(pickAudioLauncher)
+                }
+            }
+        )
+        removeSound.setOnClickListener(
+            object : OnSingleClickListener() {
+                override fun onSingleClick(view: View) {
+                    selectedSessionSound.text = getString(R.string.silence)
+                    prefs.edit { remove(SETTING_DEFAULT_SESSION_SOUND_KEY) }
                 }
             }
         )

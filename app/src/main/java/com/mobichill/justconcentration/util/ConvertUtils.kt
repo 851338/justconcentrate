@@ -2,7 +2,9 @@ package com.mobichill.justconcentration.util
 
 import android.content.Context
 import android.content.res.Resources
+import android.util.Log
 import com.mobichill.justconcentration.R
+import com.mobichill.justconcentration.others.Constants.OTHERS.TIME_FORMAT
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.ZoneId
@@ -11,6 +13,8 @@ import java.util.Date
 import java.util.Locale
 
 object ConvertUtils {
+    private val TAG = this::class.java.simpleName
+
     fun dp(value: Int): Int = (value * Resources.getSystem().displayMetrics.density).toInt()
 
     fun px(value: Int): Int = (value * Resources.getSystem().displayMetrics.density + 0.5f).toInt()
@@ -19,7 +23,7 @@ object ConvertUtils {
         if (timeMillis == 0L)
             return context.getString(R.string.no_date_selected)
         val date = Date(timeMillis)
-        val sdf = SimpleDateFormat("MMM dd, yyyy 'at' hh:mm a", Locale.getDefault())
+        val sdf = SimpleDateFormat(TIME_FORMAT, Locale.getDefault())
         return sdf.format(date)
     }
 
@@ -29,5 +33,16 @@ object ConvertUtils {
             .toLocalDate()
             .format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))
         // result: "Apr 22, 2025"
+    }
+
+    fun convertTextIntoTimeMillis(timeString: String): Long {
+        return try {
+            val format = SimpleDateFormat(TIME_FORMAT, Locale.getDefault())
+            val date = format.parse(timeString)
+            date?.time ?: 0L
+        } catch (e: Exception) {
+            Log.e(TAG, "convertTextIntoTimeMillis: ", e)
+            return 0L
+        }
     }
 }

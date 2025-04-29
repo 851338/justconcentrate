@@ -9,15 +9,17 @@ import android.content.Intent
 import android.util.Log
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.application.MyApp
-import com.mobichill.justconcentration.repository.FireStoreRepository
+import com.mobichill.justconcentration.manager.VibrationManager
 import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.REQUEST_CODE
 import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.TASK_ID
+import com.mobichill.justconcentration.repository.FireStoreRepository
 import com.mobichill.justconcentration.service.AlarmService
 import com.mobichill.justconcentration.util.SFUtils
 import com.mobichill.justconcentration.util.Utils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
 
 class DismissReceiver : BroadcastReceiver() {
     private val TAG = javaClass.simpleName
@@ -25,6 +27,7 @@ class DismissReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val requestCode = intent.getIntExtra(REQUEST_CODE, 0)
         val taskId = intent.getStringExtra(TASK_ID) ?: return
+        val pendingResult = goAsync() // Like await
 
         // Cancel the alarm receiver
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -47,8 +50,17 @@ class DismissReceiver : BroadcastReceiver() {
 
         //Alarm completed
         CoroutineScope(Dispatchers.IO).launch {
-            updateTaskStatusToDismissed(context, taskId)
+            try {
+                withTimeout(8000) { // 3 seconds timeout
+                    updateTaskStatusToDismissed(context, taskId)
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "updateTaskStatusToDismissed: ", e)
+            } finally {
+                pendingResult.finish() //Work done
+            }
         }
+        VibrationManager.stopVibration()
         Utils.showToast(context, context.getString(R.string.alarm_dismissed))
     }
 

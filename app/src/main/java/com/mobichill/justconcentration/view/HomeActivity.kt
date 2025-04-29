@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.core.view.isVisible
+import com.google.android.gms.ads.AdRequest
 import com.google.firebase.auth.FirebaseAuth
 import com.mobichill.justconcentration.BuildConfig
 import com.mobichill.justconcentration.R
@@ -127,6 +128,7 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
         ActivityHomeBinding.inflate(layoutInflater)
 
     override fun initView(): Unit = with(binding) {
+        super.initView()
         ivAvatar.setOnClickListener(
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
@@ -160,7 +162,10 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
                 }
             }
         )
-        super.initView()
+
+        //run ads
+        val adRequest = AdRequest.Builder().build()
+        adView.loadAd(adRequest)
     }
 
     private fun showUserPopup(view: View) {

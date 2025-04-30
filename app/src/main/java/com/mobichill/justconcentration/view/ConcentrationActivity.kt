@@ -3,7 +3,7 @@ package com.mobichill.justconcentration.view
 import android.os.Bundle
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.databinding.ActivityConcentrationBinding
-import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.FOCUS_QUOTE
+import com.mobichill.justconcentration.constants.Constants.INTENT_EXTRA.FOCUS_QUOTE
 
 class ConcentrationActivity : BaseViewBindingActivity<ActivityConcentrationBinding>() {
     override fun initViewBinding(): ActivityConcentrationBinding =

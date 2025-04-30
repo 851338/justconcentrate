@@ -5,23 +5,22 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import androidx.core.view.isVisible
 import com.google.android.gms.ads.AdRequest
 import com.google.firebase.auth.FirebaseAuth
 import com.mobichill.justconcentration.BuildConfig
 import com.mobichill.justconcentration.R
-import com.mobichill.justconcentration.application.MyApp
+import com.mobichill.justconcentration.base.application.MyApp
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.databinding.ActivityHomeBinding
 import com.mobichill.justconcentration.listener.OnSingleClickListener
-import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.SETTINGS_PREFS_NAME
-import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.SETTINGS_SYNC_KEY
-import com.mobichill.justconcentration.others.MyContextWrapper
-import com.mobichill.justconcentration.popup.UserPopup
+import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.NAME_SETTINGS_PREFS
+import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_SETTINGS_SYNC
+import com.mobichill.justconcentration.constants.MyContextWrapper
+import com.mobichill.justconcentration.view.popup.UserPopup
 import com.mobichill.justconcentration.repository.FireStoreRepository
-import com.mobichill.justconcentration.util.ConvertUtils.px
-import com.mobichill.justconcentration.util.SFUtils
-import com.mobichill.justconcentration.util.Utils
+import com.mobichill.justconcentration.utils.ConvertUtils.px
+import com.mobichill.justconcentration.utils.SFUtils
+import com.mobichill.justconcentration.utils.Utils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -29,7 +28,7 @@ import kotlinx.coroutines.withContext
 
 class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
     private val prefs by lazy {
-        getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE)
+        getSharedPreferences(NAME_SETTINGS_PREFS, MODE_PRIVATE)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,7 +64,7 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
         binding.btnBack.visibility = View.GONE
 
         // Sync feature
-        val isSynced = prefs.getBoolean(SETTINGS_SYNC_KEY, false)
+        val isSynced = prefs.getBoolean(KEY_SETTINGS_SYNC, false)
         val fireStoreRepo = FireStoreRepository()
         if (!isSynced) return
         CoroutineScope(Dispatchers.IO).launch {
@@ -97,29 +96,6 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
         }
     }
 
-    fun setupToolbar(title: String, isBackEnabled: Boolean) {
-        binding.btnBack.isVisible = isBackEnabled
-        binding.abTitle.text = title
-    }
-
-    override fun onResume() {
-        super.onResume()
-        setupToolbar(getString(R.string.main_title), false)
-    }
-
-    override fun onBackPressed() {
-        val current = supportFragmentManager.findFragmentById(R.id.fragment_container)
-        when (current) {
-            is ViewStatsFragment -> {
-                onBackPressedDispatcher.onBackPressed()
-                setupToolbar(getString(R.string.main_title), false)
-            }
-
-            else ->
-                super.onBackPressed()
-        }
-    }
-
     override fun attachBaseContext(newBase: Context?) {
         super.attachBaseContext(MyContextWrapper.wrap(newBase, "en"))
     }
@@ -144,21 +120,21 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
         cardConcentrate.setOnClickListener(
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
-                    openConcentrateSetup()
+                    openConcentrateSetupActivity()
                 }
             }
         )
         cardStats.setOnClickListener(
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
-                    openStatsFragment()
+                    openStatsActivity()
                 }
             }
         )
-        cardSubscription.setOnClickListener(
+        cardAchievements.setOnClickListener(
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
-                    //TODO
+                    openAchievementsActivity()
                 }
             }
         )
@@ -173,7 +149,7 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
         popup.show(view)
     }
 
-    private fun openConcentrateSetup() {
+    private fun openConcentrateSetupActivity() {
         startActivity(Intent(this, ConcentrateSetupActivity::class.java))
     }
 
@@ -185,15 +161,12 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
         startActivity(Intent(this, SettingsActivity::class.java))
     }
 
-    private fun openStatsFragment() {
-        supportFragmentManager.beginTransaction()
-            .setCustomAnimations(
-                R.anim.slide_in_right,
-                R.anim.slide_out_left
-            )
-            .replace(binding.fragmentContainer.id, ViewStatsFragment())
-            .addToBackStack(null)
-            .commit()
+    private fun openStatsActivity() {
+        startActivity(Intent(this, ViewStatsActivity::class.java))
+    }
+
+    private fun openAchievementsActivity() {
+        startActivity(Intent(this, AchievementsActivity::class.java))
     }
 
     fun setUIAfterLogout() {

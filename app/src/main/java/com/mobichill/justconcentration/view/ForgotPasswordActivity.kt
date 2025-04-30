@@ -7,7 +7,7 @@ import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.databinding.ActivityForgotPasswordBinding
 import com.mobichill.justconcentration.listener.OnSingleClickListener
-import com.mobichill.justconcentration.others.Constants.OTHERS.EMAIL_REGEX
+import com.mobichill.justconcentration.constants.Constants.OTHERS.EMAIL_REGEX
 
 class ForgotPasswordActivity : BaseViewBindingActivity<ActivityForgotPasswordBinding>() {
     override fun initViewBinding(): ActivityForgotPasswordBinding =

@@ -6,10 +6,10 @@ import android.view.View
 import androidx.core.content.edit
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.databinding.ActivityPrivacyConsentBinding
-import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.ACCEPTED_POLICY_KEY
-import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.APP_PREFS_NAME
+import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_ACCEPTED_POLICY
+import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.NAME_APP_PREFS
 import com.mobichill.justconcentration.listener.OnSingleClickListener
-import com.mobichill.justconcentration.util.Utils
+import com.mobichill.justconcentration.utils.Utils
 
 class PrivacyConsentActivity : BaseViewBindingActivity<ActivityPrivacyConsentBinding>() {
     override fun initViewBinding(): ActivityPrivacyConsentBinding =
@@ -36,8 +36,8 @@ class PrivacyConsentActivity : BaseViewBindingActivity<ActivityPrivacyConsentBin
         binding.continueButton.setOnClickListener (
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
-                    val prefs = getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE)
-                    prefs.edit { putBoolean(ACCEPTED_POLICY_KEY, true) }
+                    val prefs = getSharedPreferences(NAME_APP_PREFS, MODE_PRIVATE)
+                    prefs.edit { putBoolean(KEY_ACCEPTED_POLICY, true) }
                     startActivity(Intent(this@PrivacyConsentActivity, WelcomeActivity::class.java))
                     finish()
                 }

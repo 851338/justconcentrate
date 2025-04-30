@@ -15,12 +15,12 @@ class FireStoreRepository {
         }
     }
 
-    fun saveTaskToFireStore(task: TaskModel, onComplete: (Boolean, Exception?) -> Unit) {
-        db.saveTaskToFireStore(task, onComplete)
+    fun saveTaskToFireStore(task: TaskModel) {
+        db.saveTaskToFireStore(task)
     }
 
-    fun updateTaskToFireStore(task: TaskModel, onComplete: (Boolean, Exception?) -> Unit) {
-        db.updateTaskToFireStore(task, onComplete)
+    fun updateTaskToFireStore(task: TaskModel) {
+        db.updateTaskToFireStore(task)
     }
 
     suspend fun deleteTaskFromFireStore(task: TaskModel) {

@@ -17,15 +17,15 @@ import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.databinding.ActivityWelcomeBinding
 import com.mobichill.justconcentration.repository.FireStoreRepository
 import com.mobichill.justconcentration.listener.OnSingleClickListener
-import com.mobichill.justconcentration.util.Utils
+import com.mobichill.justconcentration.utils.Utils
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.security.MessageDigest
 import java.util.UUID
 import androidx.core.content.edit
-import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.APP_PREFS_NAME
-import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.SKIPPED_LOGIN_KEY
-import com.mobichill.justconcentration.util.SFUtils
+import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.NAME_APP_PREFS
+import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_SKIPPED_LOGIN
+import com.mobichill.justconcentration.utils.SFUtils
 
 class WelcomeActivity : BaseViewBindingActivity<ActivityWelcomeBinding>() {
     override fun initViewBinding(): ActivityWelcomeBinding =
@@ -59,9 +59,9 @@ class WelcomeActivity : BaseViewBindingActivity<ActivityWelcomeBinding>() {
         })
         binding.txtSkip.setOnClickListener(object : OnSingleClickListener() {
             override fun onSingleClick(view: View) {
-                val sharedPref = getSharedPreferences(APP_PREFS_NAME, MODE_PRIVATE)
+                val sharedPref = getSharedPreferences(NAME_APP_PREFS, MODE_PRIVATE)
                 sharedPref.edit {
-                    putBoolean(SKIPPED_LOGIN_KEY, true)
+                    putBoolean(KEY_SKIPPED_LOGIN, true)
                 }
                 goToHomeActivity()
             }

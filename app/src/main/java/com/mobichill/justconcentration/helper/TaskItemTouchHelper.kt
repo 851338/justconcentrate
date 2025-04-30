@@ -2,9 +2,9 @@ package com.mobichill.justconcentration.helper
 
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.mobichill.justconcentration.adapter.TaskListAdapter
+import com.mobichill.justconcentration.view.adapter.TaskAdapter
 
-class TaskItemTouchHelper(private val adapter: TaskListAdapter) : ItemTouchHelper.Callback() {
+class TaskItemTouchHelper(private val adapter: TaskAdapter) : ItemTouchHelper.Callback() {
 
     override fun getMovementFlags(
         recyclerView: RecyclerView,

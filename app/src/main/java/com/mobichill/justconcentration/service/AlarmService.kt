@@ -15,9 +15,9 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.net.toUri
 import com.mobichill.justconcentration.R
-import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.ALARM_URI
-import com.mobichill.justconcentration.others.Constants.NOTIFICATION.ALARM_AUDIO_SERVICE_NOTIFICATION_ID
-import com.mobichill.justconcentration.util.AudioUtils
+import com.mobichill.justconcentration.constants.Constants.INTENT_EXTRA.ALARM_URI
+import com.mobichill.justconcentration.constants.Constants.NOTIFICATION.NOTIFICATION_ID_ALARM_AUDIO_SERVICE
+import com.mobichill.justconcentration.utils.AudioUtils
 
 class AlarmService : Service() {
     private val TAG = this::class.java.simpleName
@@ -32,7 +32,7 @@ class AlarmService : Service() {
             if (alarmUri.isNullOrEmpty()) AudioUtils.defaultAlarmUri(this) else alarmUri.toUri()
 
         // Create and start foreground notification
-        startForeground(ALARM_AUDIO_SERVICE_NOTIFICATION_ID, createNotification())
+        startForeground(NOTIFICATION_ID_ALARM_AUDIO_SERVICE, createNotification())
 
         val audioAttributes = AudioAttributes.Builder()
             .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)

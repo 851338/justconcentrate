@@ -7,21 +7,19 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.Intent
-import android.os.VibrationEffect
-import android.os.Vibrator
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.mobichill.justconcentration.R
-import com.mobichill.justconcentration.application.MyApp
+import com.mobichill.justconcentration.base.application.MyApp
 import com.mobichill.justconcentration.manager.VibrationManager
 import com.mobichill.justconcentration.model.TaskModel
-import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.ALARM_URI
-import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.REQUEST_CODE
-import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.SNOOZE_MINUTES
-import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.TASK_ID
-import com.mobichill.justconcentration.others.Constants.OTHERS.ALARM_CHANNEL
-import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.SETTINGS_PREFS_NAME
-import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.SETTINGS_VIBRATION_KEY
+import com.mobichill.justconcentration.constants.Constants.INTENT_EXTRA.ALARM_URI
+import com.mobichill.justconcentration.constants.Constants.INTENT_EXTRA.REQUEST_CODE
+import com.mobichill.justconcentration.constants.Constants.INTENT_EXTRA.SNOOZE_MINUTES
+import com.mobichill.justconcentration.constants.Constants.INTENT_EXTRA.TASK_ID
+import com.mobichill.justconcentration.constants.Constants.OTHERS.CHANNEL_ALARM
+import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.NAME_SETTINGS_PREFS
+import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_SETTINGS_VIBRATION
 import com.mobichill.justconcentration.service.AlarmService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,8 +32,8 @@ class AlarmReceiver : BroadcastReceiver() {
     private var task: TaskModel? = null
 
     override fun onReceive(context: Context, intent: Intent?) {
-        val prefs = context.getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE)
-        val isVibrationOn = prefs.getBoolean(SETTINGS_VIBRATION_KEY, false)
+        val prefs = context.getSharedPreferences(NAME_SETTINGS_PREFS, MODE_PRIVATE)
+        val isVibrationOn = prefs.getBoolean(KEY_SETTINGS_VIBRATION, false)
         val alarmUri = intent?.getStringExtra(ALARM_URI) ?: ""
         val requestCode = intent?.getIntExtra(REQUEST_CODE, 0) ?: 0
 
@@ -62,7 +60,7 @@ class AlarmReceiver : BroadcastReceiver() {
     }
 
     private fun showNotification(context: Context, taskTitle: String) {
-        val channelId = ALARM_CHANNEL
+        val channelId = CHANNEL_ALARM
         val notificationManager = context.getSystemService(NotificationManager::class.java)
         val dismissIntent = createDismissIntent(context, task!!)
 

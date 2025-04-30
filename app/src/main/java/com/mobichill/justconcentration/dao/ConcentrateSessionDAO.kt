@@ -19,7 +19,7 @@ interface ConcentrateSessionDAO {
     @Query("SELECT * FROM focus_sessions WHERE id = :sessionId")
     fun getSessionById(sessionId: String) : Flow<ConcentrateSessionModel>
 
-    @Query("SELECT * FROM focus_sessions WHERE wasCompleted = 1 ORDER BY startTime DESC")
+    @Query("SELECT * FROM focus_sessions ORDER BY startTime DESC")
     fun getAllSessions(): Flow<List<ConcentrateSessionModel>>
 
     @Query("SELECT * FROM focus_sessions WHERE isSynced = 0")
@@ -27,4 +27,10 @@ interface ConcentrateSessionDAO {
 
     @Query("DELETE FROM focus_sessions")
     suspend fun clearAll()
+
+    @Query("SELECT COUNT(*) FROM focus_sessions WHERE wasCompleted = 1")
+    suspend fun getTotalCompletedSessionCount(): Int
+
+    @Query("SELECT SUM(durationMinutes) FROM focus_sessions WHERE wasCompleted = 1")
+    suspend fun getTotalFocusMinutes(): Int
 }

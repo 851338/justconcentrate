@@ -6,11 +6,11 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.mobichill.justconcentration.R
-import com.mobichill.justconcentration.application.MyApp
+import com.mobichill.justconcentration.base.application.MyApp
 import com.mobichill.justconcentration.model.ConcentrateSessionModel
 import com.mobichill.justconcentration.model.TaskModel
 import com.mobichill.justconcentration.model.UserModel
-import com.mobichill.justconcentration.util.Utils
+import com.mobichill.justconcentration.utils.Utils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -32,21 +32,14 @@ class FireStoreHelper private constructor() { // Private constructor to prevent 
         }
     }
 
-    fun saveTaskToFireStore(taskModel: TaskModel, onComplete: (Boolean, Exception?) -> Unit) {
+    fun saveTaskToFireStore(taskModel: TaskModel) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid
-        if (userId == null) {
-            onComplete(false, null)
+        if (userId == null)
             return
-        }
+
         val taskRef = db.collection("users").document(userId)
             .collection("tasks").document(taskModel.id)
         taskRef.set(taskModel)
-            .addOnSuccessListener {
-                onComplete(true, null)
-            }
-            .addOnFailureListener { e ->
-                onComplete(false, e)
-            }
     }
 
     fun getAllTasksFromFireStore(onComplete: (List<TaskModel>, Exception?) -> Unit) {
@@ -68,13 +61,12 @@ class FireStoreHelper private constructor() { // Private constructor to prevent 
             }
     }
 
-    fun updateTaskToFireStore(taskModel: TaskModel, onComplete: (Boolean, Exception?) -> Unit) {
+    fun updateTaskToFireStore(taskModel: TaskModel) {
 
         val userId = FirebaseAuth.getInstance().currentUser?.uid
-        if (userId == null) {
-            onComplete(false, null)  // User not logged in
+        if (userId == null)
             return
-        }
+
         val taskRef = db.collection("users").document(userId)
             .collection("tasks").document(taskModel.id)
 
@@ -83,14 +75,7 @@ class FireStoreHelper private constructor() { // Private constructor to prevent 
             "alarmTimeMillis" to taskModel.alarmTimeMillis,
             "requestCode" to taskModel.requestCode
         )
-
         taskRef.update(taskUpdates)
-            .addOnSuccessListener {
-                onComplete(true, null)
-            }
-            .addOnFailureListener { e ->
-                onComplete(false, e)
-            }
     }
 
     suspend fun deleteTaskFromFireStore(taskModel: TaskModel) {

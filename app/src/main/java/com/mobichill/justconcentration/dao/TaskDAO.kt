@@ -36,4 +36,13 @@ interface TaskDAO {
 
     @Query("SELECT * FROM tasks WHERE isSynced = 0 AND deletedAt > 0")
     suspend fun getUnsyncedDeletedTasks(): List<TaskModel>
+
+    @Query("SELECT COUNT(*) FROM tasks WHERE completed = 1 AND createdAt BETWEEN :startOfDay AND :endOfDay")
+    suspend fun getTodayCompletedTaskCount(startOfDay: Long, endOfDay: Long): Int
+
+    @Query("SELECT COUNT(*) FROM tasks WHERE completed = 1")
+    suspend fun getCompletedTaskCount(): Int
+
+    @Query("SELECT DISTINCT DATE(completedAt / 1000, 'unixepoch', 'localtime') FROM tasks WHERE completed = 1")
+    suspend fun getCompletedTaskDates(): List<String> // format: YYYY-MM-DD
 }

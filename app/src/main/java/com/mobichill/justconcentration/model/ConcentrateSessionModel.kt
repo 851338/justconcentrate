@@ -13,18 +13,11 @@ import java.util.UUID
 data class ConcentrateSessionModel(
     @PrimaryKey
     val id: String = UUID.randomUUID().toString(), // Unique ID for both Room & FireStore
-
     val goal: String = "",
-
     val startTime: Long = 0L,
-
     val endTime: Long = 0L,
-
     val date: String = "",
-
     val durationMinutes: Int = 0,
-
     val wasCompleted: Boolean = false,
-
     val isSynced: Boolean = false
 ) : Parcelable

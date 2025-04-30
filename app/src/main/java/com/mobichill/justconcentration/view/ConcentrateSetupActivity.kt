@@ -18,11 +18,11 @@ import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.databinding.ActivityConcentrateSetupBinding
 import com.mobichill.justconcentration.listener.OnSingleClickListener
-import com.mobichill.justconcentration.others.ConcentrationQuotes
-import com.mobichill.justconcentration.others.Constants
+import com.mobichill.justconcentration.constants.ConcentrationQuotes
+import com.mobichill.justconcentration.constants.Constants
 import com.mobichill.justconcentration.service.FocusService
-import com.mobichill.justconcentration.util.AudioUtils
-import com.mobichill.justconcentration.util.Utils
+import com.mobichill.justconcentration.utils.AudioUtils
+import com.mobichill.justconcentration.utils.Utils
 import kotlinx.coroutines.launch
 
 class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetupBinding>() {
@@ -33,7 +33,7 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
         ActivityConcentrateSetupBinding.inflate(layoutInflater)
 
     private val prefs by lazy {
-        getSharedPreferences(Constants.SHARED_PREFERENCES.FOCUS_SESSION_PREFS_NAME, MODE_PRIVATE)
+        getSharedPreferences(Constants.SHARED_PREFERENCES.NAME_FOCUS_SESSION_PREFS, MODE_PRIVATE)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -121,7 +121,7 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
             val okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
             okButton.setOnClickListener {
                 val duration = editText.text.toString().toIntOrNull()
-                if (duration == null || duration <= 0) {
+                if (duration == null || duration <= 0 || duration >= 1440) {
                     editText.error = getString(R.string.really)
                     editText.requestFocus()
                 } else {
@@ -139,7 +139,7 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
             getString(R.string._5_minutes),
             getString(R.string._10_minutes),
             getString(R.string._30_minutes),
-            getString(R.string._1_hour),
+            getString(R.string._60_minutes),
             getString(R.string.custom)
         )
 
@@ -182,7 +182,7 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
 
     fun startFocusSession(duration: Int, goal: String, audioUri: String?) {
         val isActive =
-            prefs.getBoolean(Constants.SHARED_PREFERENCES.FOCUS_SESSION_ACTIVE_KEY, false)
+            prefs.getBoolean(Constants.SHARED_PREFERENCES.KEY_FOCUS_SESSION_ACTIVE, false)
         //Shared preference: Imagine the service crashes but the flag still says "active" — you'd block new sessions forever.
         //is Running: Some OEMs aggressively kill services in the background without notice.
         //So we use both

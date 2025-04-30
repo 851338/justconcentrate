@@ -18,25 +18,26 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.mobichill.justconcentration.R
-import com.mobichill.justconcentration.adapter.TaskListAdapter
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.databinding.ActivityTaskBinding
 import com.mobichill.justconcentration.factory.TaskViewModelFactory
 import com.mobichill.justconcentration.helper.AlarmHelper
 import com.mobichill.justconcentration.helper.TaskItemTouchHelper
-import com.mobichill.justconcentration.listener.OnItemDismissListener
-import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.model.TaskModel
-import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.SETTINGS_PREFS_NAME
-import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.SETTINGS_SYNC_KEY
 import com.mobichill.justconcentration.repository.FireStoreRepository
-import com.mobichill.justconcentration.util.SFUtils
-import com.mobichill.justconcentration.util.Utils
+import com.mobichill.justconcentration.utils.SFUtils
+import com.mobichill.justconcentration.utils.Utils
+import com.mobichill.justconcentration.listener.OnItemDismissListener
+import com.mobichill.justconcentration.listener.OnMenuActionListener
+import com.mobichill.justconcentration.listener.OnSingleClickListener
+import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.NAME_SETTINGS_PREFS
+import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_SETTINGS_SYNC
+import com.mobichill.justconcentration.view.adapter.TaskAdapter
 import com.mobichill.justconcentration.viewmodel.TaskViewModel
 
 class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
     private var isMenuOpen = false
-    private lateinit var taskAdapter: TaskListAdapter
+    private lateinit var taskAdapter: TaskAdapter
     val taskViewModelFactory by lazy {
         TaskViewModelFactory()
     }
@@ -44,7 +45,7 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
         taskViewModelFactory
     }
     private val prefs by lazy {
-        getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE)
+        getSharedPreferences(NAME_SETTINGS_PREFS, MODE_PRIVATE)
     }
 
     override fun onResume() {
@@ -121,18 +122,10 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
         })
 
         // Initialize the adapter once with an empty list
-        taskAdapter = TaskListAdapter(
+        taskAdapter = TaskAdapter(
             { taskModel -> openNewOrEditTaskFragment(taskModel) },
-            { taskModel ->
-                Utils.showConfirmDialog(
-                    this@TaskActivity,
-                    getString(R.string.delete_confirm),
-                    getString(R.string.delete_confirm_message),
-                    getString(R.string.yes),
-                    getString(R.string.cancel)
-                ) { deleteTask(taskModel) }
-            },
-            onItemDismissListener
+            onItemDismissListener,
+            onMenuActionListener
         )
 
         // Attach ItemTouchHelper for swipe gestures
@@ -144,7 +137,7 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
         recyclerView.adapter = taskAdapter
         recyclerView.addItemDecoration(
             DividerItemDecoration(
-                recyclerView.context,
+                this@TaskActivity,
                 LinearLayoutManager.VERTICAL
             )
         )
@@ -162,7 +155,7 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
         }
 
         // Sync feature
-        val isSynced = prefs.getBoolean(SETTINGS_SYNC_KEY, false)
+        val isSynced = prefs.getBoolean(KEY_SETTINGS_SYNC, false)
         if (!isSynced) return
         if (Utils.isNetworkAvailable(this@TaskActivity)) {
             val user = FirebaseAuth.getInstance().currentUser
@@ -248,16 +241,72 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
     private fun deleteTask(taskModel: TaskModel?) {
         if (taskModel == null)
             return
-        var isSynced = false
-        if (Utils.isNetworkAvailable(this) && SFUtils.isUserLoggedIn(this)) {
-            isSynced = true
-            taskViewModel.deleteTaskFromFireStore(
-                taskModel.copy(isSynced = true)
-            )
-        } else isSynced = false
-        taskViewModel.deleteTaskFromRoom(taskModel.copy(isSynced = isSynced))
-        cancelAlarm(taskModel.requestCode)
-        Utils.showToast(this, getString(R.string.task_deleted))
+        var isSyncedSuccessfully = false
+        if (SFUtils.isUserLoggedIn(this@TaskActivity) && Utils.isNetworkAvailable(this@TaskActivity)) {
+            try {
+                Log.d(TAG, "Attempting FireStore sync for session ${taskModel.id}")
+                // Sync the potentially modified sessionToSave
+                taskViewModel.deleteTaskFromFireStore(taskModel.copy(isSynced = true)) // Try FireStore with isSynced=true
+                isSyncedSuccessfully = true // Mark as synced ONLY if FireStore call succeeds
+                Log.d(TAG, "FireStore sync SUCCESS for session ${taskModel.id}")
+            } catch (e: Exception) {
+                Log.e(TAG, "FireStore sync FAILED for session ${taskModel.id}", e)
+                isSyncedSuccessfully = false // Ensure it's false on FireStore failure
+            }
+        } else {
+            Log.d(TAG, "Skipping FireStore sync (Conditions not met) for session ${taskModel.id}")
+            isSyncedSuccessfully = false // Explicitly false if conditions aren't met
+        }
+        try {
+            Log.d(TAG, "Saving final state to Room ${taskModel.id}, Synced: $isSyncedSuccessfully)")
+            taskViewModel.deleteTaskFromRoom(taskModel.copy(isSynced = isSyncedSuccessfully))
+            cancelAlarm(taskModel.requestCode)
+            Utils.showToast(this@TaskActivity, getString(R.string.task_deleted))
+            Log.d(TAG, "Room save successful for task ${taskModel.id}")
+        } catch (e: Exception) {
+            Log.e(TAG, "Room save FAILED for session ${taskModel.id}", e)
+        }
+    }
+
+    private fun doneTask(taskModel: TaskModel?) {
+        if (taskModel == null)
+            return
+        if (taskModel.completed) {
+            Utils.showToast(this, getString(R.string.task_already_done))
+            return
+        }
+        val now = System.currentTimeMillis()
+        val updatedTask = taskModel.copy(
+            completed = true,
+            completedAt = now,
+            lastModified = now
+        )
+        var isSyncedSuccessfully = false
+        if (SFUtils.isUserLoggedIn(this@TaskActivity) && Utils.isNetworkAvailable(this@TaskActivity)) {
+            try {
+                Log.d(TAG, "Attempting FireStore sync for session ${taskModel.id}")
+                // Sync the potentially modified sessionToSave
+                taskViewModel.updateTaskToFireStore(updatedTask.copy(isSynced = true))
+                Log.d(TAG, "FireStore sync SUCCESS for session ${taskModel.id}")
+                isSyncedSuccessfully = true // Mark as synced ONLY if FireStore call succeeds
+            } catch (e: Exception) {
+                Log.e(TAG, "FireStore sync FAILED for session ${taskModel.id}", e)
+                isSyncedSuccessfully = false // Ensure it's false on FireStore failure
+            }
+        } else {
+            Log.d(TAG, "Skipping FireStore sync (Conditions not met) for session ${taskModel.id}")
+            isSyncedSuccessfully = false // Explicitly false if conditions aren't met
+        }
+        try {
+            Log.d(TAG, "Saving final state to Room ${taskModel.id}, Synced: $isSyncedSuccessfully)")
+            taskViewModel.updateTaskToRoom(updatedTask.copy(isSynced = isSyncedSuccessfully))
+            taskViewModel.updateAfterTaskCompletion(updatedTask.completedAt)
+            cancelAlarm(taskModel.requestCode)
+            Utils.showToast(this, getString(R.string.task_done))
+            Log.d(TAG, "Room save successful for task ${taskModel.id}")
+        } catch (e: Exception) {
+            Log.e(TAG, "Room save FAILED for session ${taskModel.id}", e)
+        }
     }
 
     private fun cancelAlarm(requestCode: Int) {
@@ -273,6 +322,28 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
                 getString(R.string.yes),
                 getString(R.string.cancel)
             ) { deleteTask(task) }
+        }
+    }
+
+    private val onMenuActionListener = object : OnMenuActionListener {
+        override fun onDelete(task: TaskModel) {
+            Utils.showConfirmDialog(
+                this@TaskActivity,
+                getString(R.string.delete_confirm),
+                getString(R.string.delete_confirm_message),
+                getString(R.string.yes),
+                getString(R.string.cancel)
+            ) { deleteTask(task) }
+        }
+
+        override fun onMarkDone(task: TaskModel) {
+            Utils.showConfirmDialog(
+                this@TaskActivity,
+                getString(R.string.done_confirm),
+                getString(R.string.done_confirm_message),
+                getString(R.string.yes),
+                getString(R.string.cancel)
+            ) { doneTask(task) }
         }
     }
 

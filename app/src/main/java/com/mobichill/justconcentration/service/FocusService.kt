@@ -11,7 +11,6 @@ import android.os.CountDownTimer
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.core.content.edit
 import androidx.core.net.toUri
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.constants.Constants.INTENT_EXTRA.FOCUS_AUDIO_URI
@@ -24,11 +23,10 @@ import com.mobichill.justconcentration.constants.Constants.OTHERS.ACTION_CANCEL_
 import com.mobichill.justconcentration.constants.Constants.OTHERS.ACTION_SESSION_COMPLETE
 import com.mobichill.justconcentration.constants.Constants.OTHERS.ACTION_START_SESSION
 import com.mobichill.justconcentration.constants.Constants.OTHERS.CHANNEL_FOCUS
-import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_FOCUS_SESSION_ACTIVE
-import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.NAME_FOCUS_SESSION_PREFS
 import com.mobichill.justconcentration.model.ConcentrateSessionModel
 import com.mobichill.justconcentration.receiver.NotificationActionReceiver
 import com.mobichill.justconcentration.utils.ConvertUtils
+import com.mobichill.justconcentration.utils.SharedPreferencesUtils
 import java.util.Locale
 
 class FocusService : Service() {
@@ -38,8 +36,8 @@ class FocusService : Service() {
     private var mediaPlayer: MediaPlayer? = null
     private var tickCount = 0 // Keep track of every tick
     private var isQuote = false
-    private val prefs by lazy {
-        getSharedPreferences(NAME_FOCUS_SESSION_PREFS, MODE_PRIVATE)
+    private val sfUtils: SharedPreferencesUtils by lazy {
+        SharedPreferencesUtils(applicationContext)
     }
 
     companion object {
@@ -51,7 +49,7 @@ class FocusService : Service() {
         notificationManager = getSystemService(NotificationManager::class.java)
         createNotificationChannel()
         isRunning = true
-        prefs.edit { putBoolean(KEY_FOCUS_SESSION_ACTIVE, true) }
+        sfUtils.setFocusSessionActive(true)
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
@@ -111,7 +109,7 @@ class FocusService : Service() {
         notificationManager.cancel(NOTIFICATION_ID_FOCUS_SERVICE)
         countDownTimer.cancel()
         isRunning = false
-        prefs.edit { putBoolean(KEY_FOCUS_SESSION_ACTIVE, false) }
+        sfUtils.setFocusSessionActive(false)
     }
 
     private fun startCountDownTimer(

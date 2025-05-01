@@ -77,7 +77,7 @@ object Constants {
         const val KEY_SETTINGS_SYNC = "sync_with_cloud"
         const val KEY_SETTINGS_VIBRATION = "is_vibration_enabled"
         const val KEY_SETTINGS_DARK_MODE = "is_dark_mode_enabled"
-        const val KEY_SETTINGS_DEFAULT_ALARM = "settings_default_alarm"
+        const val KEY_SETTINGS_DEFAULT_ALARM_SOUND = "settings_default_alarm_sound"
         const val KEY_SETTING_DEFAULT_SESSION_SOUND = "settings_default_session_sound"
         const val KEY_THEME = "theme_mode"
     }

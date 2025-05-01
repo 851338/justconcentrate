@@ -21,6 +21,7 @@ import com.mobichill.justconcentration.constants.Constants.OTHERS.CHANNEL_ALARM
 import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.NAME_SETTINGS_PREFS
 import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_SETTINGS_VIBRATION
 import com.mobichill.justconcentration.service.AlarmService
+import com.mobichill.justconcentration.utils.SharedPreferencesUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
@@ -32,8 +33,7 @@ class AlarmReceiver : BroadcastReceiver() {
     private var task: TaskModel? = null
 
     override fun onReceive(context: Context, intent: Intent?) {
-        val prefs = context.getSharedPreferences(NAME_SETTINGS_PREFS, MODE_PRIVATE)
-        val isVibrationOn = prefs.getBoolean(KEY_SETTINGS_VIBRATION, false)
+        val isVibrationOn = SharedPreferencesUtils(context.applicationContext).isVibrationEnabled()
         val alarmUri = intent?.getStringExtra(ALARM_URI) ?: ""
         val requestCode = intent?.getIntExtra(REQUEST_CODE, 0) ?: 0
 

@@ -15,17 +15,14 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.databinding.ActivityWelcomeBinding
-import com.mobichill.justconcentration.repository.FireStoreRepository
 import com.mobichill.justconcentration.listener.OnSingleClickListener
+import com.mobichill.justconcentration.repository.FireStoreRepository
+import com.mobichill.justconcentration.utils.SharedPreferencesUtils
 import com.mobichill.justconcentration.utils.Utils
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.security.MessageDigest
 import java.util.UUID
-import androidx.core.content.edit
-import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.NAME_APP_PREFS
-import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_SKIPPED_LOGIN
-import com.mobichill.justconcentration.utils.SFUtils
 
 class WelcomeActivity : BaseViewBindingActivity<ActivityWelcomeBinding>() {
     override fun initViewBinding(): ActivityWelcomeBinding =
@@ -59,10 +56,7 @@ class WelcomeActivity : BaseViewBindingActivity<ActivityWelcomeBinding>() {
         })
         binding.txtSkip.setOnClickListener(object : OnSingleClickListener() {
             override fun onSingleClick(view: View) {
-                val sharedPref = getSharedPreferences(NAME_APP_PREFS, MODE_PRIVATE)
-                sharedPref.edit {
-                    putBoolean(KEY_SKIPPED_LOGIN, true)
-                }
+                SharedPreferencesUtils(applicationContext).setSkippedLogin(true)
                 goToHomeActivity()
             }
         })
@@ -144,7 +138,7 @@ class WelcomeActivity : BaseViewBindingActivity<ActivityWelcomeBinding>() {
                                 user.photoUrl.toString()
                             )
                             //save shared preferences
-                            SFUtils.saveUserInfoToSF(this,user.uid)
+                            SharedPreferencesUtils(applicationContext).saveUserInfoToSF(user.uid)
                         }
                         //show toast & open main activity
                         Utils.showToast(this, getString(R.string.sign_in_successful))

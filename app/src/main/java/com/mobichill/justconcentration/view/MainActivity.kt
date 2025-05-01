@@ -11,9 +11,13 @@ import com.mobichill.justconcentration.R
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_ACCEPTED_POLICY
 import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.NAME_APP_PREFS
-import com.mobichill.justconcentration.utils.SFUtils
+import com.mobichill.justconcentration.utils.SharedPreferencesUtils
 
 class MainActivity : AppCompatActivity() {
+    private val sfUtils: SharedPreferencesUtils by lazy {
+        SharedPreferencesUtils(applicationContext)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -28,9 +32,8 @@ class MainActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             installSplashScreen()
         }
-        val prefs = getSharedPreferences(NAME_APP_PREFS, MODE_PRIVATE)
-        val hasAccepted = prefs.getBoolean(KEY_ACCEPTED_POLICY, false)
-        val skippedLogin = prefs.getBoolean(KEY_ACCEPTED_POLICY, false)
+        val hasAccepted = sfUtils.hasAcceptedPolicy()
+        val skippedLogin = sfUtils.isSkippedLogin()
 
         // Check read policy first
         if (!hasAccepted) {
@@ -38,7 +41,7 @@ class MainActivity : AppCompatActivity() {
         } else {
             // Check login state || User skipped login
             // Directly go to home page
-            if (skippedLogin || SFUtils.isUserLoggedIn(this)) {
+            if (skippedLogin || SharedPreferencesUtils(applicationContext).isUserLoggedIn()) {
                 startActivity(Intent(this, HomeActivity::class.java))
             } else {
                 // User is not logged in || user has not skipped login, go to welcome page

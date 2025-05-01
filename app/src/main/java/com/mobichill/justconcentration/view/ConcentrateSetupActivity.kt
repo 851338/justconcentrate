@@ -16,12 +16,13 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.ads.AdRequest
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
-import com.mobichill.justconcentration.databinding.ActivityConcentrateSetupBinding
-import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.constants.ConcentrationQuotes
 import com.mobichill.justconcentration.constants.Constants
+import com.mobichill.justconcentration.databinding.ActivityConcentrateSetupBinding
+import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.service.FocusService
 import com.mobichill.justconcentration.utils.AudioUtils
+import com.mobichill.justconcentration.utils.SharedPreferencesUtils
 import com.mobichill.justconcentration.utils.Utils
 import kotlinx.coroutines.launch
 
@@ -31,10 +32,6 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
     private var selectedDuration: Int = 0
     override fun initViewBinding(): ActivityConcentrateSetupBinding =
         ActivityConcentrateSetupBinding.inflate(layoutInflater)
-
-    private val prefs by lazy {
-        getSharedPreferences(Constants.SHARED_PREFERENCES.NAME_FOCUS_SESSION_PREFS, MODE_PRIVATE)
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -181,8 +178,7 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
     }
 
     fun startFocusSession(duration: Int, goal: String, audioUri: String?) {
-        val isActive =
-            prefs.getBoolean(Constants.SHARED_PREFERENCES.KEY_FOCUS_SESSION_ACTIVE, false)
+        val isActive = SharedPreferencesUtils(applicationContext).isFocusSessionActive()
         //Shared preference: Imagine the service crashes but the flag still says "active" — you'd block new sessions forever.
         //is Running: Some OEMs aggressively kill services in the background without notice.
         //So we use both

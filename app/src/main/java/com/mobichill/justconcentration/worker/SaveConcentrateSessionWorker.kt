@@ -17,7 +17,7 @@ import com.mobichill.justconcentration.helper.FireStoreHelper
 import com.mobichill.justconcentration.manager.BadgeProgressManager
 import com.mobichill.justconcentration.model.ConcentrateSessionModel
 import com.mobichill.justconcentration.repository.ConcentrateSessionRepository
-import com.mobichill.justconcentration.utils.SFUtils
+import com.mobichill.justconcentration.utils.SharedPreferencesUtils
 import com.mobichill.justconcentration.utils.Utils
 import java.util.concurrent.TimeUnit
 
@@ -93,7 +93,7 @@ class SaveConcentrateSessionWorker(
 
         // Attempt FireStore sync
         var isSyncedSuccessfully = false
-        if (SFUtils.isUserLoggedIn(appContext) && Utils.isNetworkAvailable(appContext)) {
+        if (SharedPreferencesUtils(applicationContext).isUserLoggedIn() && Utils.isNetworkAvailable(appContext)) {
             try {
                 Log.d(TAG, "Attempting FireStore sync for session ${sessionToSave.id}")
                 // Sync the potentially modified session

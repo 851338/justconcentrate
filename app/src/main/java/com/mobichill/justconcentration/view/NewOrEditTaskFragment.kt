@@ -2,9 +2,7 @@ package com.mobichill.justconcentration.view
 
 import android.app.Activity
 import android.content.Context
-import android.content.Context.MODE_PRIVATE
 import android.content.Intent
-import android.content.SharedPreferences
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
@@ -21,17 +19,16 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.ads.AdRequest
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingFragment
+import com.mobichill.justconcentration.constants.Constants.INTENT_EXTRA.TASK_KEY
+import com.mobichill.justconcentration.constants.Constants.OTHERS.TIME_FORMAT
 import com.mobichill.justconcentration.databinding.FragmentNewOrEditTaskBinding
 import com.mobichill.justconcentration.helper.AlarmHelper
+import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.model.TaskModel
 import com.mobichill.justconcentration.utils.AudioUtils
 import com.mobichill.justconcentration.utils.ConvertUtils
-import com.mobichill.justconcentration.utils.SFUtils
+import com.mobichill.justconcentration.utils.SharedPreferencesUtils
 import com.mobichill.justconcentration.utils.Utils
-import com.mobichill.justconcentration.listener.OnSingleClickListener
-import com.mobichill.justconcentration.constants.Constants.INTENT_EXTRA.TASK_KEY
-import com.mobichill.justconcentration.constants.Constants.OTHERS.TIME_FORMAT
-import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.NAME_SETTINGS_PREFS
 import com.mobichill.justconcentration.viewmodel.TaskViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -48,7 +45,9 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
     private val taskViewModel: TaskViewModel by activityViewModels {
         (requireActivity() as TaskActivity).taskViewModelFactory
     }
-    private lateinit var prefs: SharedPreferences
+    private val sfUtils: SharedPreferencesUtils by lazy {
+        SharedPreferencesUtils(requireActivity())
+    }
 
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
     private lateinit var pickAudioLauncher: ActivityResultLauncher<Intent>
@@ -60,7 +59,6 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        prefs = requireActivity().getSharedPreferences(NAME_SETTINGS_PREFS, MODE_PRIVATE)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) = with(binding) {
@@ -243,7 +241,7 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
             createdAt = System.currentTimeMillis()
         )
         var isSyncedSuccessfully = false
-        if (SFUtils.isUserLoggedIn(requireContext()) && Utils.isNetworkAvailable(requireContext())) {
+        if (sfUtils.isUserLoggedIn() && Utils.isNetworkAvailable(requireContext())) {
             try {
                 Log.d(TAG, "Attempting FireStore sync for session ${newTask.id}")
                 // Sync the potentially modified sessionToSave
@@ -287,7 +285,7 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
             else AudioUtils.defaultAlarmUri(requireContext()).toString()),
         )
         var isSyncedSuccessfully = false
-        if (SFUtils.isUserLoggedIn(requireContext()) && Utils.isNetworkAvailable(requireContext())) {
+        if (sfUtils.isUserLoggedIn() && Utils.isNetworkAvailable(requireContext())) {
             try {
                 Log.d(TAG, "Attempting FireStore sync for session ${taskModel.id}")
                 // Sync the potentially modified sessionToSave

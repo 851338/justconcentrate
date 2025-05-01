@@ -25,13 +25,11 @@ import com.mobichill.justconcentration.helper.AlarmHelper
 import com.mobichill.justconcentration.helper.TaskItemTouchHelper
 import com.mobichill.justconcentration.model.TaskModel
 import com.mobichill.justconcentration.repository.FireStoreRepository
-import com.mobichill.justconcentration.utils.SFUtils
+import com.mobichill.justconcentration.utils.SharedPreferencesUtils
 import com.mobichill.justconcentration.utils.Utils
 import com.mobichill.justconcentration.listener.OnItemDismissListener
 import com.mobichill.justconcentration.listener.OnMenuActionListener
 import com.mobichill.justconcentration.listener.OnSingleClickListener
-import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.NAME_SETTINGS_PREFS
-import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_SETTINGS_SYNC
 import com.mobichill.justconcentration.view.adapter.TaskAdapter
 import com.mobichill.justconcentration.viewmodel.TaskViewModel
 
@@ -44,8 +42,9 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
     val taskViewModel: TaskViewModel by viewModels {
         taskViewModelFactory
     }
-    private val prefs by lazy {
-        getSharedPreferences(NAME_SETTINGS_PREFS, MODE_PRIVATE)
+
+    private val sfUtils: SharedPreferencesUtils by lazy {
+        SharedPreferencesUtils(applicationContext)
     }
 
     override fun onResume() {
@@ -155,7 +154,7 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
         }
 
         // Sync feature
-        val isSynced = prefs.getBoolean(KEY_SETTINGS_SYNC, false)
+        val isSynced = sfUtils.isSettingsSyncEnabled()
         if (!isSynced) return
         if (Utils.isNetworkAvailable(this@TaskActivity)) {
             val user = FirebaseAuth.getInstance().currentUser
@@ -242,7 +241,7 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
         if (taskModel == null)
             return
         var isSyncedSuccessfully = false
-        if (SFUtils.isUserLoggedIn(this@TaskActivity) && Utils.isNetworkAvailable(this@TaskActivity)) {
+        if (sfUtils.isUserLoggedIn() && Utils.isNetworkAvailable(this@TaskActivity)) {
             try {
                 Log.d(TAG, "Attempting FireStore sync for session ${taskModel.id}")
                 // Sync the potentially modified sessionToSave
@@ -282,7 +281,7 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
             lastModified = now
         )
         var isSyncedSuccessfully = false
-        if (SFUtils.isUserLoggedIn(this@TaskActivity) && Utils.isNetworkAvailable(this@TaskActivity)) {
+        if (sfUtils.isUserLoggedIn() && Utils.isNetworkAvailable(this@TaskActivity)) {
             try {
                 Log.d(TAG, "Attempting FireStore sync for session ${taskModel.id}")
                 // Sync the potentially modified sessionToSave

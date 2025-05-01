@@ -16,7 +16,6 @@ import android.widget.PopupWindow
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.AppCompatTextView
-import androidx.core.content.edit
 import androidx.core.graphics.drawable.toDrawable
 import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.FirebaseAuth
@@ -24,14 +23,8 @@ import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.databinding.ActivitySettingsBinding
 import com.mobichill.justconcentration.listener.OnSingleClickListener
-import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_SETTINGS_DARK_MODE
-import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_SETTINGS_DEFAULT_ALARM
-import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.NAME_SETTINGS_PREFS
-import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_SETTINGS_SYNC
-import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_SETTINGS_VIBRATION
-import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_SETTING_DEFAULT_SESSION_SOUND
 import com.mobichill.justconcentration.utils.AudioUtils
-import com.mobichill.justconcentration.utils.SFUtils
+import com.mobichill.justconcentration.utils.SharedPreferencesUtils
 import com.mobichill.justconcentration.utils.Utils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -42,10 +35,12 @@ class SettingsActivity : BaseViewBindingActivity<ActivitySettingsBinding>() {
         ALARM, FOCUS
     }
 
-    private var currentSoundType: SoundType? = null
-    private val prefs by lazy {
-        getSharedPreferences(NAME_SETTINGS_PREFS, MODE_PRIVATE)
+    private val sfUtils: SharedPreferencesUtils by lazy {
+        SharedPreferencesUtils(applicationContext)
     }
+
+    private var currentSoundType: SoundType? = null
+
     private lateinit var pickAudioLauncher: ActivityResultLauncher<Intent>
 
     override fun initViewBinding(): ActivitySettingsBinding =
@@ -79,13 +74,13 @@ class SettingsActivity : BaseViewBindingActivity<ActivitySettingsBinding>() {
 
         // Sync with cloud switch
         itemSyncWithCloud.settingToggleTitle.text = getString(R.string.sync_with_cloud)
-        val isSynced = prefs.getBoolean(KEY_SETTINGS_SYNC, false)
+        val isSynced = sfUtils.isSettingsSyncEnabled()
         itemSyncWithCloud.settingToggleSwitch.isChecked = isSynced
         itemSyncWithCloud.settingToggleSwitch.setOnCheckedChangeListener { switch, isChecked ->
             switch.isEnabled = false
-            if (SFUtils.isUserLoggedIn(this@SettingsActivity)) {
-                prefs.edit { putBoolean(KEY_SETTINGS_SYNC, isChecked) }
-                Handler(Looper.getMainLooper()).postDelayed({
+            if (sfUtils.isUserLoggedIn()) {
+                sfUtils.updateSettingSync(isChecked)
+                    Handler(Looper.getMainLooper()).postDelayed({
                     switch.isEnabled = true
                 }, 1000)
             } else {
@@ -104,7 +99,7 @@ class SettingsActivity : BaseViewBindingActivity<ActivitySettingsBinding>() {
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
                     // Do not let google user change password in-app
-                    if (!SFUtils.isUserLoggedIn(this@SettingsActivity)) {
+                    if (!sfUtils.isUserLoggedIn()) {
                         Utils.showToast(
                             this@SettingsActivity,
                             getString(R.string.you_must_log_in_first)
@@ -124,11 +119,11 @@ class SettingsActivity : BaseViewBindingActivity<ActivitySettingsBinding>() {
 
         // Vibration switch
         itemVibrationSwitch.settingToggleTitle.text = getString(R.string.vibration)
-        val vibrationEnabled = prefs.getBoolean(KEY_SETTINGS_VIBRATION, false)
+        val vibrationEnabled = sfUtils.isVibrationEnabled()
         itemVibrationSwitch.settingToggleSwitch.isChecked = vibrationEnabled
         itemVibrationSwitch.settingToggleSwitch.setOnCheckedChangeListener { switch, isChecked ->
             switch.isEnabled = false
-            prefs.edit { putBoolean(KEY_SETTINGS_VIBRATION, isChecked) }
+            sfUtils.updateSettingsVibration(isChecked)
             Handler(Looper.getMainLooper()).postDelayed({
                 switch.isEnabled = true
             }, 1000)
@@ -177,18 +172,18 @@ class SettingsActivity : BaseViewBindingActivity<ActivitySettingsBinding>() {
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
                     selectedSessionSound.text = getString(R.string.silence)
-                    prefs.edit { remove(KEY_SETTING_DEFAULT_SESSION_SOUND) }
+                    sfUtils.removeSettingsDefaultSessionSound()
                 }
             }
         )
 
         // Dark mode
         itemDarkMode.settingToggleTitle.text = getString(R.string.dark_mode_text)
-        val darkModeEnabled = prefs.getBoolean(KEY_SETTINGS_DARK_MODE, false)
+        val darkModeEnabled = sfUtils.isDarkModeEnabled()
         itemDarkMode.settingToggleSwitch.isChecked = darkModeEnabled
         itemDarkMode.settingToggleSwitch.setOnCheckedChangeListener { switch, isChecked ->
             switch.isEnabled = false
-            prefs.edit { putBoolean(KEY_SETTINGS_DARK_MODE, isChecked) }
+            sfUtils.updateSettingsDarkMode(isChecked)
             Handler(Looper.getMainLooper()).postDelayed({
                 switch.isEnabled = true
             }, 1000)
@@ -276,7 +271,7 @@ class SettingsActivity : BaseViewBindingActivity<ActivitySettingsBinding>() {
     private fun saveSelectedUri(uri: Uri) {
         when (currentSoundType) {
             SoundType.ALARM -> {
-                prefs.edit { putString(KEY_SETTINGS_DEFAULT_ALARM, uri.toString()) }
+                sfUtils.updateSettingsDefaultAlarmSound(uri)
                 binding.selectedAlarmSound.text =
                     AudioUtils.getAudioNameFromUri(
                         R.string.default_alarm_sound,
@@ -286,7 +281,7 @@ class SettingsActivity : BaseViewBindingActivity<ActivitySettingsBinding>() {
             }
 
             SoundType.FOCUS -> {
-                prefs.edit { putString(KEY_SETTING_DEFAULT_SESSION_SOUND, uri.toString()) }
+                sfUtils.updateSettingsDefaultSessionSound(uri)
                 binding.selectedSessionSound.text =
                     AudioUtils.getAudioNameFromUri(
                         R.string.default_session_sound,

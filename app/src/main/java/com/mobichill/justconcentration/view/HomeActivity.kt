@@ -13,13 +13,11 @@ import com.mobichill.justconcentration.base.application.MyApp
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.databinding.ActivityHomeBinding
 import com.mobichill.justconcentration.listener.OnSingleClickListener
-import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.NAME_SETTINGS_PREFS
-import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_SETTINGS_SYNC
 import com.mobichill.justconcentration.constants.MyContextWrapper
 import com.mobichill.justconcentration.view.popup.UserPopup
 import com.mobichill.justconcentration.repository.FireStoreRepository
 import com.mobichill.justconcentration.utils.ConvertUtils.px
-import com.mobichill.justconcentration.utils.SFUtils
+import com.mobichill.justconcentration.utils.SharedPreferencesUtils
 import com.mobichill.justconcentration.utils.Utils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,8 +25,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
-    private val prefs by lazy {
-        getSharedPreferences(NAME_SETTINGS_PREFS, MODE_PRIVATE)
+    private val sfUtils: SharedPreferencesUtils by lazy {
+        SharedPreferencesUtils(applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,8 +36,8 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
             Log.d("HomeActivity", "This is a debug build!")
         }
         //load user avatar
-        if (SFUtils.isUserLoggedIn(this)) {
-            val uid = SFUtils.getUserIdFromSF(this)
+        if (sfUtils.isUserLoggedIn()) {
+            val uid = sfUtils.getUserId()
             CoroutineScope(Dispatchers.IO).launch {
                 val user =
                     MyApp.instance.userRepository.getUserById(uid)
@@ -64,7 +62,7 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
         binding.btnBack.visibility = View.GONE
 
         // Sync feature
-        val isSynced = prefs.getBoolean(KEY_SETTINGS_SYNC, false)
+        val isSynced = sfUtils.isSettingsSyncEnabled()
         val fireStoreRepo = FireStoreRepository()
         if (!isSynced) return
         CoroutineScope(Dispatchers.IO).launch {

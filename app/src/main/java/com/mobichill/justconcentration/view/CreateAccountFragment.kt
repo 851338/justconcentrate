@@ -9,7 +9,7 @@ import com.mobichill.justconcentration.databinding.FragmentCreateAccountBinding
 import com.mobichill.justconcentration.repository.FireStoreRepository
 import com.mobichill.justconcentration.constants.Constants.OTHERS.EMAIL_REGEX
 import com.mobichill.justconcentration.listener.OnSingleClickListener
-import com.mobichill.justconcentration.utils.SFUtils
+import com.mobichill.justconcentration.utils.SharedPreferencesUtils
 import com.mobichill.justconcentration.utils.Utils
 
 class CreateAccountFragment : BaseViewBindingFragment<FragmentCreateAccountBinding>() {
@@ -97,7 +97,7 @@ class CreateAccountFragment : BaseViewBindingFragment<FragmentCreateAccountBindi
                             name
                         )
                         //save shared preferences
-                        SFUtils.saveUserInfoToSF(requireContext(), uid)
+                        SharedPreferencesUtils(requireContext()).saveUserInfoToSF(uid)
                     }
                 } else {
                     Utils.showToast(requireContext(), "Signup failed: ${task.exception?.message}")

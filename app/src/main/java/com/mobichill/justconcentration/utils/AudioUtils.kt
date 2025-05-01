@@ -14,34 +14,31 @@ import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.constants.Constants.REQUEST_CODE.REQUEST_SYSTEM_RINGTONE
-import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_SETTINGS_DEFAULT_ALARM
-import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.NAME_SETTINGS_PREFS
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import android.content.Context.MODE_PRIVATE
-import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_SETTING_DEFAULT_SESSION_SOUND
 
 object AudioUtils {
     // Alarm sound
     fun defaultAlarmUri(context: Context): Uri {
-        val prefs = context.getSharedPreferences(NAME_SETTINGS_PREFS, MODE_PRIVATE)
-        val alarmString = prefs.getString(KEY_SETTINGS_DEFAULT_ALARM, "")
+        val alarmString = SharedPreferencesUtils(context.applicationContext).getDefaultAlarmSound()
         return if (alarmString.isNullOrEmpty())
             RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
         else alarmString.toUri()
     }
+
     fun defaultAlarmString(context: Context): String = defaultAlarmUri(context).toString()
     fun defaultAlarmName(context: Context): String =
         getAudioNameFromUri(R.string.unknown_audio_file, context, defaultAlarmUri(context))
 
     // Session sound
     fun defaultSessionUri(context: Context): Uri? {
-        val prefs = context.getSharedPreferences(NAME_SETTINGS_PREFS, MODE_PRIVATE)
-        val sessionString = prefs.getString(KEY_SETTING_DEFAULT_SESSION_SOUND, "")
+        val sessionString =
+            SharedPreferencesUtils(context.applicationContext).getDefaultSessionSound()
         return if (sessionString.isNullOrEmpty())
             null
         else sessionString.toUri()
     }
+
     fun defaultSessionString(context: Context): String = defaultSessionUri(context).toString()
     fun defaultSessionName(context: Context): String {
         val defaultSessionUri = defaultSessionUri(context)

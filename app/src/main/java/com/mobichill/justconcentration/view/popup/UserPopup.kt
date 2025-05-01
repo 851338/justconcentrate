@@ -12,7 +12,7 @@ import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.application.MyApp
 import com.mobichill.justconcentration.databinding.DialogUserProfileBinding
 import com.mobichill.justconcentration.listener.OnSingleClickListener
-import com.mobichill.justconcentration.utils.SFUtils
+import com.mobichill.justconcentration.utils.SharedPreferencesUtils
 import com.mobichill.justconcentration.utils.Utils
 import com.mobichill.justconcentration.view.HomeActivity
 import com.mobichill.justconcentration.view.WelcomeActivity
@@ -22,6 +22,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class UserPopup(private val context: Context) {
+    private val sfUtils: SharedPreferencesUtils by lazy {
+        SharedPreferencesUtils(context.applicationContext)
+    }
     private lateinit var popupWindow: PopupWindow
     private val binding: DialogUserProfileBinding =
         DialogUserProfileBinding.inflate(LayoutInflater.from(context))
@@ -35,9 +38,9 @@ class UserPopup(private val context: Context) {
         )
         //Get user name from local
         //if user logged in show name else turn name into login button
-        if (SFUtils.isUserLoggedIn(context)) {
+        if (sfUtils.isUserLoggedIn()) {
             binding.tvLogout.visibility = View.VISIBLE
-            val uid = SFUtils.getUserIdFromSF(context)
+            val uid = sfUtils.getUserId()
             CoroutineScope(Dispatchers.IO).launch {
                 val user = MyApp.instance.userRepository.getUserById(uid)
                 //Update UI here
@@ -65,7 +68,7 @@ class UserPopup(private val context: Context) {
                     when {
                         !Utils.isNetworkAvailable(context) ->
                             Utils.showToast(context, context.getString(R.string.no_internet_connection))
-                        !SFUtils.isUserLoggedIn(context) ->
+                        !sfUtils.isUserLoggedIn() ->
                             Utils.showToast(context,
                                 context.getString(R.string.you_must_log_in_first))
                         else ->
@@ -93,13 +96,13 @@ class UserPopup(private val context: Context) {
                         Utils.showToast(context, context.getString(R.string.no_internet_connection))
                     else {
                         FirebaseAuth.getInstance().signOut()
-                        SFUtils.saveLoginState(context, false)
+                        sfUtils.saveLoginState(false)
                         Utils.showToast(context, context.getString(R.string.logged_out))
                         popupWindow.dismiss()
                         if (context is HomeActivity)
                             context.setUIAfterLogout()
                         binding.tvLogout.visibility = View.GONE
-                        SFUtils.clearUserInfoPref(context)
+                        sfUtils.logout()
                         //TODO reset subscription variable
                     }
                 }

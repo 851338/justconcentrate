@@ -14,7 +14,7 @@ import com.mobichill.justconcentration.listener.OnMenuActionListener
 import com.mobichill.justconcentration.listener.OnSingleClickListener
 
 class TaskViewHolder(private val binding: ItemTaskBinding) : RecyclerView.ViewHolder(binding.root) {
-    private val TAG = this::class.java.simpleName
+    private val TAG = javaClass.simpleName
 
     fun onBind(
         taskModel: TaskModel?,

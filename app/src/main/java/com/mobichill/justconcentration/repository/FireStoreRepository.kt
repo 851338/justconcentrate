@@ -48,15 +48,4 @@ class FireStoreRepository {
     fun fetchUserFromFireStore(uid: String) {
         db.fetchUserFromFireStore(uid)
     }
-
-    suspend fun getSessionsFromFireStore(): List<ConcentrateSessionModel> =
-        db.getSessionsFromFireStore()
-
-    fun syncUnsyncedTasksToFireStore(uid: String) {
-        db.syncUnsyncedTasksToFireStore(uid)
-    }
-
-    fun syncUnsyncedSessionToFireStore(uid: String) {
-        db.syncUnsyncedSessionsToFirestore(uid)
-    }
 }

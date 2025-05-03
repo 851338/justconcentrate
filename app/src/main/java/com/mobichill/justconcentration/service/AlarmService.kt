@@ -20,7 +20,7 @@ import com.mobichill.justconcentration.constants.Constants.NOTIFICATION.NOTIFICA
 import com.mobichill.justconcentration.utils.AudioUtils
 
 class AlarmService : Service() {
-    private val TAG = this::class.java.simpleName
+    private val TAG = javaClass.simpleName
     private lateinit var mediaPlayer: MediaPlayer
     override fun onCreate() {
         super.onCreate()
@@ -39,9 +39,21 @@ class AlarmService : Service() {
             .setUsage(AudioAttributes.USAGE_MEDIA)
             .build()
 
+        if (::mediaPlayer.isInitialized && mediaPlayer.isPlaying) {
+            try {
+                mediaPlayer.stop()
+            } catch (e: IllegalStateException) {
+                Log.w(TAG, "Error stopping previous media player", e)
+            }
+            mediaPlayer.release() // Release resources before creating a new one
+        }
+
         try {
             mediaPlayer = MediaPlayer().apply {
-                setDataSource(this@AlarmService, soundUri)
+                setDataSource(
+                    this@AlarmService,
+                    AudioUtils.effectiveSoundUri(this@AlarmService, soundUri)
+                )
                 setAudioAttributes(audioAttributes)
                 isLooping = true
                 prepare()

@@ -7,21 +7,20 @@ import kotlinx.coroutines.flow.firstOrNull
 
 class TaskRepository(private val taskDAO: TaskDAO) {
 
-    suspend fun syncTasksToRoom(fireStoreTasks: List<TaskModel>) {
-        fireStoreTasks.forEach { firestoreTask ->
-            val roomTask = taskDAO.getTaskById(firestoreTask.id).firstOrNull()
-            if (roomTask == null)
-                taskDAO.insertTask(firestoreTask.copy(isSynced = true))
-            else
-            // If not synced from Room to FireStore, skip
-                if (!roomTask.isSynced) {
-                    return@forEach
-                } else taskDAO.updateTask(firestoreTask)
-        }
-    }
-
     suspend fun saveTaskToRoom(taskModel: TaskModel) {
         taskDAO.insertTask(taskModel)
+    }
+
+    suspend fun upsertTask(taskModel: TaskModel) {
+        taskDAO.upsertTask(taskModel)
+    }
+
+    suspend fun markTaskAsSyncedById(id: String, serverTimestampMillis: Long) {
+        taskDAO.markTaskAsSyncedById(id, serverTimestampMillis)
+    }
+
+    suspend fun markTasksAsSyncedAfterUpload(ids: List<String>) {
+        taskDAO.markTasksAsSyncedAfterUpload(ids)
     }
 
     suspend fun updateTaskToRoom(taskModel: TaskModel) {
@@ -33,6 +32,14 @@ class TaskRepository(private val taskDAO: TaskDAO) {
         var updatedTask =
             taskModel.copy(deletedAt = System.currentTimeMillis(), isSynced = false)
         taskDAO.updateTask(updatedTask)
+    }
+
+    suspend fun deleteTaskPermanentlyById(id: String) {
+        taskDAO.deleteTaskPermanentlyById(id)
+    }
+
+    suspend fun deleteTasksPermanentlyByIds(ids: List<String>) {
+        taskDAO.deleteTasksPermanentlyByIds(ids)
     }
 
     fun getTaskById(taskId: String): Flow<TaskModel> = taskDAO.getTaskById(taskId)

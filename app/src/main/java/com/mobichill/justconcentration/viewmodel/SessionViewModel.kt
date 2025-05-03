@@ -7,16 +7,15 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.map
-import com.mobichill.justconcentration.base.application.MyApp
-import com.mobichill.justconcentration.model.ConcentrateSessionModel
 import com.mobichill.justconcentration.constants.Constants.OTHERS.DATE_FORMATTER
 import com.mobichill.justconcentration.constants.TimeRangeOption
+import com.mobichill.justconcentration.model.ConcentrateSessionModel
+import com.mobichill.justconcentration.repository.ConcentrateSessionRepository
 import java.time.DayOfWeek
 import java.time.LocalDate
 
-class SessionViewModel : ViewModel() {
+class SessionViewModel(private val sessionRepository: ConcentrateSessionRepository) : ViewModel() {
     private val TAG = javaClass.simpleName
-    private val sessionRepository = MyApp.instance.concentrateSessionRepository
 
     val _selectedTimeRange = MutableLiveData<TimeRangeOption>(TimeRangeOption.TODAY)
 //    val selectedTimeRange: LiveData<TimeRangeOption> = _selectedTimeRange

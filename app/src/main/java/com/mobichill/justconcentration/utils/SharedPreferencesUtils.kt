@@ -4,10 +4,17 @@ import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import android.net.Uri
+import android.util.Log
 import androidx.core.content.edit
+import com.google.firebase.Timestamp
+import com.mobichill.justconcentration.constants.Constants.OTHERS.DATE_FORMATTER
 import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_ACCEPTED_POLICY
 import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_FOCUS_SESSION_ACTIVE
 import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_IS_LOGGED_IN
+import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_LAST_ACTIVE_DATE
+import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_LAST_SYNC_TIMESTAMP_NANOS
+import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_LAST_SYNC_TIMESTAMP_SECONDS
+import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_LOGIN_STREAK
 import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_SETTINGS_DARK_MODE
 import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_SETTINGS_DEFAULT_ALARM_SOUND
 import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_SETTINGS_SYNC
@@ -19,8 +26,10 @@ import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.NA
 import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.NAME_SETTINGS_PREFS
 import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.NAME_USER_INFO_PREFS
 import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.NAME_USER_SESSION_PREFS
+import java.time.LocalDate
 
 class SharedPreferencesUtils(context: Context) {
+    private val TAG = javaClass.simpleName
     private val appContext = context.applicationContext
 
     private val appPrefs: SharedPreferences by lazy {
@@ -80,6 +89,26 @@ class SharedPreferencesUtils(context: Context) {
 
     fun isFocusSessionActive() = appPrefs.getBoolean(KEY_FOCUS_SESSION_ACTIVE, false)
 
+    fun getCurrentLoginStreak() = appPrefs.getInt(KEY_LOGIN_STREAK, 0)
+
+    fun getLastActiveDate(): LocalDate? = appPrefs.getString(KEY_LAST_ACTIVE_DATE, null)?.let {
+        try {
+            LocalDate.parse(it, DATE_FORMATTER)
+        } catch (e: Exception) {
+            Log.e(TAG, "getLastActiveDate: ", e)
+            null
+        }
+    }
+
+    fun setCurrentLoginStreak(streak: Int) {
+        appPrefs.edit { putInt(KEY_LOGIN_STREAK, streak) }
+    }
+
+    fun setLastActiveDate(date: LocalDate) {
+        appPrefs.edit { putString(KEY_LAST_ACTIVE_DATE, date.format(DATE_FORMATTER)) }
+
+    }
+
     fun setSkippedLogin(isSkipped: Boolean) {
         appPrefs.edit { putBoolean(KEY_SKIPPED_LOGIN, isSkipped) }
     }
@@ -127,11 +156,21 @@ class SharedPreferencesUtils(context: Context) {
         settingPrefs.edit { remove(KEY_SETTING_DEFAULT_SESSION_SOUND) }
     }
 
-//
-//    fun getLastActiveDate(context: Context): LocalDate? {
-//        val dateStr = getAppPrefs(context).getString(KEY_LAST_ACTIVE_DATE, null)
-//        return dateStr?.let {
-//            try { LocalDate.parse(it, DATE_FORMATTER) } catch (e: Exception) { null }
-//        }
-//    }
+    // Sync preferences
+    fun getLastSyncTimestamp(): Timestamp {
+        // Default to 0 seconds, 0 nanoseconds (start of epoch) for the very first sync
+        val seconds = appPrefs.getLong(KEY_LAST_SYNC_TIMESTAMP_SECONDS, 0L)
+        val nanos = appPrefs.getInt(KEY_LAST_SYNC_TIMESTAMP_NANOS, 0)
+
+        Log.d(TAG, "Retrieved last sync timestamp: seconds=$seconds, nanos=$nanos")
+        return Timestamp(seconds, nanos)
+    }
+
+    fun saveLastSyncTimestamp(timestamp: Timestamp) {
+        Log.d(TAG, "Saving last sync timestamp: seconds=${timestamp.seconds}, nanos=${timestamp.nanoseconds}")
+        appPrefs.edit {
+            putLong(KEY_LAST_SYNC_TIMESTAMP_SECONDS, timestamp.seconds)
+                .putInt(KEY_LAST_SYNC_TIMESTAMP_NANOS, timestamp.nanoseconds)
+        }
+    }
 }

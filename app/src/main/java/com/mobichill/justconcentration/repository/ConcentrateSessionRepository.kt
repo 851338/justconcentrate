@@ -10,7 +10,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeParseException
 
 class ConcentrateSessionRepository(private val concentrateSessionDAO: ConcentrateSessionDAO) {
-    private val TAG = this::class.java.simpleName
+    private val TAG = javaClass.simpleName
 
     suspend fun addConcentrateSessionToRoom(session: ConcentrateSessionModel) {
         concentrateSessionDAO.insertSession(session)
@@ -20,23 +20,15 @@ class ConcentrateSessionRepository(private val concentrateSessionDAO: Concentrat
         concentrateSessionDAO.updateSession(session)
     }
 
+    suspend fun upsertSession(session: ConcentrateSessionModel) {
+        concentrateSessionDAO.upsertSession(session)
+    }
+
     fun getAllSessions() = concentrateSessionDAO.getAllSessions()
 
     suspend fun getUnsyncedSessions() = concentrateSessionDAO.getUnsyncedSessions()
 
-    suspend fun syncSessionsToRoom(fireStoreSessions: List<ConcentrateSessionModel>) {
-        fireStoreSessions.forEach { fireStoreSession ->
-            val roomSession =
-                concentrateSessionDAO.getSessionById(fireStoreSession.id).firstOrNull()
-            if (roomSession == null)
-                concentrateSessionDAO.insertSession(fireStoreSession.copy(isSynced = true))
-            else
-            // If not synced from Room to FireStore, skip
-                if (!roomSession.isSynced) {
-                    return@forEach
-                } else concentrateSessionDAO.updateSession(fireStoreSession)
-        }
-    }
+    suspend fun getSessionById(id: String) = concentrateSessionDAO.getSessionById(id)
 
     suspend fun getCurrentFocusStreak(): Int {
         val completedSessions: List<ConcentrateSessionModel> = try {
@@ -90,6 +82,15 @@ class ConcentrateSessionRepository(private val concentrateSessionDAO: Concentrat
         }
     }
 
+    suspend fun getSessionsNeedingUpload() = concentrateSessionDAO.getSessionsNeedingUpload()
+
+    suspend fun markSessionAsSyncedById(id: String, serverTimestampMillis: Long) {
+        concentrateSessionDAO.markSessionAsSyncedById(id, serverTimestampMillis)
+    }
+
+    suspend fun markSessionsAsSyncedAfterUpload(ids: List<String>) {
+        concentrateSessionDAO.markSessionsAsSyncedAfterUpload(ids)
+    }
 
     suspend fun getTotalFocusMinutes(): Int {
         return try {

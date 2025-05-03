@@ -14,7 +14,7 @@ import java.util.Date
 import java.util.Locale
 
 object ConvertUtils {
-    private val TAG = this::class.java.simpleName
+    private val TAG = javaClass.simpleName
 
     fun dp(value: Int): Int = (value * Resources.getSystem().displayMetrics.density).toInt()
 

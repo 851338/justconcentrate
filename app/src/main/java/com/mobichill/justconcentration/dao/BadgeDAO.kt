@@ -26,4 +26,16 @@ interface BadgeDAO {
 
     @Query("DELETE FROM badges")
     suspend fun clearAllBadges()
+
+    @Query("SELECT * FROM badges WHERE needsUpload = 1")
+    suspend fun getBadgesNeedingUpload(): List<BadgeModel>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun upsertBadge(model: BadgeModel)
+
+    @Query("UPDATE badges SET isSynced = 1, needsUpload = 0, serverLastUpdatedMillis = :serverTimestampMillis WHERE id = :id")
+    suspend fun markBadgeAsSyncedById(id: String, serverTimestampMillis: Long)
+
+    @Query("UPDATE badges SET isSynced = 1, needsUpload = 0 WHERE id IN (:ids)")
+    suspend fun markBadgesAsSyncedAfterUpload(ids: List<String>)
 }

@@ -5,11 +5,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.mobichill.justconcentration.base.application.MyApp
+import com.mobichill.justconcentration.manager.BadgeProgressManager
 import com.mobichill.justconcentration.model.TaskModel
 import com.mobichill.justconcentration.repository.FireStoreRepository
+import com.mobichill.justconcentration.repository.TaskRepository
 import com.mobichill.justconcentration.utils.ConvertUtils
-import com.mobichill.justconcentration.manager.BadgeProgressManager
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,25 +23,16 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalTime
 
-class TaskViewModel : ViewModel() {
+class TaskViewModel(
+    private val firestoreRepo: FireStoreRepository,
+    private val taskRepository: TaskRepository
+) : ViewModel() {
     private val TAG = javaClass.simpleName
-    private val firestoreRepo = FireStoreRepository()
-    private val taskRepository = MyApp.instance.taskRepository
     private val _searchQuery = MutableStateFlow("")
 
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
     val allTasks: LiveData<List<TaskModel>> = taskRepository.getAllActiveTasks().asLiveData()
-
-    fun syncTasks() = viewModelScope.launch {
-        val tasks = mutableListOf<TaskModel>()
-        firestoreRepo.getTasksFromFireStore { taskList, error ->
-            if (taskList.isNotEmpty())
-                tasks.addAll(taskList)
-            else Log.e(TAG, error?.message.toString())
-        }
-        taskRepository.syncTasksToRoom(tasks)
-    }
 
     fun saveTaskToRoom(task: TaskModel) = viewModelScope.launch {
         taskRepository.saveTaskToRoom(task)

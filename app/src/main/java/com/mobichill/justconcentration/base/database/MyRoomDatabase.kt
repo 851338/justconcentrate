@@ -32,7 +32,7 @@ abstract class MyRoomDatabase : RoomDatabase() {
 
     companion object {
         @Volatile
-        private var TAG = this::class.java.simpleName
+        private var TAG = javaClass.simpleName
         private var INSTANCE: MyRoomDatabase? = null
 
         /**

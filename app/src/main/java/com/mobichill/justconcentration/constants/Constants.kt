@@ -80,6 +80,10 @@ object Constants {
         const val KEY_SETTINGS_DEFAULT_ALARM_SOUND = "settings_default_alarm_sound"
         const val KEY_SETTING_DEFAULT_SESSION_SOUND = "settings_default_session_sound"
         const val KEY_THEME = "theme_mode"
+        const val KEY_LAST_ACTIVE_DATE = "user_last_active_date"
+        const val KEY_LOGIN_STREAK = "user_login_streak"
+        const val KEY_LAST_SYNC_TIMESTAMP_SECONDS = "last_sync_timestamp_seconds"
+        const val KEY_LAST_SYNC_TIMESTAMP_NANOS = "last_sync_timestamp_nanos"
     }
 
 }

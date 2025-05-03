@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
+import com.mobichill.justconcentration.base.application.MyApp
 import com.mobichill.justconcentration.databinding.ActivityTaskBinding
 import com.mobichill.justconcentration.factory.TaskViewModelFactory
 import com.mobichill.justconcentration.helper.AlarmHelper
@@ -37,7 +38,10 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
     private var isMenuOpen = false
     private lateinit var taskAdapter: TaskAdapter
     val taskViewModelFactory by lazy {
-        TaskViewModelFactory()
+        TaskViewModelFactory(
+            FireStoreRepository(),
+            MyApp.instance.taskRepository
+        )
     }
     val taskViewModel: TaskViewModel by viewModels {
         taskViewModelFactory
@@ -152,23 +156,6 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
                 taskAdapter.updateItems(tasks) // Update the adapter with the new tasks
             }
         }
-
-        // Sync feature
-        val isSynced = sfUtils.isSettingsSyncEnabled()
-        if (!isSynced) return
-        if (Utils.isNetworkAvailable(this@TaskActivity)) {
-            val user = FirebaseAuth.getInstance().currentUser
-            if (user != null) {
-                try {
-                    // Sync from room to fireStore
-                    FireStoreRepository().syncUnsyncedTasksToFireStore(user.uid)
-                    // Sync from fireStore to room
-                    taskViewModel.syncTasks()
-                } catch (e: Exception) {
-                    Log.e(TAG, "Sync tasks: ", e)
-                }
-            }
-        }
     }
 
     private fun toggleSearch(show: Boolean) = with(binding) {
@@ -277,9 +264,7 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
         val now = System.currentTimeMillis()
         val updatedTask = taskModel.copy(
             completed = true,
-            completedAt = now,
-            lastModified = now
-        )
+            completedAt = now)
         var isSyncedSuccessfully = false
         if (sfUtils.isUserLoggedIn() && Utils.isNetworkAvailable(this@TaskActivity)) {
             try {

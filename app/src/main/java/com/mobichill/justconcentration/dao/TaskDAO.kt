@@ -13,6 +13,9 @@ interface TaskDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTask(task: TaskModel)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertTask(task: TaskModel)
+
     @Update
     suspend fun updateTask(task: TaskModel)
 
@@ -21,6 +24,12 @@ interface TaskDAO {
 
     @Query("DELETE FROM tasks")
     suspend fun clearTasks()
+
+    @Query("DELETE FROM tasks WHERE id = :id")
+    suspend fun deleteTaskPermanentlyById(id: String)
+
+    @Query("DELETE FROM tasks WHERE id IN (:ids)")
+    suspend fun deleteTasksPermanentlyByIds(ids: List<String>)
 
     @Query("SELECT * FROM tasks WHERE id = :taskId")
     fun getTaskById(taskId: String): Flow<TaskModel>
@@ -45,4 +54,10 @@ interface TaskDAO {
 
     @Query("SELECT DISTINCT DATE(completedAt / 1000, 'unixepoch', 'localtime') FROM tasks WHERE completed = 1")
     suspend fun getCompletedTaskDates(): List<String> // format: YYYY-MM-DD
+
+    @Query("UPDATE tasks SET isSynced = 1, needsUpload = 0, serverLastUpdatedMillis = :serverTimestampMillis WHERE id = :id")
+    suspend fun markTaskAsSyncedById(id: String, serverTimestampMillis: Long)
+
+    @Query("UPDATE tasks SET isSynced = 1, needsUpload = 0 WHERE id IN (:ids)")
+    suspend fun markTasksAsSyncedAfterUpload(ids: List<String>)
 }

@@ -17,11 +17,12 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
+import com.mobichill.justconcentration.base.application.MyApp
+import com.mobichill.justconcentration.constants.Constants.OTHERS.DATE_FORMATTER
+import com.mobichill.justconcentration.constants.TimeRangeOption
 import com.mobichill.justconcentration.databinding.ActivityViewStatsBinding
 import com.mobichill.justconcentration.factory.SessionViewModelFactory
 import com.mobichill.justconcentration.listener.OnSingleClickListener
-import com.mobichill.justconcentration.constants.Constants.OTHERS.DATE_FORMATTER
-import com.mobichill.justconcentration.constants.TimeRangeOption
 import com.mobichill.justconcentration.viewmodel.SessionViewModel
 import java.time.Instant
 import java.time.LocalDate
@@ -38,7 +39,7 @@ class ViewStatsActivity : BaseViewBindingActivity<ActivityViewStatsBinding>() {
         super.initViewModel()
         viewModel = ViewModelProvider(
             this,
-            SessionViewModelFactory()
+            SessionViewModelFactory(MyApp.instance.concentrateSessionRepository)
         )[SessionViewModel::class.java]
     }
 
@@ -146,7 +147,10 @@ class ViewStatsActivity : BaseViewBindingActivity<ActivityViewStatsBinding>() {
 
         val barDataSet = BarDataSet(chartData, getString(R.string.session_stats_chart_label))
 
-        barDataSet.setColors(Color.rgb(0, 0, 255), Color.rgb(255, 0, 0)) // Set bar color for floatArrayOf(completedDuration, incompleteDuration)
+        barDataSet.setColors(
+            Color.rgb(0, 0, 255),
+            Color.rgb(255, 0, 0)
+        ) // Set bar color for floatArrayOf(completedDuration, incompleteDuration)
         barDataSet.stackLabels = arrayOf(
             getString(R.string.session_stats_chart_stack_completed), // "Completed"
             getString(R.string.session_stats_chart_stack_incomplete) // "Incomplete"

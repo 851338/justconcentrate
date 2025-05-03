@@ -4,6 +4,7 @@ import androidx.activity.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
+import com.mobichill.justconcentration.base.application.MyApp
 import com.mobichill.justconcentration.databinding.ActivityAchievementsBinding
 import com.mobichill.justconcentration.factory.BadgeViewModelFactory
 import com.mobichill.justconcentration.model.BadgeModel
@@ -13,7 +14,7 @@ import com.mobichill.justconcentration.viewmodel.BadgeViewModel
 class AchievementsActivity : BaseViewBindingActivity<ActivityAchievementsBinding>() {
     private lateinit var badgeAdapter: BadgeAdapter
     val badgeViewModelFactory by lazy {
-        BadgeViewModelFactory()
+        BadgeViewModelFactory(MyApp.instance.badgeRepository)
     }
     val badgeViewModel: BadgeViewModel by viewModels {
         badgeViewModelFactory

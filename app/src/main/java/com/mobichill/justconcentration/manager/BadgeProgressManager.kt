@@ -85,7 +85,6 @@ class BadgeProgressManager {
             isUnlocked = progress >= goal,
             unlockedAt = if (progress >= goal) System.currentTimeMillis() else null
         )
-
         badgeRepository.insertBadge(updatedBadge)
 //        syncBadgeToFireStore(userId, updatedBadge)
     }

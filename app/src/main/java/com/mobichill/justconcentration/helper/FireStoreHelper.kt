@@ -11,11 +11,7 @@ import com.mobichill.justconcentration.model.ConcentrateSessionModel
 import com.mobichill.justconcentration.model.TaskModel
 import com.mobichill.justconcentration.model.UserModel
 import com.mobichill.justconcentration.utils.Utils
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-
 
 class FireStoreHelper private constructor() { // Private constructor to prevent instantiation
     private val TAG = javaClass.simpleName
@@ -87,65 +83,6 @@ class FireStoreHelper private constructor() { // Private constructor to prevent 
         db.collection("users").document(userId)
             .collection("tasks").document(taskModel.id)
             .delete().await()
-    }
-
-    fun syncUnsyncedTasksToFireStore(userId: String) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val unsyncedTasks =
-                MyApp.instance.taskRepository.getUnsyncedActiveTasks()
-            unsyncedTasks.forEach { task ->
-                try {
-                    db.collection("users")
-                        .document(userId)
-                        .collection("tasks")
-                        .document(task.id)
-                        .set(task)
-                        .await()
-
-                    MyApp.instance.taskRepository.updateTaskToRoom(task.copy(isSynced = true))
-                } catch (e: Exception) {
-                    Log.e(TAG, "Failed to sync task: ${task.id}", e)
-                }
-            }
-        }
-    }
-
-    fun syncUnsyncedSessionsToFirestore(userId: String) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val unsynced =
-                MyApp.instance.concentrateSessionRepository.getUnsyncedSessions()
-            unsynced.forEach { s ->
-                try {
-                    db.collection("users")
-                        .document(userId)
-                        .collection("focus_sessions")
-                        .document(s.id)
-                        .set(s)
-                        .await()
-                    MyApp.instance.concentrateSessionRepository.updateSession(s.copy(isSynced = true))
-                } catch (e: Exception) {
-                    Log.e(TAG, "Failed to sync session: ${s.id}", e)
-                }
-            }
-        }
-    }
-
-    suspend fun getSessionsFromFireStore(): List<ConcentrateSessionModel> {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
-        if (userId == null) {
-            return emptyList()
-        }
-        return try {
-            val sessionRef = db.collection("users")
-                .document(userId)
-                .collection("focus_sessions")
-                .get()
-                .await()
-            sessionRef.documents.mapNotNull { it.toObject(ConcentrateSessionModel::class.java) }
-        } catch (e: Exception) {
-            Log.e(TAG, "getSessionsFromFireStore: ", e)
-            emptyList()
-        }
     }
 
     //Main function SignInWithGoogle

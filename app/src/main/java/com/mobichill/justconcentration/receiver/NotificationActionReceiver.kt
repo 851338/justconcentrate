@@ -23,7 +23,7 @@ import com.mobichill.justconcentration.worker.SaveConcentrateSessionWorker
 import androidx.work.workDataOf
 
 class NotificationActionReceiver : BroadcastReceiver() {
-    private val TAG = this::class.java.simpleName
+    private val TAG = javaClass.simpleName
 
     override fun onReceive(context: Context, intent: Intent) {
         val action = intent.action // Get action early

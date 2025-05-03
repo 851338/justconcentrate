@@ -16,8 +16,11 @@ interface ConcentrateSessionDAO {
     @Update
     suspend fun updateSession(session: ConcentrateSessionModel)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertSession(session: ConcentrateSessionModel)
+
     @Query("SELECT * FROM focus_sessions WHERE id = :sessionId")
-    fun getSessionById(sessionId: String) : Flow<ConcentrateSessionModel>
+    suspend fun getSessionById(sessionId: String): ConcentrateSessionModel
 
     @Query("SELECT * FROM focus_sessions ORDER BY startTime DESC")
     fun getAllSessions(): Flow<List<ConcentrateSessionModel>>
@@ -33,4 +36,13 @@ interface ConcentrateSessionDAO {
 
     @Query("SELECT SUM(durationMinutes) FROM focus_sessions WHERE wasCompleted = 1")
     suspend fun getTotalFocusMinutes(): Int
+
+    @Query("SELECT * FROM focus_sessions WHERE needsUpload = 1")
+    suspend fun getSessionsNeedingUpload(): List<ConcentrateSessionModel>
+
+    @Query("UPDATE focus_sessions SET isSynced = 1, needsUpload = 0, serverLastUpdatedMillis = :serverTimestampMillis WHERE id = :id")
+    suspend fun markSessionAsSyncedById(id: String, serverTimestampMillis: Long)
+
+    @Query("UPDATE focus_sessions SET isSynced = 1, needsUpload = 0 WHERE id IN (:ids)")
+    suspend fun markSessionsAsSyncedAfterUpload(ids: List<String>)
 }

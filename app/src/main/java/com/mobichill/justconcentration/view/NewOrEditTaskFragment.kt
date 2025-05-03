@@ -304,9 +304,7 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
             Log.d(TAG, "Saving final state to Room ${taskModel.id}, Synced: $isSyncedSuccessfully)")
             taskViewModel.updateTaskToRoom(
                 updatedTask.copy(
-                    isSynced = isSyncedSuccessfully,
-                    lastModified = System.currentTimeMillis()
-                )
+                    isSynced = isSyncedSuccessfully)
             )
             if (task?.alarmTimeMillis != dateTime) {
                 AlarmHelper().cancelAlarm(requireContext(), taskModel.requestCode)

@@ -14,7 +14,7 @@ import com.mobichill.justconcentration.repository.ConcentrateSessionRepository
 import java.time.DayOfWeek
 import java.time.LocalDate
 
-class SessionViewModel(private val sessionRepository: ConcentrateSessionRepository) : ViewModel() {
+class SessionViewModel(sessionRepository: ConcentrateSessionRepository) : ViewModel() {
     private val TAG = javaClass.simpleName
 
     val _selectedTimeRange = MutableLiveData<TimeRangeOption>(TimeRangeOption.TODAY)

@@ -38,25 +38,6 @@ class FireStoreHelper private constructor() { // Private constructor to prevent 
         taskRef.set(taskModel)
     }
 
-    fun getAllTasksFromFireStore(onComplete: (List<TaskModel>, Exception?) -> Unit) {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
-        if (userId == null) {
-            onComplete(emptyList(), null)  // User not logged in
-            return
-        }
-
-        val tasksRef = db.collection("users").document(userId).collection("tasks")
-
-        tasksRef.get()
-            .addOnSuccessListener { result ->
-                val tasks = result.documents.mapNotNull { it.toObject(TaskModel::class.java) }
-                onComplete(tasks, null)  // Successfully retrieved tasks
-            }
-            .addOnFailureListener { e ->
-                onComplete(emptyList(), e) // Fetching failed
-            }
-    }
-
     fun updateTaskToFireStore(taskModel: TaskModel) {
 
         val userId = FirebaseAuth.getInstance().currentUser?.uid

@@ -7,13 +7,6 @@ import com.mobichill.justconcentration.model.TaskModel
 
 class FireStoreRepository {
     private val db = FireStoreHelper.getInstance()
-    fun getTasksFromFireStore(onCompleted: (List<TaskModel>, Exception?) -> Unit) {
-        FireStoreHelper.getInstance().getAllTasksFromFireStore { onComplete, e ->
-            if (onComplete.isNotEmpty())
-                onCompleted(onComplete, null)
-            else onCompleted(emptyList(), e)
-        }
-    }
 
     fun saveTaskToFireStore(task: TaskModel) {
         db.saveTaskToFireStore(task)

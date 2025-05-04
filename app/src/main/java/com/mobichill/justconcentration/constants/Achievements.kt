@@ -1,6 +1,5 @@
 package com.mobichill.justconcentration.constants
 
-import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.model.BadgeModel
 
 object Achievements {
@@ -10,7 +9,7 @@ object Achievements {
             id = "task_1",
             name = "First Step",
             description = "Complete your first task",
-            iconResId = R.drawable.ic_task_first, // replace with your actual drawable
+            iconName = "ic_task_first",
             isUnlocked = false,
             progress = 0,
             goal = 1
@@ -19,7 +18,7 @@ object Achievements {
             id = "task_10",
             name = "Getting Things Done",
             description = "Complete 10 tasks",
-            iconResId = R.drawable.ic_task_10,
+            iconName = "ic_task_10",
             isUnlocked = false,
             progress = 0,
             goal = 10
@@ -28,7 +27,7 @@ object Achievements {
             id = "task_100",
             name = "Task Master",
             description = "Complete 100 tasks",
-            iconResId = R.drawable.ic_task_100,
+            iconName = "ic_task_100",
             isUnlocked = false,
             progress = 0,
             goal = 100
@@ -37,7 +36,7 @@ object Achievements {
             id = "today_star",
             name = "Today's star",
             description = "Complete all today's tasks (At least 3 tasks)",
-            iconResId = R.drawable.ic_today_star,
+            iconName = "ic_today_star",
             isUnlocked = false,
             progress = 0,
             goal = 0 // no fixed goal, event-based
@@ -46,7 +45,7 @@ object Achievements {
             id = "task_streak",
             name = "Consistency Champ",
             description = "Complete tasks 7 days in a row",
-            iconResId = R.drawable.ic_task_streak,
+            iconName = "ic_task_streak",
             isUnlocked = false,
             progress = 0,
             goal = 7
@@ -57,7 +56,7 @@ object Achievements {
             id = "focus_1",
             name = "Focus Initiated",
             description = "Finish your first focus session",
-            iconResId = R.drawable.ic_focus_1,
+            iconName = "ic_focus_1",
             isUnlocked = false,
             progress = 0,
             goal = 1
@@ -66,7 +65,7 @@ object Achievements {
             id = "focus_5",
             name = "Focus Apprentice",
             description = "Finish 5 focus sessions",
-            iconResId = R.drawable.ic_focus_5,
+            iconName = "ic_focus_5",
             isUnlocked = false,
             progress = 0,
             goal = 5
@@ -75,7 +74,7 @@ object Achievements {
             id = "focus_hour_5",
             name = "5-Hour Club",
             description = "Focus for 5 hours total",
-            iconResId = R.drawable.ic_focus_hour5,
+            iconName = "ic_focus_hour5",
             isUnlocked = false,
             progress = 0,
             goal = 5
@@ -84,7 +83,7 @@ object Achievements {
             id = "focus_hour_25",
             name = "Deep Worker",
             description = "Focus for 25 hours total",
-            iconResId = R.drawable.ic_focus_hour25,
+            iconName = "ic_focus_hour25",
             isUnlocked = false,
             progress = 0,
             goal = 25
@@ -93,7 +92,7 @@ object Achievements {
             id = "focus_streak_3",
             name = "Laser Loop",
             description = "Focus 3 days in a row",
-            iconResId = R.drawable.ic_focus_streak3,
+            iconName = "ic_focus_streak3",
             isUnlocked = false,
             progress = 0,
             goal = 3
@@ -104,7 +103,7 @@ object Achievements {
             id = "streak_3",
             name = "On Fire",
             description = "3-day activity streak",
-            iconResId = R.drawable.ic_streak_3,
+            iconName = "ic_streak_3",
             isUnlocked = false,
             progress = 0,
             goal = 3
@@ -113,7 +112,7 @@ object Achievements {
             id = "streak_7",
             name = "Weekly Warrior",
             description = "7-day streak",
-            iconResId = R.drawable.ic_streak_7,
+            iconName = "ic_streak_7",
             isUnlocked = false,
             progress = 0,
             goal = 7
@@ -122,7 +121,7 @@ object Achievements {
             id = "early_bird",
             name = "Early Bird",
             description = "Complete a task before 7 AM",
-            iconResId = R.drawable.ic_early_bird,
+            iconName = "ic_early_bird",
             isUnlocked = false,
             progress = 0,
             goal = 0 // event-based
@@ -131,7 +130,7 @@ object Achievements {
             id = "night_owl",
             name = "Night Owl",
             description = "Focus session after midnight",
-            iconResId = R.drawable.ic_night_owl,
+            iconName = "ic_night_owl",
             isUnlocked = false,
             progress = 0,
             goal = 0 // event-based
@@ -140,7 +139,7 @@ object Achievements {
             id = "comeback",
             name = "Comeback Kid",
             description = "Return after 3+ days inactive",
-            iconResId = R.drawable.ic_comeback,
+            iconName = "ic_comeback",
             isUnlocked = false,
             progress = 0,
             goal = 0 // event-based

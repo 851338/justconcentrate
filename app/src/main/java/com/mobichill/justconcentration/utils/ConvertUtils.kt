@@ -23,23 +23,40 @@ object ConvertUtils {
     fun convertTimeMillisIntoText(context: Context, timeMillis: Long): String {
         if (timeMillis == 0L)
             return context.getString(R.string.no_date_selected)
-        val date = Date(timeMillis)
-        val sdf = SimpleDateFormat(TIME_FORMAT, Locale.getDefault())
-        return sdf.format(date)
+        return try {
+            val date = Date(timeMillis)
+            val sdf = SimpleDateFormat(TIME_FORMAT, Locale.getDefault())
+            sdf.format(date)
+        } catch (e: Exception) {
+            Log.e(TAG, "convertTimeMillisIntoText($timeMillis): ", e)
+            ""
+        }
     }
 
     fun convertTimeMillisIntoDateString(timeMillis: Long): String {
-        return Instant.ofEpochMilli(timeMillis)
-            .atZone(ZoneId.systemDefault())
-            .toLocalDate()
-            .format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))
+        return try {
+            Instant.ofEpochMilli(timeMillis)
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate()
+                .format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))
+        } catch (e: Exception) {
+            Log.e(TAG, "convertTimeMillisIntoDateString($timeMillis): ", e)
+            return ""
+        }
         // result: "Apr 22, 2025"
     }
 
-    fun convertTimeMillisIntoLocalDate(timeMillis: Long): LocalDate =
-        Instant.ofEpochMilli(timeMillis)
-            .atZone(ZoneId.systemDefault())
-            .toLocalDate()
+    fun convertTimeMillisIntoLocalDate(timeMillis: Long): LocalDate {
+        return try {
+            Instant.ofEpochMilli(timeMillis)
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate()
+        } catch (e: Exception) {
+            Log.e(TAG, "convertTimeMillisIntoLocalDate($timeMillis): ", e)
+            return LocalDate.now()
+        }
+    }
+
 
     fun convertTextIntoTimeMillis(timeString: String): Long {
         return try {

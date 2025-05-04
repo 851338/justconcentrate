@@ -179,4 +179,8 @@
     <string name="session_stats_chart_stack_completed">Completed session</string>
     <string name="session_stats_chart_stack_incomplete">Incomplete session</string>
     <string name="complete_a_session">Complete a session</string>
+    <string name="badge_icon_description">Badge icon</string>
+    <string name="status_unlocked_on">Status: Unlocked on + %1$s</string>
+    <string name="status_locked">Status: Locked</string>
+    <string name="status_unlocked">Status: Unlocked</string>
 </resources>

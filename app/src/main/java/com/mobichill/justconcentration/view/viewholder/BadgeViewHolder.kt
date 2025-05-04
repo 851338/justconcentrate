@@ -16,7 +16,8 @@ class BadgeViewHolder(private val binding: ItemBadgeBinding) :
     ) = with(binding) {
         if (badge == null)
             return
-        imageBadgeIcon.setImageResource(badge.iconResId)
+        val actualResId = badge.getDrawableResourceId(binding.root.context)
+        imageBadgeIcon.setImageResource(actualResId)
         textBadgeName.text = badge.name
         textBadgeDescription.text = badge.description
 

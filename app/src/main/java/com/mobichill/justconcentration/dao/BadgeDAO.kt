@@ -18,7 +18,7 @@ interface BadgeDAO {
     @Update
     suspend fun updateBadge(badge: BadgeModel)
 
-    @Query("SELECT * FROM badges")
+    @Query("SELECT * FROM badges ORDER BY isUnlocked DESC, unlockedAt ASC")
     fun getAllBadges(): Flow<List<BadgeModel>>
 
     @Query("SELECT * FROM badges WHERE id = :id")

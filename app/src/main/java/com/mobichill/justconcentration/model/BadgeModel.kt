@@ -1,8 +1,11 @@
 package com.mobichill.justconcentration.model
 
+import android.content.Context
 import android.os.Parcelable
 import android.util.Log
+import androidx.annotation.DrawableRes
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.google.firebase.Timestamp
 import kotlinx.parcelize.Parcelize
@@ -14,7 +17,7 @@ data class BadgeModel(
     val id: String = "",
     val name: String = "",
     val description: String = "",
-    val iconResId: Int = 0,
+    val iconName: String = "",
     var progress: Int = 0,
     var isUnlocked: Boolean = false,
     var unlockedAt: Long? = null,
@@ -22,7 +25,17 @@ data class BadgeModel(
     var serverLastUpdatedMillis: Long? = null,
     var isSynced: Boolean = false,
     var needsUpload: Boolean = false
-) : Parcelable
+) : Parcelable {
+    @Ignore
+    @DrawableRes
+    fun getDrawableResourceId(context: Context): Int {
+        return context.resources.getIdentifier(
+            iconName,       // The name stored in the DB/FireStore
+            "drawable",     // The resource type
+            context.packageName
+        ).let { if (it == 0) android.R.drawable.btn_star_big_on else it } }
+}
+
 private const val TAG = "BadgeModelMapper"
 
 /**
@@ -44,7 +57,7 @@ fun BadgeModel.fromFireStoreMap(docId: String, map: Map<String, Any?>): BadgeMod
             // Static definition data (fetch locally OR from map if stored in FS)
             name = map["name"] as? String ?: "", // Potentially fetch locally instead
             description = map["description"] as? String ?: "", // Potentially fetch locally
-            iconResId = (map["iconResId"] as? Long)?.toInt() ?: 0, // Potentially fetch locally
+            iconName = map["iconName"] as? String ?: "", // Potentially fetch locally
             goal = (map["goal"] as? Long)?.toInt() ?: 0, // Potentially fetch locally
 
             // User Progress Data from Firestore
@@ -86,7 +99,6 @@ fun BadgeModel.toFireStoreMap(): MutableMap<String, Any?> {
 
         // --- Excluded ---
         // "id" -> Use as document ID
-        // "name", "description", "iconResId", "goal" -> Assumed static, not stored per user in Firestore
         // "serverLastUpdatedMillis", "isSynced", "needsUpload" -> Local state only
     )
 }

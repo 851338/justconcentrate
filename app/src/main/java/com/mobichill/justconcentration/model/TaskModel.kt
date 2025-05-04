@@ -1,7 +1,6 @@
 package com.mobichill.justconcentration.model
 
 import android.os.Parcelable
-import android.util.Log
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.firebase.Timestamp

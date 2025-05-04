@@ -5,6 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     tools:context=".view.HomeActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -37,9 +38,9 @@
             android:layout_width="56dp"
             android:layout_height="56dp"
             android:layout_marginEnd="10dp"
-            tools:src="@drawable/ic_setting"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:src="@drawable/ic_setting" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -83,7 +84,7 @@
         <androidx.cardview.widget.CardView
             android:id="@+id/card_concentrate"
             style="@style/CardViewMainActivity"
-            app:layout_constraintBottom_toTopOf="@id/card_subscription"
+            app:layout_constraintBottom_toTopOf="@id/card_achievements"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/card_tasks"
             app:layout_constraintTop_toTopOf="parent">
@@ -105,10 +106,7 @@
                     style="@style/TextStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/concentrate_title"
-                    app:layout_constraintEnd_toEndOf="@id/btn_concentrate"
-                    app:layout_constraintStart_toStartOf="@id/btn_concentrate"
-                    app:layout_constraintTop_toBottomOf="@id/btn_concentrate" />
+                    android:text="@string/concentrate_title" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -116,7 +114,7 @@
             android:id="@+id/card_stats"
             style="@style/CardViewMainActivity"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/card_subscription"
+            app:layout_constraintEnd_toStartOf="@id/card_achievements"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/card_tasks">
 
@@ -131,23 +129,18 @@
                     android:id="@+id/btn_stats"
                     style="@style/ButtonMainActivity"
                     android:padding="5dp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/btn_task"
                     app:srcCompat="@drawable/ic_stats" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     style="@style/TextStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/stats_title"
-                    app:layout_constraintEnd_toEndOf="@id/btn_stats"
-                    app:layout_constraintStart_toStartOf="@id/btn_stats"
-                    app:layout_constraintTop_toBottomOf="@id/btn_stats" />
+                    android:text="@string/stats_title" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/card_subscription"
+            android:id="@+id/card_achievements"
             style="@style/CardViewMainActivity"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -162,24 +155,28 @@
                 android:orientation="vertical">
 
                 <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/btn_subscription"
+                    android:id="@+id/btn_achievements"
                     style="@style/ButtonMainActivity"
                     android:padding="5dp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/btn_task"
-                    app:srcCompat="@drawable/ic_stats" />
+                    app:srcCompat="@drawable/ic_achievements" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     style="@style/TextStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/subscription"
-                    app:layout_constraintEnd_toEndOf="@id/btn_stats"
-                    app:layout_constraintStart_toStartOf="@id/btn_stats"
-                    app:layout_constraintTop_toBottomOf="@id/btn_stats" />
+                    android:text="@string/achievements" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/adView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="3dp"
+        ads:adSize="BANNER"
+        ads:adUnitId="ca-app-pub-3940256099942544/6300978111"
+        ads:layout_constraintBottom_toBottomOf="parent" />
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragment_container"

@@ -7,10 +7,10 @@ import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingFragment
 import com.mobichill.justconcentration.databinding.FragmentCreateAccountBinding
 import com.mobichill.justconcentration.repository.FireStoreRepository
-import com.mobichill.justconcentration.others.Constants.OTHERS.EMAIL_REGEX
+import com.mobichill.justconcentration.constants.Constants.OTHERS.EMAIL_REGEX
 import com.mobichill.justconcentration.listener.OnSingleClickListener
-import com.mobichill.justconcentration.util.SFUtils
-import com.mobichill.justconcentration.util.Utils
+import com.mobichill.justconcentration.utils.SharedPreferencesUtils
+import com.mobichill.justconcentration.utils.Utils
 
 class CreateAccountFragment : BaseViewBindingFragment<FragmentCreateAccountBinding>() {
     private lateinit var auth: FirebaseAuth
@@ -97,7 +97,7 @@ class CreateAccountFragment : BaseViewBindingFragment<FragmentCreateAccountBindi
                             name
                         )
                         //save shared preferences
-                        SFUtils.saveUserInfoToSF(requireContext(), uid)
+                        SharedPreferencesUtils(requireContext()).saveUserInfoToSF(uid)
                     }
                 } else {
                     Utils.showToast(requireContext(), "Signup failed: ${task.exception?.message}")

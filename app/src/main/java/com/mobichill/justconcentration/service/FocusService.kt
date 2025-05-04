@@ -11,35 +11,33 @@ import android.os.CountDownTimer
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.core.content.edit
 import androidx.core.net.toUri
 import com.mobichill.justconcentration.R
+import com.mobichill.justconcentration.constants.Constants.INTENT_EXTRA.FOCUS_AUDIO_URI
+import com.mobichill.justconcentration.constants.Constants.INTENT_EXTRA.FOCUS_DURATION
+import com.mobichill.justconcentration.constants.Constants.INTENT_EXTRA.FOCUS_QUOTE
+import com.mobichill.justconcentration.constants.Constants.INTENT_EXTRA.FOCUS_SESSION
+import com.mobichill.justconcentration.constants.Constants.INTENT_EXTRA.FOCUS_USER_GOAL
+import com.mobichill.justconcentration.constants.Constants.NOTIFICATION.NOTIFICATION_ID_FOCUS_SERVICE
+import com.mobichill.justconcentration.constants.Constants.OTHERS.ACTION_CANCEL_SESSION
+import com.mobichill.justconcentration.constants.Constants.OTHERS.ACTION_SESSION_COMPLETE
+import com.mobichill.justconcentration.constants.Constants.OTHERS.ACTION_START_SESSION
+import com.mobichill.justconcentration.constants.Constants.OTHERS.CHANNEL_FOCUS
 import com.mobichill.justconcentration.model.ConcentrateSessionModel
-import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.FOCUS_AUDIO_URI
-import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.FOCUS_DURATION
-import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.FOCUS_QUOTE
-import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.FOCUS_SESSION
-import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.FOCUS_USER_GOAL
-import com.mobichill.justconcentration.others.Constants.NOTIFICATION.FOCUS_SERVICE_NOTIFICATION_ID
-import com.mobichill.justconcentration.others.Constants.OTHERS.ACTION_CANCEL_SESSION
-import com.mobichill.justconcentration.others.Constants.OTHERS.ACTION_SESSION_COMPLETE
-import com.mobichill.justconcentration.others.Constants.OTHERS.ACTION_START_SESSION
-import com.mobichill.justconcentration.others.Constants.OTHERS.FOCUS_CHANNEL
-import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.FOCUS_SESSION_ACTIVE_KEY
-import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.FOCUS_SESSION_PREFS_NAME
 import com.mobichill.justconcentration.receiver.NotificationActionReceiver
-import com.mobichill.justconcentration.util.ConvertUtils
+import com.mobichill.justconcentration.utils.ConvertUtils
+import com.mobichill.justconcentration.utils.SharedPreferencesUtils
 import java.util.Locale
 
 class FocusService : Service() {
-    private val TAG = this::class.java.simpleName
+    private val TAG = javaClass.simpleName
     private lateinit var countDownTimer: CountDownTimer
     private lateinit var notificationManager: NotificationManager
     private var mediaPlayer: MediaPlayer? = null
     private var tickCount = 0 // Keep track of every tick
     private var isQuote = false
-    private val prefs by lazy {
-        getSharedPreferences(FOCUS_SESSION_PREFS_NAME, MODE_PRIVATE)
+    private val sfUtils: SharedPreferencesUtils by lazy {
+        SharedPreferencesUtils(applicationContext)
     }
 
     companion object {
@@ -51,7 +49,7 @@ class FocusService : Service() {
         notificationManager = getSystemService(NotificationManager::class.java)
         createNotificationChannel()
         isRunning = true
-        prefs.edit { putBoolean(FOCUS_SESSION_ACTIVE_KEY, true) }
+        sfUtils.setFocusSessionActive(true)
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
@@ -59,32 +57,32 @@ class FocusService : Service() {
         val goal = intent.getStringExtra(FOCUS_USER_GOAL) ?: "Stay focused"
         val soundUri = intent.getStringExtra(FOCUS_AUDIO_URI)
         val quote = intent.getStringExtra(FOCUS_QUOTE) ?: "You can do it!"
-        val durationInMillis = durationInMinutes * 5 * 1000L //Hard code 5s for testing
+        val durationInMillis = durationInMinutes * 60 * 1000L
         val now = System.currentTimeMillis()
 
-        val sessionCancel = ConcentrateSessionModel(
+        val tempSession = ConcentrateSessionModel(
             goal = goal,
             startTime = now,
             endTime = now + durationInMillis,
-            date = ConvertUtils.convertTimeMillisIntoDate(now),
+            date = ConvertUtils.convertTimeMillisIntoDateString(now),
             durationMinutes = durationInMinutes,
             wasCompleted = false
         )
 
         // Create the cancel pending intent
         val cancelIntent = Intent(this, NotificationActionReceiver::class.java).apply {
-            action = ACTION_CANCEL_SESSION  // Custom action to cancel the session
+            action = ACTION_CANCEL_SESSION
+            putExtra(FOCUS_SESSION, tempSession)
         }
-        intent.putExtra(FOCUS_SESSION, sessionCancel)
         val cancelPendingIntent: PendingIntent = PendingIntent.getBroadcast(
-            this, 0, cancelIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+            this, 0, cancelIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         when (intent.action) {
             ACTION_START_SESSION -> {
                 //Start service
                 startForeground(
-                    FOCUS_SERVICE_NOTIFICATION_ID,
+                    NOTIFICATION_ID_FOCUS_SERVICE,
                     buildNotification(goal, durationInMinutes, cancelPendingIntent)
                 )
                 if (!soundUri.isNullOrEmpty()) {
@@ -95,7 +93,7 @@ class FocusService : Service() {
                     goal,
                     quote,
                     cancelPendingIntent,
-                    sessionCancel
+                    tempSession
                 )
             }
         }
@@ -108,10 +106,10 @@ class FocusService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         stopPlayingSound()
-        notificationManager.cancel(FOCUS_SERVICE_NOTIFICATION_ID)
+        notificationManager.cancel(NOTIFICATION_ID_FOCUS_SERVICE)
         countDownTimer.cancel()
         isRunning = false
-        prefs.edit { putBoolean(FOCUS_SESSION_ACTIVE_KEY, false) }
+        sfUtils.setFocusSessionActive(false)
     }
 
     private fun startCountDownTimer(
@@ -119,14 +117,13 @@ class FocusService : Service() {
         goal: String,
         quote: String,
         cancelPendingIntent: PendingIntent,
-        sessionCancel: ConcentrateSessionModel
+        tempSession: ConcentrateSessionModel
     ) {
-        val sessionFinish = sessionCancel.copy(wasCompleted = true)
         val finishIntent =
             Intent(applicationContext, NotificationActionReceiver::class.java).apply {
                 action = ACTION_SESSION_COMPLETE
+                putExtra(FOCUS_SESSION, tempSession)
             }
-        finishIntent.putExtra(FOCUS_SESSION, sessionFinish)
         countDownTimer = object : CountDownTimer(durationInMillis, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 val hours = millisUntilFinished / (1000 * 60 * 60)
@@ -157,7 +154,7 @@ class FocusService : Service() {
 
     private fun createNotificationChannel() {
         val channel = NotificationChannel(
-            FOCUS_CHANNEL,
+            CHANNEL_FOCUS,
             "Focus Session",
             NotificationManager.IMPORTANCE_LOW
         )
@@ -170,7 +167,7 @@ class FocusService : Service() {
         durationInMinutes: Int,
         cancelPendingIntent: PendingIntent
     ): Notification {
-        return NotificationCompat.Builder(this, FOCUS_CHANNEL)
+        return NotificationCompat.Builder(this, CHANNEL_FOCUS)
             .setContentTitle("Concentration Mode")
             .setContentText("🎯 Goal: $goal\n⏳ Duration: $durationInMinutes minutes")
             .setSmallIcon(R.drawable.ic_concentrate)
@@ -181,7 +178,7 @@ class FocusService : Service() {
     }
 
     private fun updateNotification(content: String, cancelPendingIntent: PendingIntent) {
-        val notification = NotificationCompat.Builder(this, FOCUS_CHANNEL)
+        val notification = NotificationCompat.Builder(this, CHANNEL_FOCUS)
             .setContentTitle("Concentration Mode")
             .setContentText(content)
             .setSmallIcon(R.drawable.ic_concentrate)
@@ -190,18 +187,18 @@ class FocusService : Service() {
             .addAction(R.drawable.ic_cancel, getString(R.string.cancel), cancelPendingIntent)
             .build()
 
-        notificationManager.notify(FOCUS_SERVICE_NOTIFICATION_ID, notification)
+        notificationManager.notify(NOTIFICATION_ID_FOCUS_SERVICE, notification)
     }
 
     private fun sendFinishedNotification() {
-        val notification = NotificationCompat.Builder(this, FOCUS_CHANNEL)
+        val notification = NotificationCompat.Builder(this, CHANNEL_FOCUS)
             .setContentTitle("Session Complete!")
             .setContentText("Good job staying focused 🎯")
             .setSmallIcon(R.drawable.ic_concentrate)
             .setAutoCancel(true)
             .build()
 
-        notificationManager.notify(FOCUS_SERVICE_NOTIFICATION_ID + 1, notification)
+        notificationManager.notify(NOTIFICATION_ID_FOCUS_SERVICE + 1, notification)
     }
 
     private fun startPlayingSound(uri: String) {

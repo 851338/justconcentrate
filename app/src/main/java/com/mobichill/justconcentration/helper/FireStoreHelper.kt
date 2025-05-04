@@ -6,16 +6,12 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.mobichill.justconcentration.R
-import com.mobichill.justconcentration.application.MyApp
+import com.mobichill.justconcentration.base.application.MyApp
 import com.mobichill.justconcentration.model.ConcentrateSessionModel
 import com.mobichill.justconcentration.model.TaskModel
 import com.mobichill.justconcentration.model.UserModel
-import com.mobichill.justconcentration.util.Utils
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.mobichill.justconcentration.utils.Utils
 import kotlinx.coroutines.tasks.await
-
 
 class FireStoreHelper private constructor() { // Private constructor to prevent instantiation
     private val TAG = javaClass.simpleName
@@ -32,49 +28,22 @@ class FireStoreHelper private constructor() { // Private constructor to prevent 
         }
     }
 
-    fun saveTaskToFireStore(taskModel: TaskModel, onComplete: (Boolean, Exception?) -> Unit) {
+    fun saveTaskToFireStore(taskModel: TaskModel) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid
-        if (userId == null) {
-            onComplete(false, null)
+        if (userId == null)
             return
-        }
+
         val taskRef = db.collection("users").document(userId)
             .collection("tasks").document(taskModel.id)
         taskRef.set(taskModel)
-            .addOnSuccessListener {
-                onComplete(true, null)
-            }
-            .addOnFailureListener { e ->
-                onComplete(false, e)
-            }
     }
 
-    fun getAllTasksFromFireStore(onComplete: (List<TaskModel>, Exception?) -> Unit) {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
-        if (userId == null) {
-            onComplete(emptyList(), null)  // User not logged in
-            return
-        }
-
-        val tasksRef = db.collection("users").document(userId).collection("tasks")
-
-        tasksRef.get()
-            .addOnSuccessListener { result ->
-                val tasks = result.documents.mapNotNull { it.toObject(TaskModel::class.java) }
-                onComplete(tasks, null)  // Successfully retrieved tasks
-            }
-            .addOnFailureListener { e ->
-                onComplete(emptyList(), e) // Fetching failed
-            }
-    }
-
-    fun updateTaskToFireStore(taskModel: TaskModel, onComplete: (Boolean, Exception?) -> Unit) {
+    fun updateTaskToFireStore(taskModel: TaskModel) {
 
         val userId = FirebaseAuth.getInstance().currentUser?.uid
-        if (userId == null) {
-            onComplete(false, null)  // User not logged in
+        if (userId == null)
             return
-        }
+
         val taskRef = db.collection("users").document(userId)
             .collection("tasks").document(taskModel.id)
 
@@ -83,14 +52,7 @@ class FireStoreHelper private constructor() { // Private constructor to prevent 
             "alarmTimeMillis" to taskModel.alarmTimeMillis,
             "requestCode" to taskModel.requestCode
         )
-
         taskRef.update(taskUpdates)
-            .addOnSuccessListener {
-                onComplete(true, null)
-            }
-            .addOnFailureListener { e ->
-                onComplete(false, e)
-            }
     }
 
     suspend fun deleteTaskFromFireStore(taskModel: TaskModel) {
@@ -102,65 +64,6 @@ class FireStoreHelper private constructor() { // Private constructor to prevent 
         db.collection("users").document(userId)
             .collection("tasks").document(taskModel.id)
             .delete().await()
-    }
-
-    fun syncUnsyncedTasksToFireStore(userId: String) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val unsyncedTasks =
-                MyApp.instance.taskRepository.getUnsyncedActiveTasks()
-            unsyncedTasks.forEach { task ->
-                try {
-                    db.collection("users")
-                        .document(userId)
-                        .collection("tasks")
-                        .document(task.id)
-                        .set(task)
-                        .await()
-
-                    MyApp.instance.taskRepository.updateTaskToRoom(task.copy(isSynced = true))
-                } catch (e: Exception) {
-                    Log.e(TAG, "Failed to sync task: ${task.id}", e)
-                }
-            }
-        }
-    }
-
-    fun syncUnsyncedSessionsToFirestore(userId: String) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val unsynced =
-                MyApp.instance.concentrateSessionRepository.getUnsyncedSessions()
-            unsynced.forEach { s ->
-                try {
-                    db.collection("users")
-                        .document(userId)
-                        .collection("focus_sessions")
-                        .document(s.id)
-                        .set(s)
-                        .await()
-                    MyApp.instance.concentrateSessionRepository.updateSession(s.copy(isSynced = true))
-                } catch (e: Exception) {
-                    Log.e(TAG, "Failed to sync session: ${s.id}", e)
-                }
-            }
-        }
-    }
-
-    suspend fun getSessionsFromFireStore(): List<ConcentrateSessionModel> {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
-        if (userId == null) {
-            return emptyList()
-        }
-        return try {
-            val sessionRef = db.collection("users")
-                .document(userId)
-                .collection("focus_sessions")
-                .get()
-                .await()
-            sessionRef.documents.mapNotNull { it.toObject(ConcentrateSessionModel::class.java) }
-        } catch (e: Exception) {
-            Log.e(TAG, "getSessionsFromFireStore: ", e)
-            emptyList()
-        }
     }
 
     //Main function SignInWithGoogle

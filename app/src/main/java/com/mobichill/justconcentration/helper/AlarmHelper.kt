@@ -7,11 +7,11 @@ import android.content.Intent
 import android.os.Build
 import android.provider.Settings
 import androidx.annotation.RequiresApi
-import com.mobichill.justconcentration.application.MyApp
-import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.ALARM_URI
-import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.REQUEST_CODE
+import com.mobichill.justconcentration.base.application.MyApp
+import com.mobichill.justconcentration.constants.Constants.INTENT_EXTRA.ALARM_URI
+import com.mobichill.justconcentration.constants.Constants.INTENT_EXTRA.REQUEST_CODE
 import com.mobichill.justconcentration.receiver.AlarmReceiver
-import com.mobichill.justconcentration.util.AudioUtils
+import com.mobichill.justconcentration.utils.AudioUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

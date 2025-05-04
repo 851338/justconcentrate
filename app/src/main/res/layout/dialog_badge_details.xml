@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <!-- Badge Icon -->
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/badgeIcon"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp"
+        android:contentDescription="@string/badge_icon_description"
+        tools:srcCompat="@android:drawable/btn_star_big_on" />
+
+    <!-- Badge Name -->
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/badgeName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:gravity="center_horizontal"
+        android:textAppearance="?attr/textAppearanceHeadline6"
+        tools:text="Super Achiever Badge" />
+
+    <!-- Badge Description -->
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/badgeDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:gravity="center_horizontal"
+        android:textAppearance="?attr/textAppearanceBody1"
+        tools:text="You earned this badge by completing 10 tasks in a single day! Great job!" />
+
+    <!-- Badge Status / Requirements -->
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/badgeStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:textAppearance="?attr/textAppearanceBody2"
+        android:textStyle="italic"
+        tools:text="Status: Unlocked on Jan 1, 2024" />
+
+
+    <ProgressBar
+        android:id="@+id/badgeProgress"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:visibility="gone"
+        tools:progress="50"
+        tools:visibility="visible" />
+</LinearLayout>

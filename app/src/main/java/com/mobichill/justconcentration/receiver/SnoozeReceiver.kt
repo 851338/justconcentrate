@@ -8,14 +8,14 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import com.mobichill.justconcentration.R
-import com.mobichill.justconcentration.application.MyApp
+import com.mobichill.justconcentration.base.application.MyApp
 import com.mobichill.justconcentration.helper.AlarmHelper
 import com.mobichill.justconcentration.manager.VibrationManager
 import com.mobichill.justconcentration.model.TaskModel
-import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.SNOOZE_MINUTES
-import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.TASK_ID
+import com.mobichill.justconcentration.constants.Constants.INTENT_EXTRA.SNOOZE_MINUTES
+import com.mobichill.justconcentration.constants.Constants.INTENT_EXTRA.TASK_ID
 import com.mobichill.justconcentration.service.AlarmService
-import com.mobichill.justconcentration.util.Utils
+import com.mobichill.justconcentration.utils.Utils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
@@ -23,7 +23,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class SnoozeReceiver : BroadcastReceiver() {
-    private val TAG = this::class.java.simpleName
+    private val TAG = javaClass.simpleName
     private lateinit var task: TaskModel
 
     override fun onReceive(context: Context, intent: Intent) {

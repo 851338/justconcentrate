@@ -2,9 +2,7 @@ package com.mobichill.justconcentration.view
 
 import android.app.Activity
 import android.content.Context
-import android.content.Context.MODE_PRIVATE
 import android.content.Intent
-import android.content.SharedPreferences
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
@@ -21,17 +19,16 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.ads.AdRequest
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingFragment
+import com.mobichill.justconcentration.constants.Constants.INTENT_EXTRA.TASK_KEY
+import com.mobichill.justconcentration.constants.Constants.OTHERS.TIME_FORMAT
 import com.mobichill.justconcentration.databinding.FragmentNewOrEditTaskBinding
 import com.mobichill.justconcentration.helper.AlarmHelper
 import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.model.TaskModel
-import com.mobichill.justconcentration.others.Constants.INTENT_EXTRA.TASK_KEY
-import com.mobichill.justconcentration.others.Constants.OTHERS.TIME_FORMAT
-import com.mobichill.justconcentration.others.Constants.SHARED_PREFERENCES.SETTINGS_PREFS_NAME
-import com.mobichill.justconcentration.util.AudioUtils
-import com.mobichill.justconcentration.util.ConvertUtils
-import com.mobichill.justconcentration.util.SFUtils
-import com.mobichill.justconcentration.util.Utils
+import com.mobichill.justconcentration.utils.AudioUtils
+import com.mobichill.justconcentration.utils.ConvertUtils
+import com.mobichill.justconcentration.utils.SharedPreferencesUtils
+import com.mobichill.justconcentration.utils.Utils
 import com.mobichill.justconcentration.viewmodel.TaskViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -48,7 +45,9 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
     private val taskViewModel: TaskViewModel by activityViewModels {
         (requireActivity() as TaskActivity).taskViewModelFactory
     }
-    private lateinit var prefs: SharedPreferences
+    private val sfUtils: SharedPreferencesUtils by lazy {
+        SharedPreferencesUtils(requireActivity())
+    }
 
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
     private lateinit var pickAudioLauncher: ActivityResultLauncher<Intent>
@@ -60,10 +59,9 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        prefs = requireActivity().getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) = with(binding){
+    override fun onCreate(savedInstanceState: Bundle?) = with(binding) {
         super.onCreate(savedInstanceState)
         //must be called before onCreated() finishes, does not work in bg service
         requestPermissionLauncher = registerForActivityResult(
@@ -156,7 +154,7 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
         resetData()
     }
 
-    override fun initView() = with(binding){
+    override fun initView() = with(binding) {
         // Scroll task content
         etTaskTitle.movementMethod = ScrollingMovementMethod.getInstance()
         etTaskTitle.isVerticalScrollBarEnabled = true
@@ -164,7 +162,8 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
         btnSave.setOnClickListener(object : OnSingleClickListener() {
             override fun onSingleClick(view: View) {
                 // Make sure dateTime is always the new set one
-                dateTime = ConvertUtils.convertTextIntoTimeMillis(tvSelectedDateTime.text.toString())
+                dateTime =
+                    ConvertUtils.convertTextIntoTimeMillis(tvSelectedDateTime.text.toString())
                 // Check if user selected an already passed alarm
                 if (!isEdit && dateTime != 0L && dateTime <= System.currentTimeMillis())
                     Utils.showToast(
@@ -202,7 +201,7 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
             })
     }
 
-    private fun resetData() = with(binding){
+    private fun resetData() = with(binding) {
         if (isEdit) {
             etTaskTitle.setText(task?.taskText)
             tvSelectedDateTime.text =
@@ -227,15 +226,12 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
         }
     }
 
-    private fun createNewTask() = with(binding){
+    private fun createNewTask() = with(binding) {
         if (etTaskTitle.text.isNullOrEmpty()) {
-            Utils.showToast(
-                requireContext(),
-                requireContext().getString(R.string.please_enter_a_task)
-            )
+            etTaskTitle.error = requireContext().getString(R.string.please_enter_task_title)
+            etTaskTitle.requestFocus()
             return
         }
-        var isSynced = false
         val newTask = TaskModel(
             taskText = etTaskTitle.text.toString(),
             alarmTimeMillis = dateTime,
@@ -244,34 +240,42 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
             else AudioUtils.defaultAlarmUri(requireContext()).toString()),
             createdAt = System.currentTimeMillis()
         )
-        if (Utils.isNetworkAvailable(requireContext()) && SFUtils.isUserLoggedIn(requireContext())) {
-            isSynced = true
-            //save to fireStore
-            taskViewModel.saveTaskToFireStore(newTask.copy(isSynced = true)) { complete, error ->
-                if (complete) {
-                    Log.d(TAG, getString(R.string.task_created_success))
-                } else {
-                    Log.e(TAG, "Create task:" + error?.message.toString())
-                }
+        var isSyncedSuccessfully = false
+        if (sfUtils.isUserLoggedIn() && Utils.isNetworkAvailable(requireContext())) {
+            try {
+                Log.d(TAG, "Attempting FireStore sync for session ${newTask.id}")
+                // Sync the potentially modified sessionToSave
+                taskViewModel.saveTaskToFireStore(newTask.copy(isSynced = true))
+                Log.d(TAG, "FireStore sync SUCCESS for session ${newTask.id}")
+                isSyncedSuccessfully = true // Mark as synced ONLY if FireStore call succeeds
+            } catch (e: Exception) {
+                Log.e(TAG, "FireStore sync FAILED for session ${newTask.id}", e)
+                isSyncedSuccessfully = false // Ensure it's false on FireStore failure
             }
-        } else isSynced = false
-        //save to room
-        taskViewModel.saveTaskToRoom(newTask.copy(isSynced = isSynced))
-
-        setAlarm(newTask.requestCode, newTask.alarmSoundUri)
+        } else {
+            Log.d(TAG, "Skipping FireStore sync (Conditions not met) for session ${newTask.id}")
+            isSyncedSuccessfully = false // Explicitly false if conditions aren't met
+        }
+        try {
+            Log.d(TAG, "Saving final state to Room ${newTask.id}, Synced: $isSyncedSuccessfully)")
+            taskViewModel.saveTaskToRoom(newTask.copy(isSynced = isSyncedSuccessfully))
+            setAlarm(newTask.requestCode, newTask.alarmSoundUri)
+            Log.d(TAG, "Room save successful for task ${newTask.id}")
+        } catch (e: Exception) {
+            Log.e(TAG, "Room save FAILED for session ${newTask.id}", e)
+        }
 
         requireActivity().supportFragmentManager.popBackStack()
     }
 
-    private fun updateExistedTask(taskModel: TaskModel) = with(binding){
+    private fun updateExistedTask(taskModel: TaskModel) = with(binding) {
         if (etTaskTitle.text.isNullOrEmpty()) {
             Utils.showToast(
                 requireContext(),
-                requireContext().getString(R.string.please_enter_a_task)
+                requireContext().getString(R.string.please_enter_task_title)
             )
             return
         }
-        var isSynced = false
         val updatedTask = taskModel.copy(
             id = taskModel.id,
             taskText = etTaskTitle.text.toString(),
@@ -280,22 +284,35 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
             alarmSoundUri = (if (::selectedUri.isInitialized) selectedUri.toString()
             else AudioUtils.defaultAlarmUri(requireContext()).toString()),
         )
-        if (Utils.isNetworkAvailable(requireContext()) && SFUtils.isUserLoggedIn(requireContext())) {
-            isSynced = true
-            //update to fireStore
-            taskViewModel.updateTaskToFireStore(taskModel.copy(isSynced = true)) { onComplete, error ->
-                if (onComplete) {
-                    Log.d(TAG, getString(R.string.task_created_success))
-                } else {
-                    Log.e(TAG, "Update task:" + error?.message.toString())
-                }
+        var isSyncedSuccessfully = false
+        if (sfUtils.isUserLoggedIn() && Utils.isNetworkAvailable(requireContext())) {
+            try {
+                Log.d(TAG, "Attempting FireStore sync for session ${taskModel.id}")
+                // Sync the potentially modified sessionToSave
+                taskViewModel.updateTaskToFireStore(updatedTask.copy(isSynced = true))
+                Log.d(TAG, "FireStore sync SUCCESS for session ${taskModel.id}")
+                isSyncedSuccessfully = true // Mark as synced ONLY if FireStore call succeeds
+            } catch (e: Exception) {
+                Log.e(TAG, "FireStore sync FAILED for session ${taskModel.id}", e)
+                isSyncedSuccessfully = false // Ensure it's false on FireStore failure
             }
-        } else isSynced = false
-        //update to room
-        taskViewModel.updateTaskToRoom(updatedTask.copy(isSynced = isSynced))
-        if (task?.alarmTimeMillis != dateTime) {
-            AlarmHelper().cancelAlarm(requireContext(), taskModel.requestCode)
-            setAlarm(updatedTask.requestCode, updatedTask.alarmSoundUri)
+        } else {
+            Log.d(TAG, "Skipping FireStore sync (Conditions not met) for session ${taskModel.id}")
+            isSyncedSuccessfully = false // Explicitly false if conditions aren't met
+        }
+        try {
+            Log.d(TAG, "Saving final state to Room ${taskModel.id}, Synced: $isSyncedSuccessfully)")
+            taskViewModel.updateTaskToRoom(
+                updatedTask.copy(
+                    isSynced = isSyncedSuccessfully)
+            )
+            if (task?.alarmTimeMillis != dateTime) {
+                AlarmHelper().cancelAlarm(requireContext(), taskModel.requestCode)
+                setAlarm(updatedTask.requestCode, updatedTask.alarmSoundUri)
+            }
+            Log.d(TAG, "Room save successful for task ${taskModel.id}")
+        } catch (e: Exception) {
+            Log.e(TAG, "Room save FAILED for session ${taskModel.id}", e)
         }
 
         requireActivity().supportFragmentManager.popBackStack()
@@ -336,7 +353,7 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
         }
     }
 
-    fun checkAndSaveAudioFile(uri: Uri) = with(binding){
+    fun checkAndSaveAudioFile(uri: Uri) = with(binding) {
         // Show loading
         progressBar.visibility = View.VISIBLE
         lifecycleScope.launch {

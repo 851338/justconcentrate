@@ -5,9 +5,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.mobichill.justconcentration.application.MyApp
+import com.mobichill.justconcentration.manager.BadgeProgressManager
 import com.mobichill.justconcentration.model.TaskModel
 import com.mobichill.justconcentration.repository.FireStoreRepository
+import com.mobichill.justconcentration.repository.TaskRepository
+import com.mobichill.justconcentration.utils.ConvertUtils
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,26 +20,19 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.LocalTime
 
-class TaskViewModel : ViewModel() {
+class TaskViewModel(
+    private val firestoreRepo: FireStoreRepository,
+    private val taskRepository: TaskRepository
+) : ViewModel() {
     private val TAG = javaClass.simpleName
-    private val firestoreRepo = FireStoreRepository()
-    private val taskRepository = MyApp.instance.taskRepository
     private val _searchQuery = MutableStateFlow("")
 
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
     val allTasks: LiveData<List<TaskModel>> = taskRepository.getAllActiveTasks().asLiveData()
-
-    fun syncTasks() = viewModelScope.launch {
-        val tasks = mutableListOf<TaskModel>()
-        firestoreRepo.getTasksFromFireStore { taskList, error ->
-            if (taskList.isNotEmpty())
-                tasks.addAll(taskList)
-            else Log.e(TAG, error?.message.toString())
-        }
-        taskRepository.syncTasksToRoom(tasks)
-    }
 
     fun saveTaskToRoom(task: TaskModel) = viewModelScope.launch {
         taskRepository.saveTaskToRoom(task)
@@ -47,14 +42,30 @@ class TaskViewModel : ViewModel() {
         taskRepository.updateTaskToRoom(task)
     }
 
-    fun saveTaskToFireStore(task: TaskModel, onComplete: (Boolean, Exception?) -> Unit) =
+    fun updateAfterTaskCompletion(completedAt: Long?) {
+        try {
+            viewModelScope.launch {
+                BadgeProgressManager().updateAfterTaskCompletion(
+                    totalTasks = taskRepository.getCompletedTaskCount(),
+                    taskTime = LocalTime.now(),
+                    completedDate = ConvertUtils.convertTimeMillisIntoLocalDate(completedAt!!),
+                    currentDate = LocalDate.now(),
+                    taskStreakDays = getCurrentStreak()
+                )
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "updateAfterTaskCompletion: ", e)
+        }
+    }
+
+    fun saveTaskToFireStore(task: TaskModel) =
         viewModelScope.launch {
-            firestoreRepo.saveTaskToFireStore(task, onComplete)
+            firestoreRepo.saveTaskToFireStore(task)
         }
 
-    fun updateTaskToFireStore(task: TaskModel, onComplete: (Boolean, Exception?) -> Unit) =
+    fun updateTaskToFireStore(task: TaskModel) =
         viewModelScope.launch {
-            firestoreRepo.updateTaskToFireStore(task, onComplete)
+            firestoreRepo.updateTaskToFireStore(task)
         }
 
     fun deleteTaskFromFireStore(task: TaskModel) {
@@ -84,5 +95,24 @@ class TaskViewModel : ViewModel() {
 
     fun setSearchQuery(query: String) {
         _searchQuery.value = query
+    }
+
+    suspend fun getCurrentStreak(): Int {
+        val completedDates = taskRepository.getCompletedTaskDates()
+        return calculateStreak(completedDates)
+    }
+
+    private fun calculateStreak(completedDates: List<String>): Int {
+        val completedSet = completedDates.toSet()
+        var streak = 0
+        var currentDate = LocalDate.now()
+
+        // Loop stops when hit a date that is not in completedSet
+        while (completedSet.contains(currentDate.toString())) {
+            streak++
+            currentDate = currentDate.minusDays(1)
+        }
+
+        return streak
     }
 }

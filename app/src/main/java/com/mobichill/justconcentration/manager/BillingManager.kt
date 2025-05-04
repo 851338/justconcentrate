@@ -1,9 +1,12 @@
 package com.mobichill.justconcentration.manager
 
+import android.app.Activity
 import android.content.Context
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
+import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
+import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
@@ -22,7 +25,60 @@ class BillingManager(private val context: Context) : PurchasesUpdatedListener {
                     val isSubscribed =
                         purchases.any { it.products.contains(productId) && it.isAutoRenewing }
                     onResult(isSubscribed)
-                } else {
+                } else {class BillingClientManager(
+                    private val context: Context,
+                    private val onPurchaseUpdated: (BillingResult, List<Purchase>?) -> Unit
+                ) {
+                    private var billingClient: BillingClient = BillingClient.newBuilder(context)
+                        .enablePendingPurchases()
+                        .setListener(onPurchaseUpdated)
+                        .build()
+
+                    fun startConnection(onConnected: () -> Unit) {
+                        billingClient.startConnection(object : BillingClientStateListener {
+                            override fun onBillingSetupFinished(billingResult: BillingResult) {
+                                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                                    onConnected()
+                                }
+                            }
+
+                            override fun onBillingServiceDisconnected() {
+                                // Retry connection if needed
+                            }
+                        })
+                    }
+
+                    fun querySubscriptions(onResult: (List<ProductDetails>) -> Unit) {
+                        val params = QueryProductDetailsParams.newBuilder()
+                            .setProductList(
+                                listOf(
+                                    QueryProductDetailsParams.Product.newBuilder()
+                                        .setProductId("premium_monthly")
+                                        .setProductType(BillingClient.ProductType.SUBS)
+                                        .build()
+                                )
+                            ).build()
+
+                        billingClient.queryProductDetailsAsync(params) { _, productDetailsList ->
+                            onResult(productDetailsList)
+                        }
+                    }
+
+                    fun launchBillingFlow(activity: Activity, productDetails: ProductDetails) {
+                        val offerToken = productDetails.subscriptionOfferDetails?.firstOrNull()?.offerToken ?: return
+                        val params = BillingFlowParams.newBuilder()
+                            .setProductDetailsParamsList(
+                                listOf(
+                                    BillingFlowParams.ProductDetailsParams.newBuilder()
+                                        .setProductDetails(productDetails)
+                                        .setOfferToken(offerToken)
+                                        .build()
+                                )
+                            ).build()
+                        billingClient.launchBillingFlow(activity, params)
+                    }
+                }
+
                     onResult(false)
                 }
             }

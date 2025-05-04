@@ -25,6 +25,7 @@ class TaskViewHolder(private val binding: ItemTaskBinding) : RecyclerView.ViewHo
         if (taskModel == null)
             return
 
+        binding.doneView.visibility = if(taskModel.completed) View.VISIBLE else View.GONE
         if (taskModel.alarmTimeMillis == 0L)
             binding.tvAlarm.text = context.getString(R.string.no_alarm_set)
         else binding.tvAlarm.text = context.getString(

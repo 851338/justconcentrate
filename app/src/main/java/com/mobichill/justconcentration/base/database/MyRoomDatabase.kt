@@ -5,7 +5,8 @@ import android.util.Log
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.mobichill.justconcentration.callback.PrepopulateBadgeCallback
+import androidx.sqlite.db.SupportSQLiteDatabase
+import com.mobichill.justconcentration.constants.Achievements
 import com.mobichill.justconcentration.constants.Constants.OTHERS.DB_NAME
 import com.mobichill.justconcentration.dao.BadgeDAO
 import com.mobichill.justconcentration.dao.ConcentrateSessionDAO
@@ -15,6 +16,10 @@ import com.mobichill.justconcentration.model.BadgeModel
 import com.mobichill.justconcentration.model.ConcentrateSessionModel
 import com.mobichill.justconcentration.model.TaskModel
 import com.mobichill.justconcentration.model.UserModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 @Database(
     entities = [TaskModel::class,
@@ -62,7 +67,39 @@ abstract class MyRoomDatabase : RoomDatabase() {
                 DB_NAME
             )
                 .fallbackToDestructiveMigration(false)
-                .addCallback(PrepopulateBadgeCallback { INSTANCE!!.badgeDAO }).build()
+                .addCallback(PrepopulateBadgeCallback(context.applicationContext)).build()
+        }
+
+        class PrepopulateBadgeCallback(
+            private val context: Context
+        ) : Callback() {
+            // Use a dedicated scope for database operations during creation
+            private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+            // Called only when the database is first created
+            override fun onCreate(db: SupportSQLiteDatabase) {
+                super.onCreate(db)
+                applicationScope.launch {
+                    populateDatabase()
+                }
+            }
+
+            private suspend fun populateDatabase() {
+                val badgeDao = getInstance(context.applicationContext).badgeDAO
+                try {
+                    val badgeCount = badgeDao.getBadgeCount()
+                    Log.d(TAG, "Current badge count: $badgeCount")
+                    if (badgeCount == 0) {
+                        Log.d(TAG, "Badges table is empty. Pre-populating...")
+                        badgeDao.insertAll(Achievements.allBadges)
+                        Log.d(TAG, "Badges pre-populated successfully.")
+                    } else {
+                        Log.d(TAG, "Badges table already populated. Skipping pre-population.")
+                    }
+                } catch (e: Exception) {
+                    Log.e("PrepopulateBadgeCallback", "Error pre-populating badges", e)
+                }
+            }
         }
     }
 }

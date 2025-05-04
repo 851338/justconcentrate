@@ -35,7 +35,7 @@
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="4dp"
                 android:text="@string/task_description"
-                app:layout_constraintEnd_toStartOf="@id/imageViewMenu"
+                app:layout_constraintEnd_toStartOf="@id/doneView"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -61,6 +61,19 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tv_alarm"
                 tools:text="Created at: 16:30 PM 17/03/2025" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/doneView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/menu"
+                android:padding="8dp"
+                android:layout_marginEnd="8dp"
+                app:srcCompat="@drawable/ic_done"
+                tools:visibility="visible"
+                android:visibility="gone"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/imageViewMenu"/>
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/imageViewMenu"

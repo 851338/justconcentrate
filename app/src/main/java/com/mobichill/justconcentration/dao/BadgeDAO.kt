@@ -38,4 +38,7 @@ interface BadgeDAO {
 
     @Query("UPDATE badges SET isSynced = 1, needsUpload = 0 WHERE id IN (:ids)")
     suspend fun markBadgesAsSyncedAfterUpload(ids: List<String>)
+
+    @Query("SELECT COUNT(*) FROM badges")
+    suspend fun getBadgeCount(): Int
 }

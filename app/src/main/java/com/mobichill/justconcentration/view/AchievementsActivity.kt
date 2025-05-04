@@ -74,7 +74,7 @@ class AchievementsActivity : BaseViewBindingActivity<ActivityAchievementsBinding
                 dialogBinding.badgeProgress.visibility = View.VISIBLE
                 dialogBinding.badgeProgress.progress = progressPercent
             } else {
-                dialogBinding.badgeStatus.append("\nHow to unlock: [Your unlock criteria text here]") // You might need another field in BadgeModel for this text
+                dialogBinding.badgeStatus.append("\nHow to unlock: [Your unlock criteria text here]")
                 dialogBinding.badgeProgress.visibility = View.GONE
             }
         }

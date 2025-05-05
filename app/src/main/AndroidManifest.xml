@@ -109,7 +109,8 @@
             android:exported="false" >
             <meta-data
                 android:name="androidx.work.WorkManagerInitializer"
-                android:value="androidx.startup" />
+                android:value="androidx.startup"
+                tools:node="remove"/>
         </provider>
 
         <meta-data

@@ -19,7 +19,6 @@ import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.repository.FireStoreRepository
 import com.mobichill.justconcentration.utils.SharedPreferencesUtils
 import com.mobichill.justconcentration.utils.Utils
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.security.MessageDigest
 import java.util.UUID
@@ -32,16 +31,20 @@ class WelcomeActivity : BaseViewBindingActivity<ActivityWelcomeBinding>() {
     private lateinit var credentialManager: CredentialManager
 
     override fun initView() {
+        super.initView()
         auth = FirebaseAuth.getInstance()
         credentialManager = CredentialManager.create(this)
         binding.btnGoogleSignIn.setOnClickListener(object : OnSingleClickListener() {
             override fun onSingleClick(view: View) {
-                if (Utils.isNetworkAvailable(this@WelcomeActivity))
+                if (Utils.isNetworkAvailable(this@WelcomeActivity)) {
+                    showGoogleSignInProgress(true)
                     lifecycleScope.launch { signInWithGoogle() }
-                else Utils.showToast(
-                    this@WelcomeActivity,
-                    getString(R.string.no_internet_connection)
-                )
+                } else {
+                    Utils.showToast(
+                        this@WelcomeActivity,
+                        getString(R.string.no_internet_connection)
+                    )
+                }
             }
         })
         binding.btnCreateAccount.setOnClickListener(object : OnSingleClickListener() {
@@ -60,7 +63,6 @@ class WelcomeActivity : BaseViewBindingActivity<ActivityWelcomeBinding>() {
                 goToHomeActivity()
             }
         })
-        super.initView()
     }
 
     private fun gotoLoginActivity() {
@@ -103,22 +105,28 @@ class WelcomeActivity : BaseViewBindingActivity<ActivityWelcomeBinding>() {
         val request: GetCredentialRequest = GetCredentialRequest.Builder()
             .addCredentialOption(googleIdOption)
             .build()
-        coroutineScope {
-            try {
-                val result = credentialManager.getCredential(this@WelcomeActivity, request)
-                val credential = result.credential
+        try {
+            val result = credentialManager.getCredential(this@WelcomeActivity, request)
+            val credential = result.credential
 
-                //should get googleIdToken by this
-                val googleIdTokenCredential = GoogleIdTokenCredential
-                    .createFrom(credential.data)
-                val googleIdToken = googleIdTokenCredential.idToken
-                Log.i(TAG, googleIdToken)
-                firebaseAuthWithGoogle(googleIdToken)
-            } catch (e: GetCredentialException) {
-                Log.e(TAG, e.errorMessage.toString())
-            } catch (e: GoogleIdTokenParsingException) {
-                Log.e(TAG, e.localizedMessage ?: getString(R.string.unknown_exception))
-            }
+            //should get googleIdToken by this
+            val googleIdTokenCredential = GoogleIdTokenCredential
+                .createFrom(credential.data)
+            val googleIdToken = googleIdTokenCredential.idToken
+            Log.i(TAG, "Google ID Token obtained: ${googleIdToken.take(10)}...")
+            firebaseAuthWithGoogle(googleIdToken)
+        } catch (e: GetCredentialException) {
+            Log.e(TAG, "GetCredentialException: ${e.type} - ${e.message}", e)
+            Utils.showToast(this, "Sign-in failed or cancelled: ${e.message}")
+            showGoogleSignInProgress(false)
+        } catch (e: GoogleIdTokenParsingException) {
+            Log.e(TAG, "GoogleIdTokenParsingException: ${e.localizedMessage}", e)
+            Utils.showToast(this, "Error parsing Google token.")
+            showGoogleSignInProgress(false)
+        } catch (e: Exception) {
+            Log.e(TAG, "Unexpected error during Google Sign-In: ${e.localizedMessage}", e)
+            Utils.showToast(this, "An unexpected error occurred.")
+            showGoogleSignInProgress(false)
         }
     }
 
@@ -126,6 +134,7 @@ class WelcomeActivity : BaseViewBindingActivity<ActivityWelcomeBinding>() {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         auth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
+                showGoogleSignInProgress(false)
                 if (task.isSuccessful) {
                     if (task.isSuccessful) {
                         val user = auth.currentUser
@@ -149,6 +158,22 @@ class WelcomeActivity : BaseViewBindingActivity<ActivityWelcomeBinding>() {
                     }
                 }
             }
+    }
+
+    private fun showGoogleSignInProgress(show: Boolean) = with(binding) {
+        if (show) {
+            btnGoogleSignIn.isEnabled = false
+            googleSignInProgressBar.visibility = View.VISIBLE
+            btnCreateAccount.isEnabled = false
+            txtAlreadyHaveAccount.isEnabled = false
+            txtSkip.isEnabled = false
+        } else {
+            btnGoogleSignIn.isEnabled = true
+            googleSignInProgressBar.visibility = View.GONE
+            btnCreateAccount.isEnabled = true
+            txtAlreadyHaveAccount.isEnabled = true
+            txtSkip.isEnabled = true
+        }
     }
 }
 

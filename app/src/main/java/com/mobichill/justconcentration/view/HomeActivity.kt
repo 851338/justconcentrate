@@ -45,11 +45,6 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
         // Check login streak and handle comeback
         handleDailyActivityCheck()
 
-        // Sync function
-        val isSynced = sfUtils.isSettingsSyncEnabled()
-        if (!isSynced) return
-        SyncHelper.enqueueOneTimeSync(this)
-
         // Load user avatar
         if (sfUtils.isUserLoggedIn()) {
             val uid = sfUtils.getUserId()
@@ -60,13 +55,20 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
                 withContext(Dispatchers.Main) {
                     binding.ivAvatar.setPadding(0, 0, 0, 0)
                     Utils.setAvatar(this@HomeActivity, user?.profilePic, binding.ivAvatar)
+                    Log.d(TAG, "Set user avatar: ${user?.profilePic}")
                 }
             }
         } else {
             binding.ivAvatar.setPadding(px(5), px(5), px(5), px(5))
             binding.ivAvatar.setImageResource(R.drawable.ic_setting)
+            Log.d(TAG, "ivAvatar: Settings icon")
         }
         binding.btnBack.visibility = View.GONE
+
+        // Sync function
+        val isSynced = sfUtils.isSettingsSyncEnabled()
+        if (!isSynced) return
+        SyncHelper.enqueueOneTimeSync(this)
     }
 
     override fun attachBaseContext(newBase: Context?) {

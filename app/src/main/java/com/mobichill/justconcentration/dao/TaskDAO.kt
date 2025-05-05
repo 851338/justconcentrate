@@ -32,7 +32,7 @@ interface TaskDAO {
     suspend fun deleteTasksPermanentlyByIds(ids: List<String>)
 
     @Query("SELECT * FROM tasks WHERE id = :taskId")
-    fun getTaskById(taskId: String): Flow<TaskModel>
+    fun getTaskById(taskId: String): Flow<TaskModel?>
 
     @Query("SELECT * FROM tasks WHERE requestCode = :requestCode") //requestCode is unique
     fun getTaskByRequestCode(requestCode: Int): Flow<TaskModel>

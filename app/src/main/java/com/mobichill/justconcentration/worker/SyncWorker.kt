@@ -16,14 +16,13 @@ import com.mobichill.justconcentration.base.database.MyRoomDatabase
 import com.mobichill.justconcentration.model.BadgeModel
 import com.mobichill.justconcentration.model.ConcentrateSessionModel
 import com.mobichill.justconcentration.model.TaskModel
-import com.mobichill.justconcentration.model.fromFireStoreMap
-import com.mobichill.justconcentration.model.toFireStoreMap
 import com.mobichill.justconcentration.repository.BadgeRepository
 import com.mobichill.justconcentration.repository.ConcentrateSessionRepository
 import com.mobichill.justconcentration.repository.TaskRepository
 import com.mobichill.justconcentration.utils.SharedPreferencesUtils
 import com.mobichill.justconcentration.utils.Utils.isNetworkAvailable
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.tasks.await
 
 class SyncWorker(
@@ -259,28 +258,41 @@ class SyncWorker(
                 // ...
 
                 val remoteSession =
-                    ConcentrateSessionModel().fromFireStoreMap(docId, remoteData) ?: return@forEach
+                    ConcentrateSessionModel.fromFireStoreMap(docId, remoteData) ?: return@forEach
                 val localSession = sessionRepository.getSessionById(docId)
-
-                val localServerTime = localSession.serverLastUpdatedMillis ?: 0L
-                val remoteServerTime = remoteSession.serverLastUpdatedMillis ?: Long.MAX_VALUE
-
-                if (remoteServerTime > localServerTime) {
-                    Log.d(TAG, "Remote session newer (ID: $docId). Preparing update.")
-                    changesToApplyLocally.add { sessionRepository.upsertSession(remoteSession) }
+                if (doc.data == null) {
+                    Log.w(TAG, "Skipping session download for ID $docId - data was null.")
+                    return@forEach // Skip if data is missing for some reason
+                }
+                if (localSession == null) {
+                    Log.d(TAG, "Session ${doc.id} not found locally. Inserting.")
+                    val newSession = ConcentrateSessionModel.fromFireStoreMap(doc.id, doc.data!!)
+                    if (newSession == null) return@forEach
+                    sessionRepository.addConcentrateSessionToRoom(newSession)
                 } else {
-                    Log.d(TAG, "Local session same or newer (ID: $docId). Skipping remote update.")
-                    // Optional state correction
-                    if (remoteServerTime == localServerTime && !localSession.isSynced) {
-                        Log.w(
+                    val localServerTime = localSession.serverLastUpdatedMillis ?: 0L
+                    val remoteServerTime = remoteSession.serverLastUpdatedMillis ?: Long.MAX_VALUE
+
+                    if (remoteServerTime > localServerTime) {
+                        Log.d(TAG, "Remote session newer (ID: $docId). Preparing update.")
+                        changesToApplyLocally.add { sessionRepository.upsertSession(remoteSession) }
+                    } else {
+                        Log.d(
                             TAG,
-                            "Correcting local sync state for matching timestamp session (ID: $docId)"
+                            "Local session same or newer (ID: $docId). Skipping remote update."
                         )
-                        changesToApplyLocally.add {
-                            sessionRepository.markSessionAsSyncedById(
-                                docId,
-                                remoteServerTime
+                        // Optional state correction
+                        if (remoteServerTime == localServerTime && !localSession.isSynced) {
+                            Log.w(
+                                TAG,
+                                "Correcting local sync state for matching timestamp session (ID: $docId)"
                             )
+                            changesToApplyLocally.add {
+                                sessionRepository.markSessionAsSyncedById(
+                                    docId,
+                                    remoteServerTime
+                                )
+                            }
                         }
                     }
                 }
@@ -319,8 +331,8 @@ class SyncWorker(
                     return@forEach
                 }
 
-                // Convert Firestore data to local model
-                val remoteBadge = BadgeModel().fromFireStoreMap(docId, remoteData) ?: return@forEach
+                // Convert FireStore data to local model
+                val remoteBadge = BadgeModel.fromFireStoreMap(docId, remoteData) ?: return@forEach
 
                 // Get local version (make sure local DB is pre-populated with badge definitions)
                 val localBadge = badgeRepository.getBadgeById(docId)
@@ -372,8 +384,8 @@ class SyncWorker(
         val TAG = "SyncWorker_DownloadTasks" // Specific tag
 
         try {
-            // Query Firestore for documents modified after the last sync timestamp
-            val query = firestorePath.whereGreaterThan("lastUpdated", lastSyncTime)
+            // Query FireStore for documents modified after the last sync timestamp
+            val query = firestorePath.whereGreaterThan("lastModified", lastSyncTime)
             val snapshot = query.get().await()
             Log.d(TAG, "Fetched ${snapshot.size()} potential task changes from Firestore.")
 
@@ -391,10 +403,10 @@ class SyncWorker(
                     return@forEach // continue to next document in loop
                 }
                 // Ensure server timestamp exists (critical for comparison)
-                if (remoteData["lastUpdated"] !is Timestamp) {
+                if (remoteData["lastModified"] !is Timestamp) {
                     Log.w(
                         TAG,
-                        "Skipping Task ID $docId - missing or invalid 'lastUpdated' Firestore timestamp."
+                        "Skipping Task ID $docId - missing or invalid 'lastModified' Firestore timestamp."
                     )
                     return@forEach
                 }
@@ -404,57 +416,62 @@ class SyncWorker(
                     remoteData["deletedAt"] != null // Example: if deletedAt is set, it's soft-deleted
                 if (isRemoteDeleted) {
                     Log.d(TAG, "Remote task soft-deleted (ID: $docId). Preparing local delete.")
-                    changesToApplyLocally.add { taskRepository.deleteTaskPermanentlyById(docId) } // Or update local isDeleted flag
-                    return@forEach // Move to next document
-                }
-
-                // Convert Firestore data to local Room model using the companion object function
-                val remoteTask = TaskModel().fromFireStoreMap(docId, remoteData)
-
-                if (remoteTask == null) {
+                    changesToApplyLocally.add { taskRepository.deleteTaskPermanentlyById(docId) }
                     return@forEach
                 }
 
+                // Convert Firestore data to local Room model using the companion object function
+                val remoteTask = TaskModel.fromFireStoreMap(docId, remoteData)
+
+                if (remoteTask == null)
+                    return@forEach
+
                 // --- Conflict Resolution (Last Write Wins based on Server Timestamp) ---
-                val localTask = taskRepository.getTaskById(docId) // Fetch local version
+                val localTask = taskRepository.getTaskById(docId).firstOrNull() // Fetch local version
 
-
-                // Local exists -> Compare server timestamps (stored locally vs new from server)
-                val localServerTime =
-                    localTask.first().serverLastUpdatedMillis ?: 0L // Use 0 if never synced before
-                val remoteServerTime = remoteTask.serverLastUpdatedMillis
-                    ?: Long.MAX_VALUE // Should not be null here based on earlier check
-
-                if (remoteServerTime > localServerTime) {
-                    // Remote is newer -> Update local version
-                    Log.d(
-                        TAG,
-                        "Remote task newer (ID: $docId, RemoteTime: $remoteServerTime > LocalTime: $localServerTime). Preparing update."
-                    )
-                    // remoteTask already has isSynced=true, needsUpload=false set by fromFirestoreMap
+                if (localTask == null) {
+                    Log.d(TAG, "Task does not exist locally (ID: $docId). Preparing insert.")
                     changesToApplyLocally.add { taskRepository.upsertTask(remoteTask) }
                 } else {
-                    // Local is same age or newer (or remote time is somehow missing)
-                    // This could happen if a local change was uploaded but the download check runs before the upload confirmation updated local state fully.
-                    Log.d(
-                        TAG,
-                        "Local task same or newer (ID: $docId, RemoteTime: $remoteServerTime <= LocalTime: $localServerTime). Skipping remote update."
-                    )
-                    // Optional: Ensure local state is correct if timestamps match
-                    if (remoteServerTime == localServerTime && !localTask.first().isSynced) {
-                        Log.w(
+                    // Local exists -> Compare server timestamps (stored locally vs new from server)
+                    val localServerTime =
+                        localTask.serverLastUpdatedMillis ?: 0L // Use 0 if never synced before
+                    val remoteServerTime = remoteTask.serverLastUpdatedMillis
+                        ?: Long.MAX_VALUE // Should not be null here based on earlier check
+
+                    if (remoteServerTime > localServerTime) {
+                        // Remote is newer -> Update local version
+                        Log.d(
                             TAG,
-                            "Correcting local sync state for matching timestamp task (ID: $docId)"
+                            "Remote task newer (ID: $docId, RemoteTime: $remoteServerTime > LocalTime: $localServerTime). Preparing update."
                         )
-                        // Prepare lambda to update ONLY sync flags, not overwrite other data
-                        changesToApplyLocally.add {
-                            taskRepository.markTaskAsSyncedById(
-                                docId,
-                                remoteServerTime
+                        // remoteTask already has isSynced=true, needsUpload=false set by fromFirestoreMap
+                        changesToApplyLocally.add { taskRepository.upsertTask(remoteTask) }
+                    } else {
+                        // Local is same age or newer (or remote time is somehow missing)
+                        // This could happen if a local change was uploaded but the download check runs before the upload confirmation updated local state fully.
+                        Log.d(
+                            TAG,
+                            "Local task same or newer (ID: $docId, RemoteTime: $remoteServerTime <= LocalTime: $localServerTime). Skipping remote update."
+                        )
+                        // Optional: Ensure local state is correct if timestamps match
+                        if (remoteServerTime == localServerTime && !localTask.isSynced) {
+                            Log.w(
+                                TAG,
+                                "Correcting local sync state for matching timestamp task (ID: $docId)"
                             )
+                            // Prepare lambda to update ONLY sync flags, not overwrite other data
+                            changesToApplyLocally.add {
+                                taskRepository.markTaskAsSyncedById(
+                                    docId,
+                                    remoteServerTime
+                                )
+                            }
                         }
                     }
                 }
+
+
                 // --- End Conflict Resolution ---
             }
         } catch (e: Exception) {
@@ -516,4 +533,4 @@ class SyncWorker(
             throw e // Or handle more gracefully depending on desired retry behavior
         }
     }
-}
+} //TODO change lastModified into lastUpdated

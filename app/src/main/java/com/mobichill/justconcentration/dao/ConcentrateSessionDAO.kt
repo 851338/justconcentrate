@@ -20,7 +20,7 @@ interface ConcentrateSessionDAO {
     suspend fun upsertSession(session: ConcentrateSessionModel)
 
     @Query("SELECT * FROM focus_sessions WHERE id = :sessionId")
-    suspend fun getSessionById(sessionId: String): ConcentrateSessionModel
+    suspend fun getSessionById(sessionId: String): ConcentrateSessionModel?
 
     @Query("SELECT * FROM focus_sessions ORDER BY startTime DESC")
     fun getAllSessions(): Flow<List<ConcentrateSessionModel>>

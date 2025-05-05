@@ -23,47 +23,49 @@ data class ConcentrateSessionModel(
     var serverLastUpdatedMillis: Long? = null,
     var isSynced: Boolean = false,
     var needsUpload: Boolean = true,
-) : Parcelable
+) : Parcelable {
+    companion object {
+        fun fromFireStoreMap(docId: String, map: Map<String, Any?>): ConcentrateSessionModel? {
+            try {
+                val serverTimestamp = map["lastUpdated"] as? Timestamp
+                val serverMillis = serverTimestamp?.toDate()?.time
 
-fun ConcentrateSessionModel.fromFireStoreMap(docId: String, map: Map<String, Any?>): ConcentrateSessionModel? {
-    try {
-        val serverTimestamp = map["lastUpdated"] as? Timestamp
-        val serverMillis = serverTimestamp?.toDate()?.time
+                val session = ConcentrateSessionModel(
+                    id = docId,
+                    goal = map["goal"] as? String ?: "",
+                    startTime = map["startTime"] as? Long ?: 0L,
+                    endTime = map["endTime"] as? Long ?: 0L,
+                    date = map["date"] as? String ?: "",
+                    durationMinutes = (map["durationMinutes"] as? Long)?.toInt() ?: 0,
+                    wasCompleted = map["wasCompleted"] as? Boolean == true,
 
-        val session = ConcentrateSessionModel(
-            id = docId,
-            goal = map["goal"] as? String ?: "",
-            startTime = map["startTime"] as? Long ?: 0L,
-            endTime = map["endTime"] as? Long ?: 0L,
-            date = map["date"] as? String ?: "",
-            durationMinutes = (map["durationMinutes"] as? Long)?.toInt() ?: 0,
-            wasCompleted = map["wasCompleted"] as? Boolean ?: false,
+                    // Local State
+                    serverLastUpdatedMillis = serverMillis,
+                    isSynced = true,
+                    needsUpload = false,
+                )
 
-            // Local State
-            serverLastUpdatedMillis = serverMillis,
-            isSynced = true,
-            needsUpload = false,
-        )
+                return session
 
-        return session
-
-    } catch (e: Exception) {
-        return null
+            } catch (e: Exception) {
+                return null
+            }
+        }
     }
-}
 
-/**
- * Converts ConcentrateSessionModel to a MutableMap for Firestore.
- * Excludes local state fields.
- * Sync logic MUST add 'lastUpdated' FieldValue.serverTimestamp().
- */
-fun ConcentrateSessionModel.toFireStoreMap(): MutableMap<String, Any?> {
-    return mutableMapOf(
-        "goal" to this.goal,
-        "startTime" to this.startTime,
-        "endTime" to this.endTime,
-        "date" to this.date,
-        "durationMinutes" to this.durationMinutes,
-        "wasCompleted" to this.wasCompleted
-    )
+    /**
+     * Converts ConcentrateSessionModel to a MutableMap for Firestore.
+     * Excludes local state fields.
+     * Sync logic MUST add 'lastUpdated' FieldValue.serverTimestamp().
+     */
+    fun toFireStoreMap(): MutableMap<String, Any?> {
+        return mutableMapOf(
+            "goal" to this.goal,
+            "startTime" to this.startTime,
+            "endTime" to this.endTime,
+            "date" to this.date,
+            "durationMinutes" to this.durationMinutes,
+            "wasCompleted" to this.wasCompleted
+        )
+    }
 }

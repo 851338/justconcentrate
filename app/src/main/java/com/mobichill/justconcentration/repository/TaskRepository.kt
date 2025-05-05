@@ -42,7 +42,7 @@ class TaskRepository(private val taskDAO: TaskDAO) {
         taskDAO.deleteTasksPermanentlyByIds(ids)
     }
 
-    fun getTaskById(taskId: String): Flow<TaskModel> = taskDAO.getTaskById(taskId)
+    fun getTaskById(taskId: String): Flow<TaskModel?> = taskDAO.getTaskById(taskId)
 
     fun getTaskByRequestCode(requestCode: Int): Flow<TaskModel> =
         taskDAO.getTaskByRequestCode(requestCode)

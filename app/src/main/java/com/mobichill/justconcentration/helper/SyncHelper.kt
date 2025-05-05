@@ -38,6 +38,7 @@ object SyncHelper {
 
             .build()
 
+        Log.d(TAG, "One-time sync work enqueued (or kept if existing).")
         WorkManager.getInstance(context.applicationContext).enqueueUniqueWork(
             UNIQUE_ONETIME_SYNC_WORK_NAME,
             ExistingWorkPolicy.KEEP, // KEEP is often suitable for app start sync

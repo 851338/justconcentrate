@@ -122,7 +122,7 @@ class SharedPreferencesUtils(context: Context) {
     }
 
     // Settings Shared Preferences
-    fun isSettingsSyncEnabled() = settingPrefs.getBoolean(KEY_SETTINGS_SYNC, false)
+    fun isSettingsSyncEnabled() = settingPrefs.getBoolean(KEY_SETTINGS_SYNC, true)
 
     fun isVibrationEnabled() = settingPrefs.getBoolean(KEY_SETTINGS_VIBRATION, false)
 

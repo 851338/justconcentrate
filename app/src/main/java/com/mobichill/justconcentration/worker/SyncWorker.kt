@@ -130,7 +130,7 @@ class SyncWorker(
                         firestorePath.document(task.id) // Use client-generated UUID as doc ID
                     val taskData = task.toFireStoreMap() // Convert model to Map
                     // CRUCIAL: Add/Overwrite with server timestamp for reliable conflict resolution
-                    taskData["lastModified"] = FieldValue.serverTimestamp()
+                    taskData["lastUpdated"] = FieldValue.serverTimestamp()
                     // Use set with merge to handle partial updates if needed, or just set if map is complete
                     batch.set(docRef, taskData, SetOptions.merge())
                     operationsAdded = true
@@ -385,7 +385,7 @@ class SyncWorker(
 
         try {
             // Query FireStore for documents modified after the last sync timestamp
-            val query = firestorePath.whereGreaterThan("lastModified", lastSyncTime)
+            val query = firestorePath.whereGreaterThan("lastUpdated", lastSyncTime)
             val snapshot = query.get().await()
             Log.d(TAG, "Fetched ${snapshot.size()} potential task changes from Firestore.")
 
@@ -403,10 +403,10 @@ class SyncWorker(
                     return@forEach // continue to next document in loop
                 }
                 // Ensure server timestamp exists (critical for comparison)
-                if (remoteData["lastModified"] !is Timestamp) {
+                if (remoteData["lastUpdated"] !is Timestamp) {
                     Log.w(
                         TAG,
-                        "Skipping Task ID $docId - missing or invalid 'lastModified' Firestore timestamp."
+                        "Skipping Task ID $docId - missing or invalid 'lastUpdated' Firestore timestamp."
                     )
                     return@forEach
                 }
@@ -533,4 +533,4 @@ class SyncWorker(
             throw e // Or handle more gracefully depending on desired retry behavior
         }
     }
-} //TODO change lastModified into lastUpdated
+}

@@ -11,6 +11,19 @@ object Constants {
         const val NOTIFICATION_ID_ALARM_AUDIO_SERVICE = 1002
     }
 
+    object PRO_BADGES{
+        const val LOYALIST_3_MONTH_GOAL_DAYS = 90
+        const val LOYALIST_6_MONTH_GOAL_DAYS = 180
+        const val LOYALIST_12_MONTH_GOAL_DAYS = 365
+
+        val LOYALIST_BADGES_WITH_GOALS = mapOf(
+            "pro_loyalist_3" to LOYALIST_3_MONTH_GOAL_DAYS,
+            "pro_loyalist_6" to LOYALIST_6_MONTH_GOAL_DAYS,
+            "pro_loyalist_12" to LOYALIST_12_MONTH_GOAL_DAYS
+        )
+        const val PRO_SUPPORTER_BADGE_ID = "pro_supporter"
+    }
+
     object REQUEST_CODE {
         const val REQUEST_SYSTEM_RINGTONE = 10001
         const val REQUEST_LOCAL_SOUND = 10002
@@ -41,6 +54,7 @@ object Constants {
             "https://www.privacypolicies.com/live/d032f7b3-71ba-48c9-83fe-27566be9254e"
         val EMAIL_REGEX: Pattern =
             Pattern.compile("^[0-9a-z]+(?:\\.[0-9a-z]+)*@[a-z0-9]{2,}(?:\\.[a-z]{2,})?$")
+        const val DATE_FORMAT = "MMM dd, yyyy"
         val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("MMM dd, yyyy", Locale.ENGLISH)
     }
 

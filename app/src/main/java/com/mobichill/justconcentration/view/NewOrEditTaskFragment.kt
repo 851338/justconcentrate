@@ -39,7 +39,8 @@ import java.util.Locale
 
 class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBinding>() {
     private var timeString: String = ""
-    private var dateTime: Long = 0
+    private var alarmTime: Long? = null
+    private var dueDate: Long? = null
     private var task: TaskModel? = null
     private var isEdit: Boolean = false
     private val taskViewModel: TaskViewModel by activityViewModels {
@@ -161,17 +162,10 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
 
         btnSave.setOnClickListener(object : OnSingleClickListener() {
             override fun onSingleClick(view: View) {
-                // Make sure dateTime is always the new set one
-                dateTime =
-                    ConvertUtils.convertTextIntoTimeMillis(tvSelectedDateTime.text.toString())
-                // Check if user selected an already passed alarm
-                if (!isEdit && dateTime != 0L && dateTime <= System.currentTimeMillis())
-                    Utils.showToast(
-                        requireContext(), getString(R.string.time_choosen_has_passed),
-                    )
-                else
+                if (checkDataValid()) {
                     if (isEdit) updateExistedTask(task!!)
                     else createNewTask()
+                }
             }
         })
 
@@ -180,7 +174,7 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
                 AudioUtils.showSoundChoiceDialog(requireActivity(), pickAudioLauncher)
             }
         })
-        btnPickDateTime.setOnClickListener(object : OnSingleClickListener() {
+        btnPickAlarmTime.setOnClickListener(object : OnSingleClickListener() {
             override fun onSingleClick(view: View) {
                 Utils.showDateTimePicker(requireContext()) { calendar ->
                     calendar.set(Calendar.SECOND, 0)
@@ -188,11 +182,28 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
                     val format = SimpleDateFormat(TIME_FORMAT, Locale.getDefault())
                     val formattedString = format.format(calendar.time)
                     timeString = formattedString
-                    tvSelectedDateTime.text = timeString
-                    dateTime = calendar.timeInMillis
+                    tvSelectedAlarmTime.error = null
+                    tvSelectedAlarmTime.text = timeString
+                    alarmTime = calendar.timeInMillis
                 }
             }
         })
+
+        btnPickDueDate.setOnClickListener(object : OnSingleClickListener() {
+            override fun onSingleClick(view: View) {
+                Utils.showDateTimePicker(requireContext()) { calendar ->
+                    calendar.set(Calendar.SECOND, 0)
+                    calendar.set(Calendar.MILLISECOND, 0)
+                    val format = SimpleDateFormat(TIME_FORMAT, Locale.getDefault())
+                    val formattedString = format.format(calendar.time)
+                    timeString = formattedString
+                    tvSelectedDueDate.error = null
+                    tvSelectedDueDate.text = timeString
+                    alarmTime = calendar.timeInMillis
+                }
+            }
+        })
+
         btnReset.setOnClickListener(
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
@@ -204,7 +215,7 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
     private fun resetData() = with(binding) {
         if (isEdit) {
             etTaskTitle.setText(task?.taskText)
-            tvSelectedDateTime.text =
+            tvSelectedAlarmTime.text =
                 ConvertUtils.convertTimeMillisIntoText(requireContext(), task!!.alarmTimeMillis)
 
             tvSelectedAlarmSound.text = if (task!!.alarmSoundUri.isNotEmpty()) {
@@ -220,7 +231,7 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
             }
         } else {
             etTaskTitle.setText("")
-            tvSelectedDateTime.text = getString(R.string.no_date_selected)
+            tvSelectedAlarmTime.text = getString(R.string.no_time_selected)
             tvSelectedAlarmSound.text = AudioUtils.defaultAlarmName(requireContext())
             selectedUri = AudioUtils.defaultAlarmUri(requireContext())
         }
@@ -234,7 +245,8 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
         }
         val newTask = TaskModel(
             taskText = etTaskTitle.text.toString(),
-            alarmTimeMillis = dateTime,
+            alarmTimeMillis = alarmTime ?: 0L,
+            dueDate = dueDate ?: 0L,
             requestCode = Utils.getNextRequestCode(requireContext()),
             alarmSoundUri = (if (::selectedUri.isInitialized) selectedUri.toString()
             else AudioUtils.defaultAlarmUri(requireContext()).toString()),
@@ -243,17 +255,17 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
         var isSyncedSuccessfully = false
         if (sfUtils.isUserLoggedIn() && Utils.isNetworkAvailable(requireContext())) {
             try {
-                Log.d(TAG, "Attempting FireStore sync for session ${newTask.id}")
+                Log.d(TAG, "Attempting Firestore sync for session ${newTask.id}")
                 // Sync the potentially modified sessionToSave
-                taskViewModel.saveTaskToFireStore(newTask.copy(isSynced = true))
-                Log.d(TAG, "FireStore sync SUCCESS for session ${newTask.id}")
-                isSyncedSuccessfully = true // Mark as synced ONLY if FireStore call succeeds
+                taskViewModel.saveTaskToFirestore(newTask.copy(isSynced = true))
+                Log.d(TAG, "Firestore sync SUCCESS for session ${newTask.id}")
+                isSyncedSuccessfully = true // Mark as synced ONLY if Firestore call succeeds
             } catch (e: Exception) {
-                Log.e(TAG, "FireStore sync FAILED for session ${newTask.id}", e)
-                isSyncedSuccessfully = false // Ensure it's false on FireStore failure
+                Log.e(TAG, "Firestore sync FAILED for session ${newTask.id}", e)
+                isSyncedSuccessfully = false // Ensure it's false on Firestore failure
             }
         } else {
-            Log.d(TAG, "Skipping FireStore sync (Conditions not met) for session ${newTask.id}")
+            Log.d(TAG, "Skipping Firestore sync (Conditions not met) for session ${newTask.id}")
             isSyncedSuccessfully = false // Explicitly false if conditions aren't met
         }
         try {
@@ -279,34 +291,36 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
         val updatedTask = taskModel.copy(
             id = taskModel.id,
             taskText = etTaskTitle.text.toString(),
-            alarmTimeMillis = dateTime,
-            requestCode = taskModel.requestCode,
+            alarmTimeMillis = alarmTime ?: 0L,
+            dueDate = dueDate ?: 0L,
+            requestCode = taskModel . requestCode,
             alarmSoundUri = (if (::selectedUri.isInitialized) selectedUri.toString()
             else AudioUtils.defaultAlarmUri(requireContext()).toString()),
         )
         var isSyncedSuccessfully = false
         if (sfUtils.isUserLoggedIn() && Utils.isNetworkAvailable(requireContext())) {
             try {
-                Log.d(TAG, "Attempting FireStore sync for session ${taskModel.id}")
+                Log.d(TAG, "Attempting Firestore sync for session ${taskModel.id}")
                 // Sync the potentially modified sessionToSave
-                taskViewModel.updateTaskToFireStore(updatedTask.copy(isSynced = true))
-                Log.d(TAG, "FireStore sync SUCCESS for session ${taskModel.id}")
-                isSyncedSuccessfully = true // Mark as synced ONLY if FireStore call succeeds
+                taskViewModel.updateTaskToFirestore(updatedTask.copy(isSynced = true))
+                Log.d(TAG, "Firestore sync SUCCESS for session ${taskModel.id}")
+                isSyncedSuccessfully = true // Mark as synced ONLY if Firestore call succeeds
             } catch (e: Exception) {
-                Log.e(TAG, "FireStore sync FAILED for session ${taskModel.id}", e)
-                isSyncedSuccessfully = false // Ensure it's false on FireStore failure
+                Log.e(TAG, "Firestore sync FAILED for session ${taskModel.id}", e)
+                isSyncedSuccessfully = false // Ensure it's false on Firestore failure
             }
         } else {
-            Log.d(TAG, "Skipping FireStore sync (Conditions not met) for session ${taskModel.id}")
+            Log.d(TAG, "Skipping Firestore sync (Conditions not met) for session ${taskModel.id}")
             isSyncedSuccessfully = false // Explicitly false if conditions aren't met
         }
         try {
             Log.d(TAG, "Saving final state to Room ${taskModel.id}, Synced: $isSyncedSuccessfully)")
             taskViewModel.updateTaskToRoom(
                 updatedTask.copy(
-                    isSynced = isSyncedSuccessfully)
+                    isSynced = isSyncedSuccessfully
+                )
             )
-            if (task?.alarmTimeMillis != dateTime) {
+            if (task?.alarmTimeMillis != alarmTime) {
                 AlarmHelper().cancelAlarm(requireContext(), taskModel.requestCode)
                 setAlarm(updatedTask.requestCode, updatedTask.alarmSoundUri)
             }
@@ -319,8 +333,9 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
     }
 
     private fun setAlarm(requestCode: Int, alarmUri: String) {
-        if (timeString.isNotEmpty() && timeString != getString(R.string.no_date_selected)) {
-            AlarmHelper().setAlarm(requireContext(), dateTime, requestCode, alarmUri)
+        if (alarmTime == null) return
+        if (timeString.isNotEmpty() && timeString != getString(R.string.no_time_selected)) {
+            AlarmHelper().setAlarm(requireContext(), alarmTime!!, requestCode, alarmUri)
             Utils.showToast(
                 requireContext(), getString(R.string.task_created_with_alarm, timeString)
             )
@@ -333,7 +348,7 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
 
     private fun hasUnsavedChanges(): Boolean = with(binding) {
         val defaultAlarmName = AudioUtils.defaultAlarmName(requireContext())
-        return if (task != null) {
+        return if (task != null) { // Edit mode
             val taskAlarm = ConvertUtils.convertTimeMillisIntoText(
                 requireContext(), task!!.alarmTimeMillis
             )
@@ -342,14 +357,19 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
                 requireContext(),
                 task!!.alarmSoundUri.toUri()
             )
+            val taskDueDate = ConvertUtils.convertTimeMillisIntoText(
+                requireContext(), task!!.dueDate
+            )
 
             etTaskTitle.text.toString() != task!!.taskText ||
-                    tvSelectedDateTime.text.toString() != taskAlarm ||
-                    tvSelectedAlarmSound.text.toString() != taskAudio
+                    tvSelectedAlarmTime.text.toString() != taskAlarm ||
+                    tvSelectedAlarmSound.text.toString() != taskAudio ||
+                    tvSelectedDueDate.text.toString() != taskDueDate
         } else {
             etTaskTitle.text.toString().isNotEmpty() ||
-                    tvSelectedDateTime.text.toString() != getString(R.string.no_date_selected) ||
-                    tvSelectedAlarmSound.text.toString() != defaultAlarmName
+                    tvSelectedAlarmTime.text.toString() != getString(R.string.no_time_selected) ||
+                    tvSelectedAlarmSound.text.toString() != defaultAlarmName ||
+                    tvSelectedDueDate.text.toString() != getString(R.string.no_time_selected)
         }
     }
 
@@ -375,6 +395,30 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
             } else {
                 Log.e(TAG, "Invalid audio file")
                 tvSelectedAlarmSound.error = "Invalid audio file. Please select another!"
+            }
+        }
+    }
+
+    private fun checkDataValid(): Boolean = with(binding) {
+        when {
+            // Check if user selected an already passed alarm
+            (alarmTime != null && alarmTime!! <= System.currentTimeMillis()) -> {
+                tvSelectedAlarmTime.error = getString(R.string.time_choosen_has_passed)
+                return false
+            }
+            // Check if user selected an already passed due date
+            (dueDate != null && dueDate!! <= System.currentTimeMillis()) -> {
+                tvSelectedAlarmTime.error = getString(R.string.time_choosen_has_passed)
+                return false
+            }
+            // Check if alarm time greater than due date in case both are chosen
+            (alarmTime != null && dueDate != null && alarmTime!! >= dueDate!!) -> {
+                tvSelectedDueDate.error = getString(R.string.due_date_greater_alarm)
+                return false
+            }
+
+            else -> {
+                return true
             }
         }
     }

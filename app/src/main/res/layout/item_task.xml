@@ -51,6 +51,17 @@
                 tools:text="Alarm: 16:30 PM 17/03/2025" />
 
             <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tv_due"
+                style="@style/TextStyle"
+                android:layout_marginStart="10dp"
+                android:ellipsize="end"
+                android:lines="1"
+                android:paddingHorizontal="10dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_alarm"
+                tools:text="Due: 10:00 PM 20/03/2025" />
+
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tv_createdAt"
                 style="@style/TextStyle"
                 android:layout_marginStart="10dp"
@@ -59,7 +70,7 @@
                 android:paddingHorizontal="10dp"
                 android:textColor="@color/light_gray"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_alarm"
+                app:layout_constraintTop_toBottomOf="@id/tv_due"
                 tools:text="Created at: 16:30 PM 17/03/2025" />
 
             <androidx.appcompat.widget.AppCompatImageView

@@ -13,7 +13,7 @@ import com.mobichill.justconcentration.constants.Constants.OTHERS.KEY_SESSION_CO
 import com.mobichill.justconcentration.constants.Constants.OTHERS.KEY_SESSION_DATE
 import com.mobichill.justconcentration.constants.Constants.OTHERS.KEY_SESSION_GOAL
 import com.mobichill.justconcentration.constants.Constants.OTHERS.KEY_SESSION_START_TIME
-import com.mobichill.justconcentration.helper.FireStoreHelper
+import com.mobichill.justconcentration.helper.FirestoreHelper
 import com.mobichill.justconcentration.manager.BadgeProgressManager
 import com.mobichill.justconcentration.model.ConcentrateSessionModel
 import com.mobichill.justconcentration.repository.ConcentrateSessionRepository
@@ -91,24 +91,24 @@ class SaveConcentrateSessionWorker(
             }
         }
 
-        // Attempt FireStore sync
+        // Attempt Firestore sync
         var isSyncedSuccessfully = false
         if (SharedPreferencesUtils(applicationContext).isUserLoggedIn() && Utils.isNetworkAvailable(appContext)) {
             try {
-                Log.d(TAG, "Attempting FireStore sync for session ${sessionToSave.id}")
+                Log.d(TAG, "Attempting Firestore sync for session ${sessionToSave.id}")
                 // Sync the potentially modified session
-                FireStoreHelper.getInstance()
-                    .addConcentrateSessionToFireStore(sessionToSave.copy(isSynced = true)) // Try FireStore with isSynced=true
-                isSyncedSuccessfully = true // Mark as synced ONLY if FireStore call succeeds
-                Log.d(TAG, "FireStore sync SUCCESS for session ${sessionToSave.id}")
+                FirestoreHelper.getInstance()
+                    .addConcentrateSessionToFirestore(sessionToSave.copy(isSynced = true)) // Try Firestore with isSynced=true
+                isSyncedSuccessfully = true // Mark as synced ONLY if Firestore call succeeds
+                Log.d(TAG, "Firestore sync SUCCESS for session ${sessionToSave.id}")
             } catch (e: Exception) {
-                Log.e(TAG, "FireStore sync FAILED for session ${sessionToSave.id}", e)
-                isSyncedSuccessfully = false // Ensure it's false on FireStore failure
+                Log.e(TAG, "Firestore sync FAILED for session ${sessionToSave.id}", e)
+                isSyncedSuccessfully = false // Ensure it's false on Firestore failure
             }
         } else {
             Log.d(
                 TAG,
-                "Skipping FireStore sync (Conditions not met) for session ${sessionToSave.id}"
+                "Skipping Firestore sync (Conditions not met) for session ${sessionToSave.id}"
             )
             isSyncedSuccessfully = false // Explicitly false if conditions aren't met
         }

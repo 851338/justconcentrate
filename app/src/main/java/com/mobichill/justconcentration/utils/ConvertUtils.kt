@@ -22,7 +22,7 @@ object ConvertUtils {
 
     fun convertTimeMillisIntoText(context: Context, timeMillis: Long): String {
         if (timeMillis == 0L)
-            return context.getString(R.string.no_date_selected)
+            return context.getString(R.string.no_time_selected)
         return try {
             val date = Date(timeMillis)
             val sdf = SimpleDateFormat(TIME_FORMAT, Locale.getDefault())

@@ -11,5 +11,7 @@ data class UserModel(
     var profilePic: String?,
     var createdAt: Long?,
     var lastLogin: Long,
-    var subscription: Boolean = false
+    var subscriptionStatus: Boolean = false,
+    var subscriptionStartDate: Long? = null,
+    var subscriptionExpiryDate: Long? = null
 )

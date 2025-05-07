@@ -60,4 +60,10 @@ interface TaskDAO {
 
     @Query("UPDATE tasks SET isSynced = 1, needsUpload = 0 WHERE id IN (:ids)")
     suspend fun markTasksAsSyncedAfterUpload(ids: List<String>)
+
+    @Query("SELECT * FROM tasks WHERE createdAt BETWEEN :startTimeMillis AND :endTimeMillis AND deletedAt IS NULL")
+    suspend fun getTasksCreatedBetween(startTimeMillis: Long, endTimeMillis: Long): List<TaskModel>
+
+    @Query("SELECT * FROM tasks WHERE dueDate BETWEEN :startTimeMillis AND :endTimeMillis AND deletedAt IS NULL")
+    suspend fun getTasksDueBetween(startTimeMillis: Long, endTimeMillis: Long): List<TaskModel>
 }

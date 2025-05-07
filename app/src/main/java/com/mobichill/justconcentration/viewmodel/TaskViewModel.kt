@@ -7,7 +7,7 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.mobichill.justconcentration.manager.BadgeProgressManager
 import com.mobichill.justconcentration.model.TaskModel
-import com.mobichill.justconcentration.repository.FireStoreRepository
+import com.mobichill.justconcentration.repository.FirestoreRepository
 import com.mobichill.justconcentration.repository.TaskRepository
 import com.mobichill.justconcentration.utils.ConvertUtils
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -24,7 +24,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 
 class TaskViewModel(
-    private val firestoreRepo: FireStoreRepository,
+    private val firestoreRepo: FirestoreRepository,
     private val taskRepository: TaskRepository
 ) : ViewModel() {
     private val TAG = javaClass.simpleName
@@ -58,19 +58,19 @@ class TaskViewModel(
         }
     }
 
-    fun saveTaskToFireStore(task: TaskModel) =
+    fun saveTaskToFirestore(task: TaskModel) =
         viewModelScope.launch {
-            firestoreRepo.saveTaskToFireStore(task)
+            firestoreRepo.saveTaskToFirestore(task)
         }
 
-    fun updateTaskToFireStore(task: TaskModel) =
+    fun updateTaskToFirestore(task: TaskModel) =
         viewModelScope.launch {
-            firestoreRepo.updateTaskToFireStore(task)
+            firestoreRepo.updateTaskToFirestore(task)
         }
 
-    fun deleteTaskFromFireStore(task: TaskModel) {
+    fun deleteTaskFromFirestore(task: TaskModel) {
         viewModelScope.launch {
-            firestoreRepo.deleteTaskFromFireStore(task)
+            firestoreRepo.deleteTaskFromFirestore(task)
         }
     }
 

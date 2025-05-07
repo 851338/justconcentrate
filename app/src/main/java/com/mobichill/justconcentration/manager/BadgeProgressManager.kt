@@ -43,7 +43,7 @@ class BadgeProgressManager {
             update("today_star", todayCompletedCount, 3)
         }
 
-        if (taskTime.hour >= 21) {
+        if (taskTime.hour >= 22) {
             update("night_owl", 1, 1)
         }
 
@@ -86,6 +86,6 @@ class BadgeProgressManager {
             unlockedAt = if (progress >= goal) System.currentTimeMillis() else null
         )
         badgeRepository.insertBadge(updatedBadge)
-//        syncBadgeToFireStore(userId, updatedBadge)
+//        syncBadgeToFirestore(userId, updatedBadge)
     }
 }

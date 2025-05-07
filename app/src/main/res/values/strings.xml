@@ -51,8 +51,8 @@
     <string name="no_internet_connection">No internet connection.</string>
     <string name="logged_out">Logged Out.</string>
     <string name="unknown_exception">Unknown exception</string>
-    <string name="pick_date_amp_time"><![CDATA[Pick Date & Time]]></string>
-    <string name="no_date_selected">No date selected</string>
+    <string name="set_alarm_time">Set alarm time (Start work)</string>
+    <string name="no_time_selected">No time selected</string>
     <string name="choose_alarm_sound">Choose Alarm Sound</string>
     <string name="default_alarm_sound">Default alarm sound</string>
     <string name="default_session_sound">Default concentrate session sound</string>
@@ -136,7 +136,7 @@
     <string name="alarm">Alarm: %1$s</string>
     <string name="created_at">Created at: %1$s</string>
     <string name="unknown_audio_file">Unknown_Audio_File</string>
-    <string name="sessions_completed">Sessions Completed: %1$d</string>
+    <string name="sessions_completed">Sessions Completed: %1$d session%2$s</string>
     <string name="current_streak_day">Current Streak: %1$d day%2$s</string>
     <string name="session_stats_chart_label">Focus Duration</string>
     <string name="share_progress">Share Progress</string>
@@ -183,4 +183,22 @@
     <string name="status_unlocked_on">Status: Unlocked on + %1$s</string>
     <string name="status_locked">Status: Locked</string>
     <string name="status_unlocked">Status: Unlocked</string>
+    <string name="pick_due_date">Pick due date</string>
+    <string name="due_date_greater_alarm">Due date must be after start time</string>
+    <string name="overdue_tasks_label">Overdue Tasks Analysis (Selected Range)</string>
+    <string name="focus_time_trend_label">Concentrate time trending chart</string>
+    <string name="bar_chart_label">Concentrate time bar chart</string>
+    <string name="session_success_rate_format">Session Success Rate (Range): %.1f%%</string>
+    <string name="task_completion_rate_format">Task Completion Rate (Range): %.1f%%</string>
+    <string name="detailed_stats_label">Detailed Stats</string>
+    <string name="focus_duration_label">Focus Duration</string>
+    <string name="progress">\nProgress: %1$d / %2$d (%3$d%%)</string>
+    <string name="how_to_unlock">\nHow to unlock: %1$s</string>
+    <string name="progress_format">%1$d/%2$d</string>
+    <string name="pro_badge">(Pro Badge)</string>
+    <string name="pro_subscription_required_to_unlock">(Pro Subscription Required to Unlock)</string>
+    <string name="no_due_date">No due date</string>
+    <string name="due">Due: %1$s</string>
+    <string name="completed_late">Completed late: %1$d task%2$s</string>
+    <string name="over_due">Over due: %1$d task%2$s</string>
 </resources>

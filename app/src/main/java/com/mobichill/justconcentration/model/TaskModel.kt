@@ -11,7 +11,7 @@ import java.util.UUID
 @Entity(tableName = "tasks")
 data class TaskModel(
     @PrimaryKey
-    val id: String = UUID.randomUUID().toString(), // Unique ID for both Room & FireStore
+    val id: String = UUID.randomUUID().toString(), // Unique ID for both Room & Firestore
     val taskText: String = "",
     val alarmTimeMillis: Long = 0L,
     val requestCode: Int = 0,
@@ -21,12 +21,13 @@ data class TaskModel(
     val createdAt: Long = 0L,
     val isSynced: Boolean = false,
     val completedAt: Long? = null,
+    val dueDate: Long = 0L,
     val serverLastUpdatedMillis: Long? = null,
     var needsUpload: Boolean = true,
     var isDeletedLocally: Boolean = false
 ) : Parcelable {
     companion object {
-        fun fromFireStoreMap(docId: String, map: Map<String, Any?>): TaskModel? {
+        fun fromFirestoreMap(docId: String, map: Map<String, Any?>): TaskModel? {
             try {
                 // Extract server timestamp first for local storage
                 val serverTimestamp = map["lastUpdated"] as? Timestamp
@@ -39,13 +40,13 @@ data class TaskModel(
                     taskText = map["taskText"] as? String ?: "",
                     alarmTimeMillis = map["alarmTimeMillis"] as? Long ?: 0L,
                     requestCode = (map["requestCode"] as? Long)?.toInt()
-                        ?: 0, // FireStore stores numbers as Long by default
+                        ?: 0, // Firestore stores numbers as Long by default
                     completed = map["completed"] as? Boolean == true,
                     alarmSoundUri = map["alarmSoundUri"] as? String ?: "",
                     createdAt = map["createdAt"] as? Long
                         ?: System.currentTimeMillis(), // Default if missing
                     completedAt = map["completedAt"] as? Long, // Nullable field
-
+                    dueDate = map["dueDate"] as? Long ?: 0L,
                     // Sync/Delete fields
                     deletedAt = map["deletedAt"] as? Long, // Nullable field
 
@@ -63,13 +64,14 @@ data class TaskModel(
             }
         }
     }
-    fun toFireStoreMap(): MutableMap<String, Any?> {
+    fun toFirestoreMap(): MutableMap<String, Any?> {
         return mutableMapOf(
             "taskText" to this.taskText,
             "alarmTimeMillis" to this.alarmTimeMillis,
             "requestCode" to this.requestCode,
             "completed" to this.completed,
             "createdAt" to this.createdAt,
+            "dueDate" to this.dueDate,
             "completedAt" to this.completedAt,
             "deletedAt" to this.deletedAt
         )

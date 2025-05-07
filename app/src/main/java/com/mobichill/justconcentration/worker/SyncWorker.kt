@@ -69,7 +69,7 @@ class SyncWorker(
                 prepareBadgeUploads(userId, uploadBatch, uploadedBadgeIds) || batchHasUploads
 
             if (batchHasUploads) {
-                Log.d("SyncWorker", "Committing FireStore upload batch...")
+                Log.d("SyncWorker", "Committing Firestore upload batch...")
                 uploadBatch.commit().await()
                 Log.d("SyncWorker", "Upload batch committed successfully.")
                 // Update local status after successful commit
@@ -128,7 +128,7 @@ class SyncWorker(
                 tasksToUpload.forEach { task ->
                     val docRef =
                         firestorePath.document(task.id) // Use client-generated UUID as doc ID
-                    val taskData = task.toFireStoreMap() // Convert model to Map
+                    val taskData = task.toFirestoreMap() // Convert model to Map
                     // CRUCIAL: Add/Overwrite with server timestamp for reliable conflict resolution
                     taskData["lastUpdated"] = FieldValue.serverTimestamp()
                     // Use set with merge to handle partial updates if needed, or just set if map is complete
@@ -174,7 +174,7 @@ class SyncWorker(
                 Log.d(TAG, "Found ${sessionsToUpload.size} new/modified sessions to upload.")
                 sessionsToUpload.forEach { session ->
                     val docRef = firestorePath.document(session.id)
-                    val sessionData = session.toFireStoreMap()
+                    val sessionData = session.toFirestoreMap()
                     sessionData["lastUpdated"] = FieldValue.serverTimestamp()
                     batch.set(docRef, sessionData, SetOptions.merge())
                     operationsAdded = true
@@ -209,7 +209,7 @@ class SyncWorker(
                 Log.d(TAG, "Found ${badgesToUpload.size} modified badges to upload.")
                 badgesToUpload.forEach { badge ->
                     val docRef = firestorePath.document(badge.id) // Use badge definition ID
-                    val badgeData = badge.toFireStoreMap() // Get progress data map
+                    val badgeData = badge.toFirestoreMap() // Get progress data map
                     badgeData["lastUpdated"] = FieldValue.serverTimestamp() // Add server timestamp
                     // SetOptions.merge() is good here to only update progress fields
                     batch.set(docRef, badgeData, SetOptions.merge())
@@ -258,7 +258,7 @@ class SyncWorker(
                 // ...
 
                 val remoteSession =
-                    ConcentrateSessionModel.fromFireStoreMap(docId, remoteData) ?: return@forEach
+                    ConcentrateSessionModel.fromFirestoreMap(docId, remoteData) ?: return@forEach
                 val localSession = sessionRepository.getSessionById(docId)
                 if (doc.data == null) {
                     Log.w(TAG, "Skipping session download for ID $docId - data was null.")
@@ -266,7 +266,7 @@ class SyncWorker(
                 }
                 if (localSession == null) {
                     Log.d(TAG, "Session ${doc.id} not found locally. Inserting.")
-                    val newSession = ConcentrateSessionModel.fromFireStoreMap(doc.id, doc.data!!)
+                    val newSession = ConcentrateSessionModel.fromFirestoreMap(doc.id, doc.data!!)
                     if (newSession == null) return@forEach
                     sessionRepository.addConcentrateSessionToRoom(newSession)
                 } else {
@@ -331,8 +331,8 @@ class SyncWorker(
                     return@forEach
                 }
 
-                // Convert FireStore data to local model
-                val remoteBadge = BadgeModel.fromFireStoreMap(docId, remoteData) ?: return@forEach
+                // Convert Firestore data to local model
+                val remoteBadge = BadgeModel.fromFirestoreMap(docId, remoteData) ?: return@forEach
 
                 // Get local version (make sure local DB is pre-populated with badge definitions)
                 val localBadge = badgeRepository.getBadgeById(docId)
@@ -384,7 +384,7 @@ class SyncWorker(
         val TAG = "SyncWorker_DownloadTasks" // Specific tag
 
         try {
-            // Query FireStore for documents modified after the last sync timestamp
+            // Query Firestore for documents modified after the last sync timestamp
             val query = firestorePath.whereGreaterThan("lastUpdated", lastSyncTime)
             val snapshot = query.get().await()
             Log.d(TAG, "Fetched ${snapshot.size()} potential task changes from Firestore.")
@@ -421,7 +421,7 @@ class SyncWorker(
                 }
 
                 // Convert Firestore data to local Room model using the companion object function
-                val remoteTask = TaskModel.fromFireStoreMap(docId, remoteData)
+                val remoteTask = TaskModel.fromFirestoreMap(docId, remoteData)
 
                 if (remoteTask == null)
                     return@forEach

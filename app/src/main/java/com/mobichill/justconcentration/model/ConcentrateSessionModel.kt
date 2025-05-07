@@ -13,7 +13,7 @@ import java.util.UUID
 @Entity(tableName = "focus_sessions")
 data class ConcentrateSessionModel(
     @PrimaryKey
-    val id: String = UUID.randomUUID().toString(), // Unique ID for both Room & FireStore
+    val id: String = UUID.randomUUID().toString(), // Unique ID for both Room & Firestore
     val goal: String = "",
     val startTime: Long = 0L,
     val endTime: Long = 0L,
@@ -25,7 +25,7 @@ data class ConcentrateSessionModel(
     var needsUpload: Boolean = true,
 ) : Parcelable {
     companion object {
-        fun fromFireStoreMap(docId: String, map: Map<String, Any?>): ConcentrateSessionModel? {
+        fun fromFirestoreMap(docId: String, map: Map<String, Any?>): ConcentrateSessionModel? {
             try {
                 val serverTimestamp = map["lastUpdated"] as? Timestamp
                 val serverMillis = serverTimestamp?.toDate()?.time
@@ -58,7 +58,7 @@ data class ConcentrateSessionModel(
      * Excludes local state fields.
      * Sync logic MUST add 'lastUpdated' FieldValue.serverTimestamp().
      */
-    fun toFireStoreMap(): MutableMap<String, Any?> {
+    fun toFirestoreMap(): MutableMap<String, Any?> {
         return mutableMapOf(
             "goal" to this.goal,
             "startTime" to this.startTime,

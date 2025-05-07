@@ -1,1 +1,12 @@
+# Ignore build directories
 /build
+**/build
+
+# Ignore IDE files
+.idea/
+!/.idea/misc.xml
+!/.idea/modules.xml
+!*.iml
+
+# Optional: Ignore local device/emulator config
+.idea/deploymentTargetSelector.xml

@@ -6,7 +6,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingFragment
 import com.mobichill.justconcentration.databinding.FragmentCreateAccountBinding
-import com.mobichill.justconcentration.repository.FireStoreRepository
+import com.mobichill.justconcentration.repository.FirestoreRepository
 import com.mobichill.justconcentration.constants.Constants.OTHERS.EMAIL_REGEX
 import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.utils.SharedPreferencesUtils
@@ -88,9 +88,9 @@ class CreateAccountFragment : BaseViewBindingFragment<FragmentCreateAccountBindi
                 if (task.isSuccessful) {
                     val firebaseUser = task.result?.user
                     val uid = firebaseUser?.uid
-                    //Save user data to FireStore and Room
+                    //Save user data to Firestore and Room
                     if (uid != null) {
-                        FireStoreRepository().addNewUserBySigningUp(
+                        FirestoreRepository().addNewUserBySigningUp(
                             requireContext(),
                             uid,
                             email,

@@ -68,14 +68,34 @@ class AchievementsActivity : BaseViewBindingActivity<ActivityAchievementsBinding
             dialogBinding.badgeProgress.visibility = View.GONE
         } else {
             dialogBinding.badgeStatus.text = getString(R.string.status_locked)
+
+            // Showing status, progress & criteria
             if (badge.goal > 0) {
                 val progressPercent = (badge.progress * 100) / badge.goal
-                dialogBinding.badgeStatus.append("\nProgress: ${badge.progress} / ${badge.goal} ($progressPercent%)")
+                dialogBinding.badgeStatus.append(
+                    getString(
+                        R.string.progress,
+                        badge.progress,
+                        badge.goal,
+                        progressPercent
+                    ))
                 dialogBinding.badgeProgress.visibility = View.VISIBLE
                 dialogBinding.badgeProgress.progress = progressPercent
             } else {
-                dialogBinding.badgeStatus.append("\nHow to unlock: [Your unlock criteria text here]")
+                dialogBinding.badgeStatus.append(getString(R.string.how_to_unlock, badge.criteria))
                 dialogBinding.badgeProgress.visibility = View.GONE
+            }
+
+            // Pro requirement text
+            if (badge.isPro) {
+                dialogBinding.badgeProRequirementText.visibility = View.VISIBLE
+                dialogBinding.badgeProRequirementText.text =
+                    getString(R.string.pro_subscription_required_to_unlock)
+                if (badge.isUnlocked) {
+                    dialogBinding.badgeProRequirementText.text = getString(R.string.pro_badge)
+                }
+            } else {
+                dialogBinding.badgeProRequirementText.visibility = View.GONE
             }
         }
 

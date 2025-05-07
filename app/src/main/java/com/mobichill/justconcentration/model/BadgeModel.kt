@@ -18,10 +18,12 @@ data class BadgeModel(
     val name: String = "",
     val description: String = "",
     val iconName: String = "",
+    val criteria: String = "",
     var progress: Int = 0,
     var isUnlocked: Boolean = false,
     var unlockedAt: Long? = null,
     val goal: Int = 0,
+    val isPro: Boolean = false,
     var serverLastUpdatedMillis: Long? = null,
     var isSynced: Boolean = false,
     var needsUpload: Boolean = false
@@ -30,7 +32,7 @@ data class BadgeModel(
     @DrawableRes
     fun getDrawableResourceId(context: Context): Int {
         return context.resources.getIdentifier(
-            iconName,       // The name stored in the DB/FireStore
+            iconName,       // The name stored in the DB/Firestore
             "drawable",     // The resource type
             context.packageName
         ).let { if (it == 0) android.R.drawable.btn_star_big_on else it } }
@@ -43,7 +45,7 @@ data class BadgeModel(
          * Assumes Firestore stores progress data per user.
          * Updates local state flags appropriately.
          */
-        fun fromFireStoreMap(docId: String, map: Map<String, Any?>): BadgeModel? {
+        fun fromFirestoreMap(docId: String, map: Map<String, Any?>): BadgeModel? {
             try {
                 val serverTimestamp = map["lastUpdated"] as? Timestamp
                 val serverMillis = serverTimestamp?.toDate()?.time
@@ -52,13 +54,15 @@ data class BadgeModel(
                 // For simplicity here, we assume name/desc/icon/goal might be in the map
                 // but ideally, only progress/unlock state is synced per user.
                 val badge = BadgeModel(
-                    id = docId, // Use FireStore doc ID (which should match badge definition ID)
+                    id = docId, // Use Firestore doc ID (which should match badge definition ID)
 
                     // Static definition data (fetch locally OR from map if stored in FS)
                     name = map["name"] as? String ?: "", // Potentially fetch locally instead
+                    criteria = map["criteria"] as? String ?: "",
                     description = map["description"] as? String ?: "", // Potentially fetch locally
                     iconName = map["iconName"] as? String ?: "", // Potentially fetch locally
                     goal = (map["goal"] as? Long)?.toInt() ?: 0, // Potentially fetch locally
+                    isPro = (map["isPro"] as? Boolean) == true,
 
                     // User Progress Data from Firestore
                     progress = (map["progress"] as? Long)?.toInt() ?: 0,
@@ -91,7 +95,7 @@ data class BadgeModel(
      * and local state fields.
      * Sync logic MUST add 'lastUpdated' FieldValue.serverTimestamp().
      */
-    fun toFireStoreMap(): MutableMap<String, Any?> {
+    fun toFirestoreMap(): MutableMap<String, Any?> {
         return mutableMapOf(
             // --- User Progress Data to Store ---
             "progress" to progress,

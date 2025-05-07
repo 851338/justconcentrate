@@ -3,7 +3,6 @@ package com.mobichill.justconcentration.repository
 import com.mobichill.justconcentration.dao.TaskDAO
 import com.mobichill.justconcentration.model.TaskModel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.firstOrNull
 
 class TaskRepository(private val taskDAO: TaskDAO) {
 
@@ -61,4 +60,11 @@ class TaskRepository(private val taskDAO: TaskDAO) {
     fun getAllActiveTasks(): Flow<List<TaskModel>> = taskDAO.getAllActiveTasks()
 
     suspend fun getCompletedTaskDates(): List<String> = taskDAO.getCompletedTaskDates()
+
+    suspend fun getTasksCreatedBetween(startTimeMillis: Long, endTimeMillis: Long) =
+        taskDAO.getTasksCreatedBetween(startTimeMillis, endTimeMillis)
+
+    suspend fun getTasksDueBetween(startTimeMillis: Long, endTimeMillis: Long) =
+        taskDAO.getTasksDueBetween(startTimeMillis, endTimeMillis)
+
 }

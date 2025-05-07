@@ -25,7 +25,7 @@ import com.mobichill.justconcentration.factory.TaskViewModelFactory
 import com.mobichill.justconcentration.helper.AlarmHelper
 import com.mobichill.justconcentration.helper.TaskItemTouchHelper
 import com.mobichill.justconcentration.model.TaskModel
-import com.mobichill.justconcentration.repository.FireStoreRepository
+import com.mobichill.justconcentration.repository.FirestoreRepository
 import com.mobichill.justconcentration.utils.SharedPreferencesUtils
 import com.mobichill.justconcentration.utils.Utils
 import com.mobichill.justconcentration.listener.OnItemDismissListener
@@ -39,7 +39,7 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
     private lateinit var taskAdapter: TaskAdapter
     val taskViewModelFactory by lazy {
         TaskViewModelFactory(
-            FireStoreRepository(),
+            FirestoreRepository(),
             MyApp.instance.taskRepository
         )
     }
@@ -230,17 +230,17 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
         var isSyncedSuccessfully = false
         if (sfUtils.isUserLoggedIn() && Utils.isNetworkAvailable(this@TaskActivity)) {
             try {
-                Log.d(TAG, "Attempting FireStore sync for session ${taskModel.id}")
+                Log.d(TAG, "Attempting Firestore sync for session ${taskModel.id}")
                 // Sync the potentially modified sessionToSave
-                taskViewModel.deleteTaskFromFireStore(taskModel.copy(isSynced = true)) // Try FireStore with isSynced=true
-                isSyncedSuccessfully = true // Mark as synced ONLY if FireStore call succeeds
-                Log.d(TAG, "FireStore sync SUCCESS for session ${taskModel.id}")
+                taskViewModel.deleteTaskFromFirestore(taskModel.copy(isSynced = true)) // Try Firestore with isSynced=true
+                isSyncedSuccessfully = true // Mark as synced ONLY if Firestore call succeeds
+                Log.d(TAG, "Firestore sync SUCCESS for session ${taskModel.id}")
             } catch (e: Exception) {
-                Log.e(TAG, "FireStore sync FAILED for session ${taskModel.id}", e)
-                isSyncedSuccessfully = false // Ensure it's false on FireStore failure
+                Log.e(TAG, "Firestore sync FAILED for session ${taskModel.id}", e)
+                isSyncedSuccessfully = false // Ensure it's false on Firestore failure
             }
         } else {
-            Log.d(TAG, "Skipping FireStore sync (Conditions not met) for session ${taskModel.id}")
+            Log.d(TAG, "Skipping Firestore sync (Conditions not met) for session ${taskModel.id}")
             isSyncedSuccessfully = false // Explicitly false if conditions aren't met
         }
         try {
@@ -268,17 +268,17 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
         var isSyncedSuccessfully = false
         if (sfUtils.isUserLoggedIn() && Utils.isNetworkAvailable(this@TaskActivity)) {
             try {
-                Log.d(TAG, "Attempting FireStore sync for session ${taskModel.id}")
+                Log.d(TAG, "Attempting Firestore sync for session ${taskModel.id}")
                 // Sync the potentially modified sessionToSave
-                taskViewModel.updateTaskToFireStore(updatedTask.copy(isSynced = true))
-                Log.d(TAG, "FireStore sync SUCCESS for session ${taskModel.id}")
-                isSyncedSuccessfully = true // Mark as synced ONLY if FireStore call succeeds
+                taskViewModel.updateTaskToFirestore(updatedTask.copy(isSynced = true))
+                Log.d(TAG, "Firestore sync SUCCESS for session ${taskModel.id}")
+                isSyncedSuccessfully = true // Mark as synced ONLY if Firestore call succeeds
             } catch (e: Exception) {
-                Log.e(TAG, "FireStore sync FAILED for session ${taskModel.id}", e)
-                isSyncedSuccessfully = false // Ensure it's false on FireStore failure
+                Log.e(TAG, "Firestore sync FAILED for session ${taskModel.id}", e)
+                isSyncedSuccessfully = false // Ensure it's false on Firestore failure
             }
         } else {
-            Log.d(TAG, "Skipping FireStore sync (Conditions not met) for session ${taskModel.id}")
+            Log.d(TAG, "Skipping Firestore sync (Conditions not met) for session ${taskModel.id}")
             isSyncedSuccessfully = false // Explicitly false if conditions aren't met
         }
         try {

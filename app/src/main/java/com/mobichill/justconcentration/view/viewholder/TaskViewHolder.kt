@@ -32,6 +32,12 @@ class TaskViewHolder(private val binding: ItemTaskBinding) : RecyclerView.ViewHo
             R.string.alarm,
             ConvertUtils.convertTimeMillisIntoText(context, taskModel.alarmTimeMillis)
         )
+        if (taskModel.dueDate == 0L)
+            binding.tvDue.text = context.getString(R.string.no_due_date)
+        else binding.tvDue.text = context.getString(
+            R.string.due,
+            ConvertUtils.convertTimeMillisIntoText(context, taskModel.dueDate)
+        )
         binding.tvCreatedAt.text = context.getString(
             R.string.created_at,
             ConvertUtils.convertTimeMillisIntoText(context, taskModel.createdAt)

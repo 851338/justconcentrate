@@ -46,6 +46,17 @@
         android:textStyle="italic"
         tools:text="Status: Unlocked on Jan 1, 2024" />
 
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/badgeProRequirementText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center_horizontal"
+        android:textAppearance="?attr/textAppearanceCaption"
+        android:textColor="@color/orange"
+        android:visibility="gone"
+        tools:text="(Pro Subscription Required)"
+        tools:visibility="visible"/>
 
     <ProgressBar
         android:id="@+id/badgeProgress"
@@ -55,5 +66,6 @@
         android:layout_marginTop="8dp"
         android:visibility="gone"
         tools:progress="50"
-        tools:visibility="visible" />
+        tools:visibility="visible"
+        android:progressDrawable="@drawable/custom_progress_bar"/>
 </LinearLayout>

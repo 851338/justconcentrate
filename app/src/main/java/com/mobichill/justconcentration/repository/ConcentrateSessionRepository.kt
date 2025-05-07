@@ -100,4 +100,10 @@ class ConcentrateSessionRepository(private val concentrateSessionDAO: Concentrat
             0
         }
     }
+
+    suspend fun getCompletedSessionsBetween(startTimeMillis: Long, endTimeMillis: Long) =
+        concentrateSessionDAO.getCompletedSessionsBetween(startTimeMillis, endTimeMillis)
+
+    suspend fun getSessionsStartedBetween(startTimeMillis: Long, endTimeMillis: Long) =
+        concentrateSessionDAO.getSessionsStartedBetween(startTimeMillis, endTimeMillis)
 }

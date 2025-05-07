@@ -45,4 +45,10 @@ interface ConcentrateSessionDAO {
 
     @Query("UPDATE focus_sessions SET isSynced = 1, needsUpload = 0 WHERE id IN (:ids)")
     suspend fun markSessionsAsSyncedAfterUpload(ids: List<String>)
+
+    @Query("SELECT * FROM focus_sessions WHERE wasCompleted = 1 AND endTime BETWEEN :startTimeMillis AND :endTimeMillis")
+    suspend fun getCompletedSessionsBetween(startTimeMillis: Long, endTimeMillis: Long): List<ConcentrateSessionModel>
+
+    @Query("SELECT * FROM focus_sessions WHERE startTime BETWEEN :startTimeMillis AND :endTimeMillis")
+    suspend fun getSessionsStartedBetween(startTimeMillis: Long, endTimeMillis: Long): List<ConcentrateSessionModel>
 }

@@ -9,7 +9,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.databinding.ActivityLoginBinding
-import com.mobichill.justconcentration.repository.FireStoreRepository
+import com.mobichill.justconcentration.repository.FirestoreRepository
 import com.mobichill.justconcentration.constants.Constants.OTHERS.EMAIL_REGEX
 import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.utils.SharedPreferencesUtils
@@ -71,7 +71,7 @@ class LoginActivity : BaseViewBindingActivity<ActivityLoginBinding>() {
                     val uid = FirebaseAuth.getInstance().currentUser?.uid
                     if (uid != null) {
                         //fetch and save local
-                        FireStoreRepository().fetchUserFromFireStore(uid)
+                        FirestoreRepository().fetchUserFromFirestore(uid)
                         //save shared preferences
                         SharedPreferencesUtils(applicationContext).saveUserInfoToSF(uid)
 

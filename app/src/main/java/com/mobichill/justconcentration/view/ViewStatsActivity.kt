@@ -7,17 +7,22 @@ import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.ValueFormatter
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 import com.google.android.gms.ads.AdRequest
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
-import com.mobichill.justconcentration.base.application.MyApp
 import com.mobichill.justconcentration.constants.Constants.OTHERS.DATE_FORMATTER
 import com.mobichill.justconcentration.constants.TimeRangeOption
 import com.mobichill.justconcentration.databinding.ActivityViewStatsBinding
@@ -28,6 +33,8 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
+import java.util.Locale
 
 class ViewStatsActivity : BaseViewBindingActivity<ActivityViewStatsBinding>() {
     private lateinit var viewModel: SessionViewModel
@@ -39,7 +46,7 @@ class ViewStatsActivity : BaseViewBindingActivity<ActivityViewStatsBinding>() {
         super.initViewModel()
         viewModel = ViewModelProvider(
             this,
-            SessionViewModelFactory(MyApp.instance.concentrateSessionRepository)
+            SessionViewModelFactory(this.application)
         )[SessionViewModel::class.java]
     }
 
@@ -50,15 +57,30 @@ class ViewStatsActivity : BaseViewBindingActivity<ActivityViewStatsBinding>() {
     override fun initView() {
         super.initView()
         setupSpinner()
-        // Testing
-        viewModel.allSessions.observeForever { sessions ->
-            Log.d("LiveDataDebug", "Sessions updated:")
-            sessions.forEach { Log.d("LiveDataDebug", it.toString()) }
-        }
+        setObservers()
+        setAds()
+        setBtnOnClick()
+    }
+
+    private fun setBtnOnClick() {
+        binding.btnBack.setOnClickListener(
+            object : OnSingleClickListener() {
+                override fun onSingleClick(view: View) {
+                    onBackPressed()
+                }
+            }
+        )
+    }
+
+    private fun setAds() {
+        //run ads
+        val adRequest = AdRequest.Builder().build()
+        binding.adView.loadAd(adRequest)
+    }
+
+    private fun setObservers() {
         // Showing chart bar
-        viewModel.sessionStats.observe(this) { sessions ->
-            Log.d("ChartDebug", "SessionStats Observer: Received ${sessions.size} sessions.")
-            // Group by date and calculate SUMS for completed and incomplete separately
+        viewModel.barChartData.observe(this) { sessions ->
             val aggregatedData =
                 sessions.groupBy { LocalDate.parse(it.date, DATE_FORMATTER) }
                     .mapValues { (_, sessionList) ->
@@ -99,8 +121,41 @@ class ViewStatsActivity : BaseViewBindingActivity<ActivityViewStatsBinding>() {
                 "ChartDebug",
                 "Processed ${barEntries.size} Stacked BarEntries. Max X (index): ${barEntries.lastOrNull()?.x}"
             )
-            updateChart(barEntries, datesByIndex)
+            updateBarChart(barEntries, datesByIndex)
         }
+
+        // Observe data for the Focus Trend Line Chart
+        viewModel.focusTrendData.observe(this) { trendDataMap ->
+            // Update your Line Chart library with this map (Date -> Duration)
+            updateFocusTrendChart(binding.focusTrendLineChart, trendDataMap)
+        }
+
+        // Observe Session Success Rate
+        viewModel.sessionSuccessRate.observe(this) { rate ->
+            // Update a TextView, e.g., "%.1f%%".format(rate)
+            binding.sessionSuccessRateText.text =
+                getString(R.string.session_success_rate_format, rate)
+        }
+
+        // Observe Task Completion Rate
+        viewModel.taskCompletionRate.observe(this) { rate ->
+            // Update a TextView
+            binding.taskCompletionRateText.text =
+                getString(R.string.task_completion_rate_format, rate)
+        }
+
+        // Observe Overdue Task Analysis
+        viewModel.overdueTaskAnalysis.observe(this) { analysisResult ->
+            // Update TextViews with counts like analysisResult.currentlyOverdue, etc.
+            val overDue = analysisResult.currentlyOverdue
+            val late = analysisResult.completedLate
+            binding.overdueCountText.text =
+                getString(R.string.over_due, overDue, if (overDue != 1) "s" else "")
+            binding.lateCountText.text =
+                getString(R.string.completed_late, late, if (late != 1) "s" else "")
+            // ... potentially update visibility or styling based on results
+        }
+
         // Showing total time
         viewModel.getTotalFocusTime.observe(this)
         { time ->
@@ -109,7 +164,8 @@ class ViewStatsActivity : BaseViewBindingActivity<ActivityViewStatsBinding>() {
         // Showing session number
         viewModel.sessionCount.observe(this)
         { count ->
-            binding.sessionCount.text = getString(R.string.sessions_completed, count)
+            binding.sessionCount.text =
+                getString(R.string.sessions_completed, count, if (count != 1) "s" else "")
         }
         // Showing streak
         viewModel.currentStreak.observe(this)
@@ -117,21 +173,9 @@ class ViewStatsActivity : BaseViewBindingActivity<ActivityViewStatsBinding>() {
             binding.currentStreak.text =
                 getString(R.string.current_streak_day, streak, if (streak != 1) "s" else "")
         }
-
-        binding.btnBack.setOnClickListener(
-            object : OnSingleClickListener() {
-                override fun onSingleClick(view: View) {
-                    onBackPressed()
-                }
-            }
-        )
-
-        //run ads
-        val adRequest = AdRequest.Builder().build()
-        binding.adView.loadAd(adRequest)
     }
 
-    private fun updateChart(
+    private fun updateBarChart(
         chartData: List<BarEntry>,
         dates: Map<Float, LocalDate>
     ) = with(binding) {
@@ -180,7 +224,7 @@ class ViewStatsActivity : BaseViewBindingActivity<ActivityViewStatsBinding>() {
         xAxis.valueFormatter = object : ValueFormatter() {
             override fun getFormattedValue(value: Float): String {
                 // x value is now the index (0.0, 1.0, etc.)
-                return dates[value]?.format(DateTimeFormatter.ofPattern("MMM dd")) // Lookup date by index then get & format
+                return dates[value]?.format(DateTimeFormatter.ofPattern("MMM dd, yy")) // Lookup date by index then get & format
                     ?: run {
                         Log.w("ChartFormatter", "No date found for index: $value")
                         "" // Return empty or value.toString() if index not found
@@ -226,6 +270,138 @@ class ViewStatsActivity : BaseViewBindingActivity<ActivityViewStatsBinding>() {
         Log.d("ChartDebug", "<- updateChart END")
     }
 
+    private fun updateFocusTrendChart(chart: LineChart, trendDataMap: Map<String, Int>?) {
+        Log.d("LineChartDebug", "updateFocusTrendChart called. trendDataMap: $trendDataMap")
+        if (trendDataMap.isNullOrEmpty()) {
+            chart.clear() // Clear previous data
+            chart.data = null // Ensure data object is null
+            chart.setNoDataText("No focus data available for the selected period.")
+            chart.invalidate() // Refresh the chart to show "No data" text
+            return
+        }
+
+        // 1. Prepare data entries and labels (SORTED BY DATE)
+        val entries = mutableListOf<Entry>()
+        val xAxisLabels = mutableListOf<String>() // Store formatted date labels
+
+        // Sort the map by date keys
+        val sortedData = trendDataMap.entries
+            .mapNotNull { entry ->
+                try {
+                    LocalDate.parse(entry.key, DATE_FORMATTER) to entry.value
+                } catch (e: Exception) {
+                    Log.e(TAG, "Passing date key:${entry.key} & value:${entry.value} error: ", e)
+                    null
+                }
+            }
+            .sortedBy { it.first } // Sort by LocalDate
+
+        // Create Entries and Labels from sorted data
+        sortedData.forEachIndexed { index, pair ->
+            val date = pair.first
+            val durationMinutes = pair.second
+            entries.add(Entry(index.toFloat(), durationMinutes.toFloat()))
+
+            // Format the date for the X-axis label (e.g., "Mon 10/28")
+            val dayOfWeek = date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault())
+            val formattedDate = date.format(DateTimeFormatter.ofPattern("M/d")) // e.g., 10/28
+            xAxisLabels.add("$dayOfWeek $formattedDate")
+        }
+
+        // IF ENTRIES IS EMPTY AFTER PROCESSING (e.g., all parsing failed), THEN ALSO CLEAR
+        if (entries.isEmpty()) {
+            Log.d(
+                "LineChartDebug",
+                "Entries list is empty after processing trendDataMap. Clearing chart."
+            )
+            chart.clear()
+            chart.data = null
+            chart.setNoDataText("Could not process focus data for the selected period.") // Or original message
+            chart.invalidate()
+            return
+        }
+
+        // 2. Create LineDataSet
+        val dataSet = LineDataSet(entries, getString(R.string.focus_duration_label))
+
+        // --- Style the DataSet ---
+        dataSet.color = ContextCompat.getColor(this, R.color.chart_primary)
+        dataSet.valueTextColor = Color.BLACK
+        dataSet.lineWidth = 2f
+        dataSet.setCircleColor(ContextCompat.getColor(this, R.color.chart_secondary))
+        dataSet.circleRadius = 4f
+        dataSet.setDrawCircleHole(false)
+        dataSet.valueTextSize = 10f
+        dataSet.setDrawValues(true) // Show duration values on the chart points
+
+        // Format values shown on chart points (optional, e.g., add "m")
+        dataSet.valueFormatter = object : ValueFormatter() {
+            override fun getPointLabel(entry: Entry?): String {
+                return entry?.y?.toInt()?.toString() ?: "" // Just show the integer minute value
+                // return "${entry?.y?.toInt() ?: ""}m" // Or add "m"
+            }
+        }
+
+        // 3. Create LineData
+        val lineDataSets = mutableListOf<ILineDataSet>()
+        lineDataSets.add(dataSet)
+        val lineData = LineData(lineDataSets)
+
+        // 4. Configure X-Axis
+        val xAxis: XAxis = chart.xAxis
+        xAxis.position = XAxis.XAxisPosition.BOTTOM
+        val desiredGranularity = if (entries.size > 14) 3f else if (entries.size > 7) 2f else 1f
+        xAxis.granularity = desiredGranularity
+        xAxis.setDrawGridLines(false) // Hide vertical grid lines
+        xAxis.isGranularityEnabled = true // Control label skipping
+        xAxis.valueFormatter = object : ValueFormatter() {
+            override fun getAxisLabel(
+                value: Float,
+                axis: com.github.mikephil.charting.components.AxisBase?
+            ): String {
+                val index = value.toInt()
+                // Return the pre-formatted label if index is valid
+                return if (index >= 0 && index < xAxisLabels.size) {
+                    xAxisLabels[index]
+                } else {
+                    "" // Return empty string for invalid indices
+                }
+            }
+        }
+        // Adjust label count if needed, though granularity=1f usually works with index
+        // xAxis.setLabelCount(xAxisLabels.size, true)
+
+        // 5. Configure Y-Axis (Left)
+        val yAxisLeft = chart.axisLeft
+        yAxisLeft.axisMinimum = 0f // Duration cannot be negative
+        yAxisLeft.setDrawGridLines(true) // Show horizontal grid lines
+        // Format Y-axis labels (optional, e.g., add " min")
+        yAxisLeft.valueFormatter = object : ValueFormatter() {
+            override fun getAxisLabel(
+                value: Float,
+                axis: com.github.mikephil.charting.components.AxisBase?
+            ): String {
+                return "${value.toInt()} min"
+            }
+        }
+
+        // 6. Configure Y-Axis (Right) - Disable it
+        chart.axisRight.isEnabled = false
+
+        // 7. Configure Chart Appearance
+        chart.description.isEnabled = false // Hide description label
+        chart.legend.isEnabled = true // Show legend (usually below chart)
+        chart.setTouchEnabled(true)
+        chart.isDragEnabled = true
+        chart.setScaleEnabled(true)
+        chart.setPinchZoom(true) // Allow pinch zooming
+
+        // 8. Set Data and Refresh
+        chart.data = lineData
+        chart.animateX(500) // Optional: Add a simple animation
+        // chart.invalidate() // No need to call invalidate() after setting data if animateX is used
+    }
+
     private fun setupSpinner() = with(binding) {
         val timeOptions = listOf("Today", "This Week", "This Month", "All Time", "Custom")
 
@@ -251,7 +427,7 @@ class ViewStatsActivity : BaseViewBindingActivity<ActivityViewStatsBinding>() {
                         viewModel.onCustomDateRangeSelected(startDate, endDate)
                     }
                 } else {
-                    viewModel._selectedTimeRange.value = option
+                    viewModel.setTimeRange(option)
                 }
             }
 

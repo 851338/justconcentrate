@@ -66,6 +66,7 @@ abstract class MyRoomDatabase : RoomDatabase() {
                 MyRoomDatabase::class.java,
                 DB_NAME
             )
+                .setJournalMode(RoomDatabase.JournalMode.TRUNCATE) //TODO remove after test phase
                 .fallbackToDestructiveMigration(false)
                 .addCallback(PrepopulateBadgeCallback(context.applicationContext)).build()
         }

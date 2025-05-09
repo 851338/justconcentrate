@@ -13,6 +13,7 @@ import com.mobichill.justconcentration.constants.TimeRangeOption
 import com.mobichill.justconcentration.helper.StatsCalculateHelper
 import com.mobichill.justconcentration.model.ConcentrateSessionModel
 import com.mobichill.justconcentration.repository.ConcentrateSessionRepository
+import com.mobichill.justconcentration.repository.FirestoreRepository
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -50,21 +51,24 @@ class SessionViewModel(
         calculateStreak(sessions)
     }
 
+    private val _isUserPro = MutableLiveData<Boolean>()
+    val isUserPro: LiveData<Boolean> = _isUserPro
+
     private val _barChartData = MediatorLiveData<List<ConcentrateSessionModel>>()
     val barChartData: LiveData<List<ConcentrateSessionModel>> = _barChartData
 
-    // --- LiveData for Calculated Stats ---
-    private val _focusTrendData = MutableLiveData<Map<String, Int>>()
-    val focusTrendData: LiveData<Map<String, Int>> = _focusTrendData
+    private val _focusTrendData = MutableLiveData<Map<String, Int>?>()
+    val focusTrendData: LiveData<Map<String, Int>?> = _focusTrendData
 
-    private val _sessionSuccessRate = MutableLiveData<Double>()
-    val sessionSuccessRate: LiveData<Double> = _sessionSuccessRate
+    private val _sessionSuccessRate = MutableLiveData<Double?>()
+    val sessionSuccessRate: LiveData<Double?> = _sessionSuccessRate
 
-    private val _taskCompletionRate = MutableLiveData<Double>()
-    val taskCompletionRate: LiveData<Double> = _taskCompletionRate
+    private val _taskCompletionRate = MutableLiveData<Double?>()
+    val taskCompletionRate: LiveData<Double?> = _taskCompletionRate
 
-    private val _overdueTaskAnalysis = MutableLiveData<StatsCalculateHelper.OverdueAnalysisResult>()
-    val overdueTaskAnalysis: LiveData<StatsCalculateHelper.OverdueAnalysisResult> =
+    private val _overdueTaskAnalysis =
+        MutableLiveData<StatsCalculateHelper.OverdueAnalysisResult?>()
+    val overdueTaskAnalysis: LiveData<StatsCalculateHelper.OverdueAnalysisResult?> =
         _overdueTaskAnalysis
 
 
@@ -72,73 +76,90 @@ class SessionViewModel(
     // This MediatorLiveData observes time range changes and triggers updates
     // for both the bar chart filter AND the new stats calculations.
     private val statsUpdateTrigger = MediatorLiveData<Any?>()
+
     init {
         Log.d(TAG, "SessionViewModel init block START")
-
+        checkUserProStatus() // Check on init
         // Define the common update logic as a separate function
-        fun performCalculationsAndUpdates() {
-            Log.d(TAG, "performCalculationsAndUpdates() CALLED!") // <<<< THIS IS THE KEY LOG NOW
-
-            val currentSessions = allSessions.value.orEmpty()
-            Log.d(TAG, "performCalculationsAndUpdates - currentSessions size: ${currentSessions.size}")
-
+        fun performCalculationsAndUpdates(sourceTrigger: String) {
+            Log.d(TAG, "performCalculationsAndUpdates() CALLED by: $sourceTrigger")
+            // 1. Init value
+            val currentProStatus = _isUserPro.value == true
+            val currentSessions = allSessions.value
             val currentRangeOption = _selectedTimeRange.value ?: TimeRangeOption.TODAY
             val currentCustomStart = _customStart.value
             val currentCustomEnd = _customEnd.value
+            val millisRange = getSelectedMillisRange()
 
-            // 1. Update Bar Chart Data (Local Filter)
-            val filteredForBarChart = filterSessionsByLocalDate(
-                currentSessions,
-                currentRangeOption,
-                currentCustomStart,
-                currentCustomEnd
-            )
-            Log.d(TAG, "performCalculationsAndUpdates - filteredForBarChart size: ${filteredForBarChart.size}")
-            if (_barChartData.value != filteredForBarChart) {
-                _barChartData.value = filteredForBarChart
-            } else {
-                Log.d(TAG, "performCalculationsAndUpdates - _barChartData is same, not updating.")
-            }
-
-
-            // 2. Calculate Millisecond Range
-            val millisRange = getSelectedMillisRange() // Make sure this uses current values too
-
-            // 3. Trigger StatsCalculator methods
-            if (millisRange != null) {
-                Log.d(TAG, "performCalculationsAndUpdates - Valid millisRange: $millisRange. Launching coroutines.")
-                val startMillis = millisRange.first
-                val endMillis = millisRange.second
-                viewModelScope.launch {
-                    try {
-                        launch {
-                            val trend = statsCalculator.getFocusTimeTrend(startMillis, endMillis)
-                            Log.d(TAG, "performCalculationsAndUpdates - FocusTrend result size: ${trend.size}")
-                            _focusTrendData.postValue(trend)
-
-                            val successRate = statsCalculator.getSessionSuccessRate(startMillis, endMillis)
-                            Log.d(TAG, "performCalculationsAndUpdates - SessionSuccessRate result: $successRate")
-                            _sessionSuccessRate.postValue(successRate)
-
-                            val taskRate = statsCalculator.getTaskCompletionRate(startMillis, endMillis)
-                            Log.d(TAG, "performCalculationsAndUpdates - TaskCompletionRate result: $taskRate")
-                            _taskCompletionRate.postValue(taskRate)
-
-                            val overdueResult = statsCalculator.getOverdueTaskAnalysis(startMillis, endMillis)
-                            Log.d(TAG, "performCalculationsAndUpdates - OverdueTaskAnalysis result: $overdueResult")
-                            _overdueTaskAnalysis.postValue(overdueResult)
-                        }
-                        // ... other launch blocks for other stats with logging ...
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Error calculating stats", e)
-                        _focusTrendData.postValue(emptyMap())
-                        _sessionSuccessRate.postValue(0.0)
-                        _taskCompletionRate.postValue(0.0)
-                        _overdueTaskAnalysis.postValue(StatsCalculateHelper.OverdueAnalysisResult())                        // ...
-                    }
+            // 2. Update Bar Chart Data (For everyone)
+            if (currentSessions != null) {
+                val filteredForBarChart = filterSessionsByLocalDate(
+                    currentSessions,
+                    currentRangeOption,
+                    currentCustomStart,
+                    currentCustomEnd
+                )
+                if (_barChartData.value != filteredForBarChart) {
+                    _barChartData.value = filteredForBarChart
                 }
             } else {
-                Log.w(TAG,"performCalculationsAndUpdates - Invalid millisRange for stats. Clearing stats.")
+                if (_barChartData.value?.isNotEmpty() == true) _barChartData.value = emptyList()
+            }
+
+            // 3. Calculation for Pro status
+            if (millisRange != null) {
+                Log.d(
+                    TAG,
+                    "performCalculationsAndUpdates - Valid millisRange: $millisRange. Launching coroutines."
+                )
+                val startMillis = millisRange.first
+                val endMillis = millisRange.second
+                if (currentProStatus) {
+                    Log.d(
+                        TAG,
+                        "User is PRO. Calculating Pro stats for range: $startMillis-$endMillis"
+                    )
+                    viewModelScope.launch {
+                        try {
+                            launch {
+                                val trend =
+                                    statsCalculator.getFocusTimeTrend(startMillis, endMillis)
+                                _focusTrendData.postValue(trend)
+
+                                val successRate =
+                                    statsCalculator.getSessionSuccessRate(startMillis, endMillis)
+                                _sessionSuccessRate.postValue(successRate)
+
+                                val taskRate =
+                                    statsCalculator.getTaskCompletionRate(startMillis, endMillis)
+                                _taskCompletionRate.postValue(taskRate)
+
+                                val overdueResult =
+                                    statsCalculator.getOverdueTaskAnalysis(startMillis, endMillis)
+                                _overdueTaskAnalysis.postValue(overdueResult)
+                            }
+                            // ... other launch blocks for other stats with logging ...
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Error calculating stats", e)
+                            _focusTrendData.postValue(emptyMap())
+                            _sessionSuccessRate.postValue(0.0)
+                            _taskCompletionRate.postValue(0.0)
+                            _overdueTaskAnalysis.postValue(StatsCalculateHelper.OverdueAnalysisResult())                        // ...
+                        }
+                    }
+                } else {
+                    Log.d(TAG, "User is NOT PRO. Clearing Pro stats.")
+                    // Set Pro stats to null or empty to indicate they are not available
+                    if (_focusTrendData.value != null) _focusTrendData.value = null
+                    if (_sessionSuccessRate.value != null) _sessionSuccessRate.value = null
+                    if (_taskCompletionRate.value != null) _taskCompletionRate.value = null
+                    if (_overdueTaskAnalysis.value != null) _overdueTaskAnalysis.value = null
+                }
+            } else {
+                Log.w(
+                    TAG,
+                    "performCalculationsAndUpdates - Invalid millisRange for stats. Clearing stats."
+                )
                 _focusTrendData.value = emptyMap()
                 _sessionSuccessRate.value = 0.0
                 _taskCompletionRate.value = 0.0
@@ -147,42 +168,28 @@ class SessionViewModel(
         }
 
         // Add sources to the mediator after being defined
+        statsUpdateTrigger.addSource(_isUserPro) { isPro ->
+            performCalculationsAndUpdates("_isUserPro")
+        }
         statsUpdateTrigger.addSource(allSessions) { sessionsData ->
-            Log.d(TAG, "statsUpdateTrigger source: allSessions changed with ${sessionsData.size} items.")
-            performCalculationsAndUpdates()
+            performCalculationsAndUpdates("allSessions")
         }
         statsUpdateTrigger.addSource(_selectedTimeRange) { timeRangeOption ->
-            Log.d(TAG, "statsUpdateTrigger source: _selectedTimeRange changed to $timeRangeOption.")
-            performCalculationsAndUpdates()
+            performCalculationsAndUpdates("_selectedTimeRange")
         }
         statsUpdateTrigger.addSource(_customStart) { localDate ->
-            Log.d(TAG, "statsUpdateTrigger source: _customStart changed to $localDate.")
-            performCalculationsAndUpdates()
+            performCalculationsAndUpdates("_customStart")
         }
         statsUpdateTrigger.addSource(_customEnd) { localDate ->
-            Log.d(TAG, "statsUpdateTrigger source: _customEnd changed to $localDate.")
-            performCalculationsAndUpdates()
+            performCalculationsAndUpdates("_customEnd")
         }
 
         // IMPORTANT: The MediatorLiveData itself needs to be "active" for the above
         // addSource callbacks to fire. We make it active by observing it, even if we
         // don't directly use its value.
-        // This is a common pattern to ensure a MediatorLiveData that orchestrates
-        // other updates becomes active.
-        statsUpdateTrigger.observeForever {
-            // This observer's lambda doesn't need to do anything,
-            // its purpose is to keep statsUpdateTrigger active.
-        }
-        // The value of statsUpdateTrigger itself doesn't matter, so we can set it to null or Unit
-        // statsUpdateTrigger.value = null // Not strictly necessary if observeForever makes it active
-
-        // Force an initial update if sources might already have values
-        // by explicitly triggering one of the sources again,
-        // or by calling the update function directly IF we are sure sources have values.
-        // The re-assignment of _selectedTimeRange is a good way.
-        Log.d(TAG, "SessionViewModel init: Forcing _selectedTimeRange update to trigger mediator.")
-        _selectedTimeRange.value = _selectedTimeRange.value
-
+        statsUpdateTrigger.observeForever {}
+//        Log.d(TAG, "SessionViewModel init: Forcing _selectedTimeRange update to trigger mediator.")
+//        _selectedTimeRange.value = _selectedTimeRange.value
         Log.d(TAG, "SessionViewModel init block END")
     }
 
@@ -194,6 +201,14 @@ class SessionViewModel(
     }
 
     // --- Helper Functions ---
+    private fun checkUserProStatus() {
+        viewModelScope.launch {
+            val proStatus = FirestoreRepository().isUserPro()
+            Log.d(TAG, "User Pro Status from repository: $proStatus")
+            _isUserPro.postValue(proStatus) // This will trigger the mediator if value changes
+        }
+    }
+
     // Load session stats based on the selected time range
     private fun filterSessionsByLocalDate(
         sessions: List<ConcentrateSessionModel>,

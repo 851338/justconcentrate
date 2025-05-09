@@ -201,4 +201,7 @@
     <string name="due">Due: %1$s</string>
     <string name="completed_late">Completed late: %1$d task%2$s</string>
     <string name="over_due">Over due: %1$d task%2$s</string>
+    <string name="general_stats_label">General Stats</string>
+    <string name="upgrade_to_pro_for_more_stats">Upgrade to Pro for More Insights!</string>
+    <string name="upgrade_to_pro_for_task_completion_rate">Upgrade to Pro for Task Completion Rate</string>
 </resources>

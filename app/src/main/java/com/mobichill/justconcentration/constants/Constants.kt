@@ -30,6 +30,8 @@ object Constants {
     }
 
     object OTHERS {
+        const val MY_REQUEST_CODE_APP_UPDATE = 210399
+
         // Worker keys
         const val KEY_SESSION_ID = "session_id"
         const val KEY_SESSION_GOAL = "session_goal"

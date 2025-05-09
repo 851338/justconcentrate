@@ -3,6 +3,9 @@ package com.mobichill.justconcentration.base.application
 import android.app.Application
 import android.util.Log
 import androidx.work.Configuration
+import com.google.firebase.FirebaseApp
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import com.mobichill.justconcentration.base.database.MyRoomDatabase
 import com.mobichill.justconcentration.factory.SyncWorkerFactory
 import com.mobichill.justconcentration.manager.BadgeProgressManager
@@ -28,22 +31,18 @@ class MyApp : Application(), Configuration.Provider {
 
     override val workManagerConfiguration: Configuration
         get() {
-            Log.i("MyApp", "Providing WorkManager Configuration with custom factory NOW.")
             if (!::syncWorkerFactory.isInitialized) {
                 Log.e("MyApp", "CRITICAL: syncWorkerFactory accessed before initialization!")
-                // Handle this error state appropriately, maybe throw an exception
-                // or return a default configuration to prevent a crash here.
                 // This check is defensive.
             }
             return Configuration.Builder()
-                .setMinimumLoggingLevel(android.util.Log.INFO)
+                .setMinimumLoggingLevel(Log.INFO)
                 .setWorkerFactory(syncWorkerFactory)
                 .build()
         }
 
     override fun onCreate() {
         super.onCreate()
-        Log.i("MyApp", "MyApp.onCreate - START")
 
         instance = this
         val db = MyRoomDatabase.getInstance(applicationContext)
@@ -56,8 +55,9 @@ class MyApp : Application(), Configuration.Provider {
 
         syncWorkerFactory =
             SyncWorkerFactory(taskRepository, concentrateSessionRepository, badgeRepository, db)
-        Log.i("MyApp", "MyApp.onCreate - SyncWorkerFactory CREATED")
-        Log.i("MyApp", "MyApp.onCreate - END")
+
+        FirebaseApp.initializeApp(this)
+        Firebase.analytics.setAnalyticsCollectionEnabled(true)
     }
 
     companion object {

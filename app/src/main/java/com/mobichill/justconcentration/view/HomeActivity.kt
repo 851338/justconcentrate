@@ -1,21 +1,24 @@
 package com.mobichill.justconcentration.view
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.activity.result.IntentSenderRequest
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.ads.AdRequest
+import com.google.android.material.snackbar.Snackbar
+import com.google.android.play.core.install.model.AppUpdateType
 import com.mobichill.justconcentration.BuildConfig
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.base.application.MyApp
-import com.mobichill.justconcentration.constants.MyContextWrapper
 import com.mobichill.justconcentration.databinding.ActivityHomeBinding
 import com.mobichill.justconcentration.helper.SyncHelper
+import com.mobichill.justconcentration.listener.AppUpdateListener
 import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.manager.BadgeProgressManager
+import com.mobichill.justconcentration.manager.MyUpdateManager
 import com.mobichill.justconcentration.utils.ConvertUtils.px
 import com.mobichill.justconcentration.utils.SharedPreferencesUtils
 import com.mobichill.justconcentration.utils.Utils
@@ -27,7 +30,11 @@ import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
-class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
+class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>(), AppUpdateListener {
+
+    // Update feature
+    private lateinit var myUpdateManager: MyUpdateManager
+
     private val sfUtils: SharedPreferencesUtils by lazy {
         SharedPreferencesUtils(applicationContext)
     }
@@ -42,6 +49,15 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
             // Debug-specific behavior
             Log.d("HomeActivity", "This is a debug build!")
         }
+
+        // Handle update
+        myUpdateManager = MyUpdateManager(
+            activity = this,
+            updateType = AppUpdateType.FLEXIBLE, // Or AppUpdateType.IMMEDIATE
+            appUpdateListener = this
+        )
+        myUpdateManager.checkForUpdate()
+
         // Check login streak and handle comeback
         handleDailyActivityCheck()
 
@@ -71,8 +87,24 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
         SyncHelper.enqueueOneTimeSync(this)
     }
 
-    override fun attachBaseContext(newBase: Context?) {
-        super.attachBaseContext(MyContextWrapper.wrap(newBase, "en"))
+    override fun showUpdateDownloadedSnackbar(onCompleteUpdate: () -> Unit) {
+        Snackbar.make(
+            findViewById(android.R.id.content),
+            "A new version has been downloaded.",
+            Snackbar.LENGTH_INDEFINITE
+        ).apply {
+            setAction("RESTART") {
+                onCompleteUpdate()
+            }
+            show()
+        }
+    }
+
+    override fun launchUpdateFlow(intentSenderRequest: IntentSenderRequest) {
+        Log.d(
+            TAG,
+            "AppUpdateListener: launchUpdateFlow called by handler. Handler will use its launcher."
+        )
     }
 
     override fun initViewBinding(): ActivityHomeBinding =

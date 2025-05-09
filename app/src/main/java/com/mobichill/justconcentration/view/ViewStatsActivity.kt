@@ -79,10 +79,34 @@ class ViewStatsActivity : BaseViewBindingActivity<ActivityViewStatsBinding>() {
     }
 
     private fun setObservers() {
+        // Observer user Pro status
+        viewModel.isUserPro.observe(this) { isPro ->
+            Log.d(TAG, "Pro status changed in Activity: $isPro")
+            if (isPro) {
+                // User is Pro
+                binding.proFeaturesSection.visibility = View.VISIBLE // Show Pro stats section
+                binding.upgradeButton.visibility = View.GONE
+                // Maybe enable certain interactions or show more detailed charts
+            } else {
+                // User is Free
+                binding.proFeaturesSection.visibility = View.GONE // Hide Pro stats section
+                binding.upgradeButton.visibility = View.VISIBLE
+                // Show placeholders or a message for Pro stats
+                binding.taskCompletionRateText.text =
+                    getString(R.string.upgrade_to_pro_for_task_completion_rate)
+                binding.overdueCountText.text = "" // Clear
+                binding.lateCountText.text = "" // Clear
+            }
+        }
         // Showing chart bar
         viewModel.barChartData.observe(this) { sessions ->
+            val nonNullSessions = sessions ?: emptyList()
+            Log.d(
+                TAG,
+                "barChartData observer onChanged CALLED with ${nonNullSessions.size} sessions."
+            )
             val aggregatedData =
-                sessions.groupBy { LocalDate.parse(it.date, DATE_FORMATTER) }
+                nonNullSessions.groupBy { LocalDate.parse(it.date, DATE_FORMATTER) }
                     .mapValues { (_, sessionList) ->
                         val completedSum = sessionList.filter { it.wasCompleted }
                             .sumOf { it.durationMinutes }.toFloat()
@@ -124,54 +148,63 @@ class ViewStatsActivity : BaseViewBindingActivity<ActivityViewStatsBinding>() {
             updateBarChart(barEntries, datesByIndex)
         }
 
-        // Observe data for the Focus Trend Line Chart
-        viewModel.focusTrendData.observe(this) { trendDataMap ->
-            // Update your Line Chart library with this map (Date -> Duration)
-            updateFocusTrendChart(binding.focusTrendLineChart, trendDataMap)
-        }
-
-        // Observe Session Success Rate
-        viewModel.sessionSuccessRate.observe(this) { rate ->
-            // Update a TextView, e.g., "%.1f%%".format(rate)
-            binding.sessionSuccessRateText.text =
-                getString(R.string.session_success_rate_format, rate)
-        }
-
-        // Observe Task Completion Rate
-        viewModel.taskCompletionRate.observe(this) { rate ->
-            // Update a TextView
-            binding.taskCompletionRateText.text =
-                getString(R.string.task_completion_rate_format, rate)
-        }
-
-        // Observe Overdue Task Analysis
-        viewModel.overdueTaskAnalysis.observe(this) { analysisResult ->
-            // Update TextViews with counts like analysisResult.currentlyOverdue, etc.
-            val overDue = analysisResult.currentlyOverdue
-            val late = analysisResult.completedLate
-            binding.overdueCountText.text =
-                getString(R.string.over_due, overDue, if (overDue != 1) "s" else "")
-            binding.lateCountText.text =
-                getString(R.string.completed_late, late, if (late != 1) "s" else "")
-            // ... potentially update visibility or styling based on results
-        }
-
         // Showing total time
         viewModel.getTotalFocusTime.observe(this)
         { time ->
             binding.totalFocusTime.text = getString(R.string.total_focus_time, time)
         }
+
         // Showing session number
         viewModel.sessionCount.observe(this)
         { count ->
             binding.sessionCount.text =
                 getString(R.string.sessions_completed, count, if (count != 1) "s" else "")
         }
+
         // Showing streak
         viewModel.currentStreak.observe(this)
         { streak ->
             binding.currentStreak.text =
                 getString(R.string.current_streak_day, streak, if (streak != 1) "s" else "")
+        }
+
+        // --- For Pro Status ---
+        // Observe data for the Focus Trend Line Chart
+        viewModel.focusTrendData.observe(this) { trendDataMap ->
+            // Update your Line Chart library with this map (Date -> Duration)
+            updateFocusTrendChart(
+                binding.focusTrendLineChart,
+                if (viewModel.isUserPro.value == true) trendDataMap else null
+            )
+        }
+
+        // Observe Session Success Rate
+        viewModel.sessionSuccessRate.observe(this) { rate ->
+            // Update a TextView, e.g., "%.1f%%".format(rate)
+            if (viewModel.isUserPro.value == true && rate != null)
+                binding.sessionSuccessRateText.text =
+                    getString(R.string.session_success_rate_format, rate)
+        }
+
+        // Observe Task Completion Rate
+        viewModel.taskCompletionRate.observe(this) { rate ->
+            if (viewModel.isUserPro.value == true && rate != null)
+                binding.taskCompletionRateText.text =
+                    getString(R.string.task_completion_rate_format, rate)
+        }
+
+        // Observe Overdue Task Analysis
+        viewModel.overdueTaskAnalysis.observe(this) { analysisResult ->
+            // Update TextViews with counts like analysisResult.currentlyOverdue, etc.
+            if (viewModel.isUserPro.value == true && analysisResult != null) {
+                val overDue = analysisResult.currentlyOverdue
+                val late = analysisResult.completedLate
+                binding.overdueCountText.text =
+                    getString(R.string.over_due, overDue, if (overDue != 1) "s" else "")
+                binding.lateCountText.text =
+                    getString(R.string.completed_late, late, if (late != 1) "s" else "")
+                // ... potentially update visibility or styling based on results
+            }
         }
     }
 

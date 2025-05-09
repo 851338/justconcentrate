@@ -9,6 +9,7 @@ plugins {
     id("com.google.devtools.ksp")
     id("kotlin-parcelize")
     id("kotlin-kapt")
+    alias(libs.plugins.google.firebase.crashlytics)
 }
 
 android {
@@ -77,6 +78,8 @@ dependencies {
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.crashlytics)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -102,4 +105,6 @@ dependencies {
     ksp(libs.compiler)
     implementation(libs.mpandroidchart)
     implementation(libs.androidx.media)
+    implementation(libs.app.update.ktx)
+    implementation(libs.app.update)
 }

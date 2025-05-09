@@ -7,7 +7,7 @@
     android:background="@android:color/white"
     tools:context=".view.ViewStatsActivity">
 
-    <!-- Action Bar remains fixed at the top -->
+    <!-- Action Bar -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layout_action_bar"
         android:layout_width="match_parent"
@@ -37,10 +37,9 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_back" />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- AdView remains fixed at the bottom -->
+    <!-- AdView -->
     <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
         android:id="@+id/adView"
         android:layout_width="0dp"
@@ -51,8 +50,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-
-    <!-- ScrollView for all content between ActionBar and AdView -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollView"
         android:layout_width="0dp"
@@ -63,7 +60,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/layout_action_bar">
 
-        <!-- Content inside ScrollView -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -89,20 +85,19 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/selectTimeRangeLabel" />
 
-            <!-- Line Chart for Focus Trend -->
+            <!-- Basic Stats (For Everyone) -->
             <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/barChartLabel"
+                android:id="@+id/basicStatsLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="@string/bar_chart_label"
+                android:layout_marginTop="16dp"
+                android:text="@string/general_stats_label"
                 android:textColor="@color/design_default_color_primary_dark"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/timeRangeSpinner" />
 
-            <!-- Bar Chart for Session Count per Day/Week -->
             <com.github.mikephil.charting.charts.BarChart
                 android:id="@+id/barChart"
                 android:layout_width="0dp"
@@ -110,44 +105,8 @@
                 android:layout_marginTop="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/barChartLabel" />
+                app:layout_constraintTop_toBottomOf="@id/basicStatsLabel" />
 
-            <!-- Line Chart for Focus Trend -->
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/focusTrendLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="@string/focus_time_trend_label"
-                android:textColor="@color/design_default_color_primary_dark"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/barChart" />
-
-            <com.github.mikephil.charting.charts.LineChart
-                android:id="@+id/focusTrendLineChart"
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:layout_marginTop="8dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/focusTrendLabel" />
-
-            <!-- Section for Detailed Stats -->
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/detailedStatsLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="@string/detailed_stats_label"
-                android:textColor="@color/design_default_color_primary_dark"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/focusTrendLineChart" />
-
-            <!-- Total Focus Time (Consider showing for selected range?) -->
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/totalFocusTime"
                 android:layout_width="wrap_content"
@@ -156,10 +115,9 @@
                 android:textColor="@android:color/black"
                 android:textSize="16sp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/detailedStatsLabel"
+                app:layout_constraintTop_toBottomOf="@id/barChart"
                 tools:text="Total Focus (All Time): 1h 0m" />
 
-            <!-- Session Count (For selected range) -->
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/sessionCount"
                 android:layout_width="wrap_content"
@@ -171,7 +129,6 @@
                 app:layout_constraintTop_toBottomOf="@id/totalFocusTime"
                 tools:text="Completed Sessions (Range): 10" />
 
-            <!-- Current Streak (Usually independent of selected range) -->
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/currentStreak"
                 android:layout_width="wrap_content"
@@ -183,69 +140,109 @@
                 app:layout_constraintTop_toBottomOf="@id/sessionCount"
                 tools:text="Current Streak: 5 days" />
 
-            <!-- Session Success Rate (For selected range) -->
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/sessionSuccessRateText"
-                android:layout_width="wrap_content"
+
+            <!-- Upgrade Button (Initially GONE, shown if not Pro) -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/upgradeButton"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:textColor="@android:color/black"
-                android:textSize="16sp"
+                style="@style/PositiveButton"
+                android:layout_marginTop="24dp"
+                android:text="@string/upgrade_to_pro_for_more_stats"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/currentStreak"
-                tools:text="Session Success Rate (Range): 85.0%" />
+                tools:visibility="visible" />
 
-            <!-- Task Completion Rate (For selected range) -->
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/taskCompletionRateText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:textColor="@android:color/black"
-                android:textSize="16sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/sessionSuccessRateText"
-                tools:text="Task Completion Rate (Range): 72.5%" />
 
-            <!-- Overdue Task Analysis (For selected range) -->
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/overdueTasksLabel"
-                android:layout_width="wrap_content"
+            <!-- Pro Features Section (Initially GONE, shown if Pro) -->
+            <LinearLayout
+                android:id="@+id/proFeaturesSection"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="@string/overdue_tasks_label"
-                android:textColor="@android:color/holo_red_dark"
-                android:textSize="16sp"
-                android:textStyle="bold"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/taskCompletionRateText" />
+                app:layout_constraintTop_toBottomOf="@id/upgradeButton"
+                tools:visibility="visible">
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/overdueCountText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:textColor="@android:color/black"
-                android:textSize="16sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/overdueTasksLabel"
-                tools:text="Currently Overdue (Range): 5" />
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/focusTrendLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/focus_time_trend_label"
+                    android:textColor="@color/design_default_color_primary_dark"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/lateCountText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:paddingBottom="16dp"
-                android:textColor="@android:color/black"
-                android:textSize="16sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/overdueCountText"
-                tools:text="Completed Late (Range): 3" />
+                <com.github.mikephil.charting.charts.LineChart
+                    android:id="@+id/focusTrendLineChart"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:layout_marginTop="8dp" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/detailedStatsLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/detailed_stats_label"
+                    android:textColor="@color/design_default_color_primary_dark"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/sessionSuccessRateText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp"
+                    tools:text="Session Success (Range): 85.0%" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/taskCompletionRateText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp"
+                    tools:text="Task Completion (Range): 72.5%" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/overdueTasksLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/overdue_tasks_label"
+                    android:textColor="@android:color/holo_red_dark"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/overdueCountText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp"
+                    tools:text="Currently Overdue (Range): 5" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/lateCountText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:paddingBottom="16dp"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp"
+                    tools:text="Completed Late (Range): 3" />
+
+            </LinearLayout> <!-- End of proFeaturesSection -->
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-
     </androidx.core.widget.NestedScrollView>
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>

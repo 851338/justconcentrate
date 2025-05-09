@@ -144,6 +144,11 @@
                 android:tag="Dark mode" />
 
             <include
+                android:id="@+id/itemUpdate"
+                layout="@layout/item_setting_clickable"
+                android:tag="Update" />
+
+            <include
                 android:id="@+id/itemAbout"
                 layout="@layout/item_setting_clickable"
                 android:tag="About" />

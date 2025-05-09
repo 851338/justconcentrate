@@ -66,7 +66,7 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
         //Setup onClick
         btnBack.setOnClickListener(object : OnSingleClickListener() {
             override fun onSingleClick(view: View) {
-                onBackPressed()
+                onBackPressedDispatcher.onBackPressed()
             }
         })
 
@@ -153,7 +153,7 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
                 showCustomTimeDialog()
             } else {
                 autoCompleteTxtDuration.setText(selected, false)
-                selectedDuration = selected?.split(" ")[0]?.toInt() ?: 0
+                selectedDuration = selected?.split(" ")?.get(0)?.toInt() ?: 0
             }
             txtInputDuration.error = null
         }
@@ -183,7 +183,7 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
         //is Running: Some OEMs aggressively kill services in the background without notice.
         //So we use both
         if (isActive &&
-            FocusService.Companion.isRunning
+            FocusService.isRunning
         ) {
             Utils.showToast(this, getString(R.string.focus_session_already_running))
         } else {

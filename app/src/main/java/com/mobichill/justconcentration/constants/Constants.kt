@@ -27,11 +27,11 @@ object Constants {
     object REQUEST_CODE {
         const val REQUEST_SYSTEM_RINGTONE = 10001
         const val REQUEST_LOCAL_SOUND = 10002
+        const val REQUEST_APP_UPDATE = 210399
+
     }
 
     object OTHERS {
-        const val MY_REQUEST_CODE_APP_UPDATE = 210399
-
         // Worker keys
         const val KEY_SESSION_ID = "session_id"
         const val KEY_SESSION_GOAL = "session_goal"

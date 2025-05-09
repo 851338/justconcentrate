@@ -13,16 +13,21 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupWindow
+import androidx.activity.addCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.graphics.drawable.toDrawable
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.snackbar.Snackbar
+import com.google.android.play.core.install.model.AppUpdateType
 import com.google.firebase.auth.FirebaseAuth
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.databinding.ActivitySettingsBinding
+import com.mobichill.justconcentration.listener.AppUpdateListener
 import com.mobichill.justconcentration.listener.OnSingleClickListener
+import com.mobichill.justconcentration.manager.MyUpdateManager
 import com.mobichill.justconcentration.utils.AudioUtils
 import com.mobichill.justconcentration.utils.SharedPreferencesUtils
 import com.mobichill.justconcentration.utils.Utils
@@ -30,7 +35,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class SettingsActivity : BaseViewBindingActivity<ActivitySettingsBinding>() {
+class SettingsActivity : BaseViewBindingActivity<ActivitySettingsBinding>(), AppUpdateListener {
+    private lateinit var settingsUpdateManager: MyUpdateManager
+    private val updateTypeForSettings = AppUpdateType.FLEXIBLE
+
     private enum class SoundType {
         ALARM, FOCUS
     }
@@ -60,6 +68,32 @@ class SettingsActivity : BaseViewBindingActivity<ActivitySettingsBinding>() {
                     }
                 }
             }
+
+        // Update manager
+        settingsUpdateManager = MyUpdateManager(
+            activity = this, // Pass this SettingsActivity
+            currentUpdateType = updateTypeForSettings,
+            appUpdateListener = this,
+            checkForUpdateOnStart = false
+        )
+
+        // Override onBackPressed
+        onBackPressedDispatcher.addCallback(this) {
+            setupToolbar(getString(R.string.settings))
+            val current = supportFragmentManager.findFragmentById(R.id.fragment_container)
+            when (current) {
+                is AboutFragment, is ChangePasswordFragment -> {
+                    isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                }
+
+                else -> {
+                    isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                }
+            }
+        }
+
         super.onCreate(savedInstanceState)
     }
 
@@ -68,7 +102,7 @@ class SettingsActivity : BaseViewBindingActivity<ActivitySettingsBinding>() {
         // Back button
         btnBack.setOnClickListener(object : OnSingleClickListener() {
             override fun onSingleClick(view: View) {
-                onBackPressed()
+                onBackPressedDispatcher.onBackPressed()
             }
         })
 
@@ -80,7 +114,7 @@ class SettingsActivity : BaseViewBindingActivity<ActivitySettingsBinding>() {
             switch.isEnabled = false
             if (sfUtils.isUserLoggedIn()) {
                 sfUtils.updateSettingSync(isChecked)
-                    Handler(Looper.getMainLooper()).postDelayed({
+                Handler(Looper.getMainLooper()).postDelayed({
                     switch.isEnabled = true
                 }, 1000)
             } else {
@@ -189,6 +223,15 @@ class SettingsActivity : BaseViewBindingActivity<ActivitySettingsBinding>() {
             }, 1000)
         }
 
+        // Update button
+        itemUpdate.settingTitle.text = getString(R.string.check_for_update)
+        itemUpdate.root.setOnClickListener(object : OnSingleClickListener() {
+            override fun onSingleClick(view: View) {
+                if (::settingsUpdateManager.isInitialized)
+                    settingsUpdateManager.checkForUpdate()
+            }
+        })
+
         // About button
         itemAbout.settingTitle.text = getString(R.string.about)
         itemAbout.root.setOnClickListener(object : OnSingleClickListener() {
@@ -222,18 +265,6 @@ class SettingsActivity : BaseViewBindingActivity<ActivitySettingsBinding>() {
             .replace(binding.fragmentContainer.id, ChangePasswordFragment())
             .addToBackStack(null)
             .commit()
-    }
-
-    override fun onBackPressed() {
-        setupToolbar(getString(R.string.settings))
-        val current = supportFragmentManager.findFragmentById(R.id.fragment_container)
-        when (current) {
-            is AboutFragment, is ChangePasswordFragment ->
-                onBackPressedDispatcher.onBackPressed()
-
-            else ->
-                super.onBackPressed()
-        }
     }
 
     private fun checkAndSaveAudioFile(uri: Uri) {
@@ -328,5 +359,49 @@ class SettingsActivity : BaseViewBindingActivity<ActivitySettingsBinding>() {
         popupWindow.elevation = 10f
 
         popupWindow.showAsDropDown(view, 0, 10)
+    }
+
+    //Listener implementation:
+    override fun showUpdateDownloadedSnackbar(onCompleteUpdate: () -> Unit) {
+        Log.d(TAG, "showUpdateDownloadedSnackbar called")
+        Snackbar.make(
+            findViewById(android.R.id.content), // Use root content view
+            "A new version has been downloaded and is ready to install.",
+            Snackbar.LENGTH_INDEFINITE
+        ).apply {
+            setAction("RESTART") {
+                onCompleteUpdate() // This will call appUpdateManager.completeUpdate()
+            }
+            // setActionTextColor(getColor(R.color.your_color)) // Optional: customize color
+            show()
+        }
+    }
+
+    override fun onUpdateFlowStartFailed(error: Exception) {
+        Log.e(TAG, "Update flow could not be started: ${error.message}", error)
+        Utils.showToast(this,
+            getString(R.string.could_not_initiate_update_check, error.localizedMessage))
+    }
+
+    override fun onUpdateFlowResultOk() {
+        Log.i(TAG, "Update flow successful (RESULT_OK). Type: $updateTypeForSettings")
+        if (updateTypeForSettings == AppUpdateType.FLEXIBLE) {
+            Utils.showToast(this, getString(R.string.update_download_started))
+        }
+        // For IMMEDIATE, app will likely restart soon. No Toast needed usually.
+    }
+
+    override fun onUpdateFlowResultCancelled() {
+        Log.w(TAG, "Update flow cancelled by user. Type: $updateTypeForSettings")
+        Utils.showToast(this, getString(R.string.update_canceled))
+    }
+
+    override fun onUpdateFlowResultFailed(resultCode: Int) {
+        Log.e(TAG, "Update flow failed with result code: $resultCode. Type: $updateTypeForSettings")
+        Utils.showToast(this, getString(R.string.update_failed_error, resultCode))
+    }
+
+    override fun onUpdateNotAvailable() {
+        Utils.showToast(this, getString(R.string.no_update_available_at_this_moment))
     }
 }

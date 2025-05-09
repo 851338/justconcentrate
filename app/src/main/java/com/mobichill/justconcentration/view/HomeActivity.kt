@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import androidx.activity.result.IntentSenderRequest
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.ads.AdRequest
 import com.google.android.material.snackbar.Snackbar
@@ -34,6 +33,7 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>(), AppUpdateLi
 
     // Update feature
     private lateinit var myUpdateManager: MyUpdateManager
+    private var chosenUpdateType = AppUpdateType.FLEXIBLE // Default or decide dynamically
 
     private val sfUtils: SharedPreferencesUtils by lazy {
         SharedPreferencesUtils(applicationContext)
@@ -53,10 +53,10 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>(), AppUpdateLi
         // Handle update
         myUpdateManager = MyUpdateManager(
             activity = this,
-            updateType = AppUpdateType.FLEXIBLE, // Or AppUpdateType.IMMEDIATE
-            appUpdateListener = this
+            currentUpdateType = chosenUpdateType,
+            appUpdateListener = this,
+            checkForUpdateOnStart = true
         )
-        myUpdateManager.checkForUpdate()
 
         // Check login streak and handle comeback
         handleDailyActivityCheck()
@@ -85,26 +85,6 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>(), AppUpdateLi
         val isSynced = sfUtils.isSettingsSyncEnabled()
         if (!isSynced) return
         SyncHelper.enqueueOneTimeSync(this)
-    }
-
-    override fun showUpdateDownloadedSnackbar(onCompleteUpdate: () -> Unit) {
-        Snackbar.make(
-            findViewById(android.R.id.content),
-            "A new version has been downloaded.",
-            Snackbar.LENGTH_INDEFINITE
-        ).apply {
-            setAction("RESTART") {
-                onCompleteUpdate()
-            }
-            show()
-        }
-    }
-
-    override fun launchUpdateFlow(intentSenderRequest: IntentSenderRequest) {
-        Log.d(
-            TAG,
-            "AppUpdateListener: launchUpdateFlow called by handler. Handler will use its launcher."
-        )
     }
 
     override fun initViewBinding(): ActivityHomeBinding =
@@ -218,7 +198,7 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>(), AppUpdateLi
             return sfUtils.getCurrentLoginStreak()
         }
         // Case 2: If not active today, proceed with calculations
-        var calculatedStreak: Int
+        val calculatedStreak: Int
         if (lastActiveDate == null) {
             // Case 2.1: First run / No previous date stored
             Log.d(TAG, "First run detected.")
@@ -255,4 +235,47 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>(), AppUpdateLi
         return calculatedStreak
     }
 
+    //Listener implementation:
+    override fun showUpdateDownloadedSnackbar(onCompleteUpdate: () -> Unit) {
+        Log.d(TAG, "showUpdateDownloadedSnackbar called")
+        Snackbar.make(
+            findViewById(android.R.id.content), // Use root content view
+            "A new version has been downloaded and is ready to install.",
+            Snackbar.LENGTH_INDEFINITE
+        ).apply {
+            setAction("RESTART") {
+                onCompleteUpdate() // This will call appUpdateManager.completeUpdate()
+            }
+            // setActionTextColor(getColor(R.color.your_color)) // Optional: customize color
+            show()
+        }
+    }
+
+    override fun onUpdateFlowStartFailed(error: Exception) {
+        Log.e(TAG, "Update flow could not be started: ${error.message}", error)
+        Utils.showToast(this,
+            getString(R.string.could_not_initiate_update_check, error.localizedMessage))
+    }
+
+    override fun onUpdateFlowResultOk() {
+        Log.i(TAG, "Update flow successful (RESULT_OK). Type: $chosenUpdateType")
+        if (chosenUpdateType == AppUpdateType.FLEXIBLE) {
+            Utils.showToast(this, getString(R.string.update_download_started))
+        }
+        // For IMMEDIATE, app will likely restart soon. No Toast needed usually.
+    }
+
+    override fun onUpdateFlowResultCancelled() {
+        Log.w(TAG, "Update flow cancelled by user. Type: $chosenUpdateType")
+        Utils.showToast(this, getString(R.string.update_canceled))
+    }
+
+    override fun onUpdateFlowResultFailed(resultCode: Int) {
+        Log.e(TAG, "Update flow failed with result code: $resultCode. Type: $chosenUpdateType")
+        Utils.showToast(this, getString(R.string.update_failed_error, resultCode))
+    }
+
+    override fun onUpdateNotAvailable() {
+        Utils.showToast(this, getString(R.string.no_update_available_at_this_moment))
+    }
 }

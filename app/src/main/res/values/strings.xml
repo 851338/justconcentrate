@@ -204,4 +204,10 @@
     <string name="general_stats_label">General Stats</string>
     <string name="upgrade_to_pro_for_more_stats">Upgrade to Pro for More Insights!</string>
     <string name="upgrade_to_pro_for_task_completion_rate">Upgrade to Pro for Task Completion Rate</string>
+    <string name="check_for_update">Check for update</string>
+    <string name="no_update_available_at_this_moment">No update available at this moment.</string>
+    <string name="update_canceled">Update canceled.</string>
+    <string name="update_download_started">Update download started.</string>
+    <string name="update_failed_error">Update failed. Error: %1$d</string>
+    <string name="could_not_initiate_update_check">Could not initiate update check: %1$s</string>
 </resources>

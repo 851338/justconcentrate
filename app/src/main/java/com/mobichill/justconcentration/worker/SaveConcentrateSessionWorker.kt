@@ -92,7 +92,7 @@ class SaveConcentrateSessionWorker(
         }
 
         // Attempt Firestore sync
-        var isSyncedSuccessfully = false
+        var isSyncedSuccessfully: Boolean
         if (SharedPreferencesUtils(applicationContext).isUserLoggedIn() && Utils.isNetworkAvailable(appContext)) {
             try {
                 Log.d(TAG, "Attempting Firestore sync for session ${sessionToSave.id}")

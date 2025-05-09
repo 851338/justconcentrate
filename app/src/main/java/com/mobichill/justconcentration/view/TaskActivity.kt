@@ -10,6 +10,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
+import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
@@ -51,6 +52,30 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
         SharedPreferencesUtils(applicationContext)
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        onBackPressedDispatcher.addCallback(this) {
+            val current = supportFragmentManager.findFragmentById(R.id.fragment_container)
+            when (current) {
+                is NewOrEditTaskFragment -> {
+                    this.isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                }
+
+                is SearchTasksFragment -> {
+                    this.isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                    toggleSearch(false)
+                }
+
+                else -> {
+                    this.isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                }
+            }
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         setupToolbar(getString(R.string.my_tasks))
@@ -88,7 +113,7 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
 
         btnBack.setOnClickListener(object : OnSingleClickListener() {
             override fun onSingleClick(view: View) {
-                onBackPressed()
+                onBackPressedDispatcher.onBackPressed()
             }
         })
 
@@ -227,7 +252,7 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
     private fun deleteTask(taskModel: TaskModel?) {
         if (taskModel == null)
             return
-        var isSyncedSuccessfully = false
+        var isSyncedSuccessfully: Boolean
         if (sfUtils.isUserLoggedIn() && Utils.isNetworkAvailable(this@TaskActivity)) {
             try {
                 Log.d(TAG, "Attempting Firestore sync for session ${taskModel.id}")
@@ -265,7 +290,7 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
         val updatedTask = taskModel.copy(
             completed = true,
             completedAt = now)
-        var isSyncedSuccessfully = false
+        var isSyncedSuccessfully: Boolean
         if (sfUtils.isUserLoggedIn() && Utils.isNetworkAvailable(this@TaskActivity)) {
             try {
                 Log.d(TAG, "Attempting Firestore sync for session ${taskModel.id}")
@@ -330,23 +355,6 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
             ) { doneTask(task) }
         }
     }
-
-    override fun onBackPressed() {
-        val current = supportFragmentManager.findFragmentById(R.id.fragment_container)
-        when (current) {
-            is NewOrEditTaskFragment ->
-                onBackPressedDispatcher.onBackPressed()
-
-            is SearchTasksFragment -> {
-                onBackPressedDispatcher.onBackPressed()
-                toggleSearch(false)
-            }
-
-            else ->
-                super.onBackPressed()
-        }
-    }
-
 
     // Case choose ringtone of NewOrEditTaskFragment
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

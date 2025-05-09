@@ -58,10 +58,6 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
     override fun initViewBinding(): FragmentNewOrEditTaskBinding =
         FragmentNewOrEditTaskBinding.inflate(layoutInflater)
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) = with(binding) {
         super.onCreate(savedInstanceState)
         //must be called before onCreated() finishes, does not work in bg service
@@ -252,7 +248,7 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
             else AudioUtils.defaultAlarmUri(requireContext()).toString()),
             createdAt = System.currentTimeMillis()
         )
-        var isSyncedSuccessfully = false
+        var isSyncedSuccessfully: Boolean
         if (sfUtils.isUserLoggedIn() && Utils.isNetworkAvailable(requireContext())) {
             try {
                 Log.d(TAG, "Attempting Firestore sync for session ${newTask.id}")
@@ -297,7 +293,7 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
             alarmSoundUri = (if (::selectedUri.isInitialized) selectedUri.toString()
             else AudioUtils.defaultAlarmUri(requireContext()).toString()),
         )
-        var isSyncedSuccessfully = false
+        var isSyncedSuccessfully: Boolean
         if (sfUtils.isUserLoggedIn() && Utils.isNetworkAvailable(requireContext())) {
             try {
                 Log.d(TAG, "Attempting Firestore sync for session ${taskModel.id}")

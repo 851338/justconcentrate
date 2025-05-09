@@ -66,7 +66,7 @@ class ViewStatsActivity : BaseViewBindingActivity<ActivityViewStatsBinding>() {
         binding.btnBack.setOnClickListener(
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
-                    onBackPressed()
+                    onBackPressedDispatcher.onBackPressed()
                 }
             }
         )

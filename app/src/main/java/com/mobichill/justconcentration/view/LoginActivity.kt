@@ -53,7 +53,7 @@ class LoginActivity : BaseViewBindingActivity<ActivityLoginBinding>() {
 
         btnBack.setOnClickListener(object : OnSingleClickListener() {
             override fun onSingleClick(view: View) {
-                onBackPressed()
+                onBackPressedDispatcher.onBackPressed()
             }
         })
 

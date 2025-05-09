@@ -105,15 +105,6 @@ abstract class BaseActivity : AppCompatActivity(), BaseActivityListener {
         Log.d(TAG, "onUserLeaveHint")
     }
 
-    override fun onBackPressed() {
-        Log.d(TAG, "onBackPressed")
-        if (isOverrideBackPressed) {
-//            finishWithCheckLastStack()
-            return
-        }
-        super.onBackPressed()
-    }
-
     override fun onFragmentAttached(tag: String) {
         Log.d(TAG, "onFragmentAttached $tag")
     }

@@ -44,6 +44,7 @@
                     android:textStyle="bold" />
 
                 <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/app_version"
                     style="@style/TextStyle"
                     android:layout_marginTop="4dp"
                     android:text="@string/app_version" />

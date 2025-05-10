@@ -1,15 +1,27 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.parcelize)
 
-    // Add the Google services Gradle plugin
     id("com.google.android.gms.oss-licenses-plugin")
     id("com.google.gms.google-services")
     id("com.google.devtools.ksp")
     id("kotlin-parcelize")
     id("kotlin-kapt")
     alias(libs.plugins.google.firebase.crashlytics)
+}
+
+// Load keystore properties
+val keystorePropertiesFile = rootProject.file("keystore.properties")
+val keystoreProperties = Properties()
+if (keystorePropertiesFile.exists() && keystorePropertiesFile.isFile) {
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+} else {
+    println("Warning: keystore.properties file not found. Release builds may fail to sign.")
+    throw GradleException("keystore.properties not found in root project directory.")
 }
 
 android {
@@ -24,9 +36,21 @@ android {
         minSdk = 26
         targetSdk = 35
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        create("release") {
+            val storeFilePath = keystoreProperties.getProperty("storeFile")
+            if (storeFilePath != null) {
+                storeFile = rootProject.file(storeFilePath)
+            }
+            storePassword = keystoreProperties.getProperty("storePassword")
+            keyAlias = keystoreProperties.getProperty("keyAlias")
+            keyPassword = keystoreProperties.getProperty("keyPassword")
+        }
     }
 
     buildTypes {
@@ -38,16 +62,18 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            buildConfigField("boolean", "DEBUG", "true")
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
         }
         release {
             isDebuggable = false
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            buildConfigField("boolean", "DEBUG", "false")
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {

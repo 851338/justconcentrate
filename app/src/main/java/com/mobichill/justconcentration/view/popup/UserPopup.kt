@@ -1,7 +1,6 @@
 package com.mobichill.justconcentration.view.popup
 
 import android.content.Context
-import android.content.Intent
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -15,7 +14,6 @@ import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.utils.SharedPreferencesUtils
 import com.mobichill.justconcentration.utils.Utils
 import com.mobichill.justconcentration.view.HomeActivity
-import com.mobichill.justconcentration.view.WelcomeActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -55,7 +53,7 @@ class UserPopup(private val context: Context) {
                 object : OnSingleClickListener() {
                     override fun onSingleClick(view: View) {
                         if (context is HomeActivity) {
-                            context.startActivity(Intent(context, WelcomeActivity::class.java))
+                            context.openWelcomeActivity()
                         }
                     }
                 }
@@ -67,13 +65,23 @@ class UserPopup(private val context: Context) {
                 override fun onSingleClick(view: View) {
                     when {
                         !Utils.isNetworkAvailable(context) ->
-                            Utils.showToast(context, context.getString(R.string.no_internet_connection))
+                            Utils.showToast(
+                                context,
+                                context.getString(R.string.no_internet_connection)
+                            )
+
                         !sfUtils.isUserLoggedIn() ->
-                            Utils.showToast(context,
-                                context.getString(R.string.you_must_log_in_first))
-                        else ->
+                            Utils.showToast(
+                                context,
+                                context.getString(R.string.you_must_log_in_first)
+                            )
+
+                        else -> {
+                            if (context is HomeActivity) {
+                                context.openSubscriptionActivity()
+                            }
                             popupWindow.dismiss()
-                        //TODO subscription
+                        }
                     }
                 }
             }

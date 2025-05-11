@@ -17,4 +17,5 @@
     <color name="red">#FF4433</color>
     <color name="chart_primary">#6200EE</color>
     <color name="chart_secondary">#03DAC5</color>
+    <color name="colorAccent">#FF4081</color>
 </resources>

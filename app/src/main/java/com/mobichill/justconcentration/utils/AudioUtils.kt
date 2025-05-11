@@ -20,7 +20,8 @@ import android.os.ParcelFileDescriptor
 import java.io.FileNotFoundException
 
 object AudioUtils {
-    private val TAG = this.javaClass.simpleName
+    private val TAG = AudioUtils::class.java.simpleName
+
     // Alarm sound
     fun defaultAlarmUri(context: Context): Uri {
         val alarmString = SharedPreferencesUtils(context.applicationContext).getDefaultAlarmSound()

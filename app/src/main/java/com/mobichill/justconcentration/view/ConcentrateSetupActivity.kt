@@ -102,7 +102,7 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
         binding.adView.loadAd(adRequest)
     }
 
-    fun showCustomTimeDialog() {
+    private fun showCustomTimeDialog() {
         val editText = AppCompatEditText(this).apply {
             hint = context.getString(R.string.duration_input_hint)
             inputType = InputType.TYPE_CLASS_NUMBER

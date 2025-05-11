@@ -25,7 +25,9 @@ class SaveConcentrateSessionWorker(
     private val appContext: Context,
     workerParameters: WorkerParameters
 ) : CoroutineWorker(appContext, workerParameters) {
-    private val TAG = javaClass.simpleName
+    companion object {
+        private val TAG = SaveConcentrateSessionWorker::class.java.simpleName
+    }
     private val sessionRepository: ConcentrateSessionRepository by lazy {
         (appContext.applicationContext as MyApp).concentrateSessionRepository
     }

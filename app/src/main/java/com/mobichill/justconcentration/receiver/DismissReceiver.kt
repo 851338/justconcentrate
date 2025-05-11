@@ -14,7 +14,9 @@ import com.mobichill.justconcentration.service.AlarmService
 import com.mobichill.justconcentration.utils.Utils
 
 class DismissReceiver : BroadcastReceiver() {
-    private val TAG = javaClass.simpleName
+    companion object {
+        private val DismissReceiver = this::class.java.simpleName
+    }
 
     override fun onReceive(context: Context, intent: Intent) {
         val requestCode = intent.getIntExtra(REQUEST_CODE, 0)

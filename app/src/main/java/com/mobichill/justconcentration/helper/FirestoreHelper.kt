@@ -16,9 +16,8 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 class FirestoreHelper private constructor() { // Private constructor to prevent instantiation
-    private val TAG = javaClass.simpleName
-
     companion object {
+        private val TAG = FirestoreHelper::class.java.simpleName
         private var instance: FirestoreHelper? = null
         private val db: FirebaseFirestore by lazy { FirebaseFirestore.getInstance() }
 
@@ -32,9 +31,7 @@ class FirestoreHelper private constructor() { // Private constructor to prevent 
 
     // TASK HELPER
     fun saveTaskToFirestore(taskModel: TaskModel) {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
-        if (userId == null)
-            return
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
         val taskRef = db.collection("users").document(userId)
             .collection("tasks").document(taskModel.id)
@@ -42,10 +39,7 @@ class FirestoreHelper private constructor() { // Private constructor to prevent 
     }
 
     fun updateTaskToFirestore(taskModel: TaskModel) {
-
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
-        if (userId == null)
-            return
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
         val taskRef = db.collection("users").document(userId)
             .collection("tasks").document(taskModel.id)
@@ -59,10 +53,7 @@ class FirestoreHelper private constructor() { // Private constructor to prevent 
     }
 
     suspend fun deleteTaskFromFirestore(taskModel: TaskModel) {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
-        if (userId == null) {
-            return
-        }
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         // Completely delete from Firestore
         db.collection("users").document(userId)
             .collection("tasks").document(taskModel.id)
@@ -233,13 +224,8 @@ class FirestoreHelper private constructor() { // Private constructor to prevent 
                 val status = documentSnapshot.getBoolean("subscriptionStatus")
                 val expiryDate = documentSnapshot.getLong("subscriptionExpiryDate")
 
-                if (status == null || expiryDate == null) {
-                    Log.w(
-                        TAG,
-                        "isUserPro check failed: Missing status ('$status') or expiry date ('$expiryDate') for user $userId."
-                    )
+                if (status == null || expiryDate == null)
                     return@withContext false // Essential fields missing
-                }
 
                 val isProStatus = status == true
                 val isActive = expiryDate > System.currentTimeMillis() // Compare Timestamps
@@ -252,8 +238,7 @@ class FirestoreHelper private constructor() { // Private constructor to prevent 
 
             } catch (e: Exception) {
                 Log.e(TAG, "Error checking user pro status for $userId in Firestore", e)
-                // Depending on requirements, you might want to re-throw or handle differently
-                return@withContext false // Assume not Pro if there's an error fetching
+                return@withContext false
             }
         }
 
@@ -325,10 +310,7 @@ class FirestoreHelper private constructor() { // Private constructor to prevent 
 
     // CONCENTRATE SESSION HELPER
     fun addConcentrateSessionToFirestore(session: ConcentrateSessionModel) {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
-        if (userId == null) {
-            return
-        }
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         db.collection("users")
             .document(userId)
             .collection("focus_sessions")

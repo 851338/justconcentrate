@@ -9,8 +9,10 @@ import com.google.firebase.ktx.Firebase
 import com.mobichill.justconcentration.base.database.MyRoomDatabase
 import com.mobichill.justconcentration.factory.SyncWorkerFactory
 import com.mobichill.justconcentration.manager.BadgeProgressManager
+import com.mobichill.justconcentration.manager.ProBadgeManager
 import com.mobichill.justconcentration.repository.BadgeRepository
 import com.mobichill.justconcentration.repository.ConcentrateSessionRepository
+import com.mobichill.justconcentration.repository.FirestoreRepository
 import com.mobichill.justconcentration.repository.TaskRepository
 import com.mobichill.justconcentration.repository.UserRepository
 
@@ -26,7 +28,8 @@ class MyApp : Application(), Configuration.Provider {
         private set
     lateinit var badgeProgressManager: BadgeProgressManager
         private set
-
+    lateinit var proBadgeManager: ProBadgeManager
+        private set
     lateinit var syncWorkerFactory: SyncWorkerFactory
 
     override val workManagerConfiguration: Configuration
@@ -52,7 +55,7 @@ class MyApp : Application(), Configuration.Provider {
         concentrateSessionRepository = ConcentrateSessionRepository(db.concentrateSessionDAO)
         badgeRepository = BadgeRepository(db.badgeDAO)
         badgeProgressManager = BadgeProgressManager()
-
+        proBadgeManager = ProBadgeManager(badgeRepository, FirestoreRepository())
         syncWorkerFactory =
             SyncWorkerFactory(taskRepository, concentrateSessionRepository, badgeRepository, db)
 

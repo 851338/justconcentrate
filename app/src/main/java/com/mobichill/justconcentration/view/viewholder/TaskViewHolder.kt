@@ -14,7 +14,6 @@ import com.mobichill.justconcentration.listener.OnMenuActionListener
 import com.mobichill.justconcentration.listener.OnSingleClickListener
 
 class TaskViewHolder(private val binding: ItemTaskBinding) : RecyclerView.ViewHolder(binding.root) {
-    private val TAG = javaClass.simpleName
 
     fun onBind(
         taskModel: TaskModel?,
@@ -25,7 +24,7 @@ class TaskViewHolder(private val binding: ItemTaskBinding) : RecyclerView.ViewHo
         if (taskModel == null)
             return
 
-        binding.doneView.visibility = if(taskModel.completed) View.VISIBLE else View.GONE
+        binding.doneView.visibility = if (taskModel.completed) View.VISIBLE else View.GONE
         if (taskModel.alarmTimeMillis == 0L)
             binding.tvAlarm.text = context.getString(R.string.no_alarm_set)
         else binding.tvAlarm.text = context.getString(
@@ -100,6 +99,8 @@ class TaskViewHolder(private val binding: ItemTaskBinding) : RecyclerView.ViewHo
     }
 
     companion object {
+        private val TAG = TaskViewHolder::class.java.simpleName
+
         fun from(parent: ViewGroup): TaskViewHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
             val binding = ItemTaskBinding.inflate(layoutInflater, parent, false)

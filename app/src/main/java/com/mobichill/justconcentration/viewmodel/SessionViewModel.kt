@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.mobichill.justconcentration.constants.Constants.OTHERS.DATE_FORMATTER
 import com.mobichill.justconcentration.constants.TimeRangeOption
 import com.mobichill.justconcentration.helper.StatsCalculateHelper
+import com.mobichill.justconcentration.manager.ProBadgeManager
 import com.mobichill.justconcentration.model.ConcentrateSessionModel
 import com.mobichill.justconcentration.repository.ConcentrateSessionRepository
 import com.mobichill.justconcentration.repository.FirestoreRepository
@@ -21,10 +22,15 @@ import java.time.ZoneId
 
 class SessionViewModel(
     sessionRepository: ConcentrateSessionRepository,
-    private val statsCalculator: StatsCalculateHelper
+    private val statsCalculator: StatsCalculateHelper,
+    private val proBadgeManager: ProBadgeManager,
+    private val firestoreRepository: FirestoreRepository
 ) : ViewModel() {
 
-    private val TAG = javaClass.simpleName
+    companion object {
+        private val TAG = SessionViewModel::class.java.simpleName
+    }
+
     private val _mediatorActivationTest = MutableLiveData<String>()
     val mediatorActivationTest: LiveData<String> = _mediatorActivationTest
 
@@ -191,6 +197,12 @@ class SessionViewModel(
 //        Log.d(TAG, "SessionViewModel init: Forcing _selectedTimeRange update to trigger mediator.")
 //        _selectedTimeRange.value = _selectedTimeRange.value
         Log.d(TAG, "SessionViewModel init block END")
+
+        // Checking pro badges
+        viewModelScope.launch {
+            Log.d(TAG, "SessionViewModel init: Calling checkAndUpdateLoyalistBadges.")
+            proBadgeManager.checkAndUpdateLoyalistBadges()
+        }
     }
 
     // Important
@@ -203,7 +215,7 @@ class SessionViewModel(
     // --- Helper Functions ---
     private fun checkUserProStatus() {
         viewModelScope.launch {
-            val proStatus = FirestoreRepository().isUserPro()
+            val proStatus = firestoreRepository.isUserPro()
             Log.d(TAG, "User Pro Status from repository: $proStatus")
             _isUserPro.postValue(proStatus) // This will trigger the mediator if value changes
         }
@@ -380,5 +392,20 @@ class SessionViewModel(
         }
 
         return streak
+    }
+
+    // Call this inside SubscriptionActivity
+    fun onProSubscriptionActivated() {
+        viewModelScope.launch {
+            Log.d(TAG, "SessionViewModel: Pro subscription activated. Awarding supporter badge.")
+            proBadgeManager.awardProSupporterBadge()
+            // Trigger check for loyalist badges too, as their start date might now be set
+            proBadgeManager.checkAndUpdateLoyalistBadges()
+
+            // Important: Re-check and update _isUserPro LiveData
+            // as the underlying Firestore data should now reflect Pro status.
+            val proStatus = firestoreRepository.isUserPro() // Re-fetch from repository
+            _isUserPro.postValue(proStatus)
+        }
     }
 }

@@ -37,7 +37,7 @@ abstract class MyRoomDatabase : RoomDatabase() {
 
     companion object {
         @Volatile
-        private var TAG = javaClass.simpleName
+        private var TAG = MyRoomDatabase::class.java.simpleName
         private var INSTANCE: MyRoomDatabase? = null
 
         /**
@@ -66,7 +66,7 @@ abstract class MyRoomDatabase : RoomDatabase() {
                 MyRoomDatabase::class.java,
                 DB_NAME
             )
-                .setJournalMode(RoomDatabase.JournalMode.TRUNCATE) //TODO remove after test phase
+                .setJournalMode(JournalMode.TRUNCATE) //TODO remove after test phase
                 .fallbackToDestructiveMigration(false)
                 .addCallback(PrepopulateBadgeCallback(context.applicationContext)).build()
         }

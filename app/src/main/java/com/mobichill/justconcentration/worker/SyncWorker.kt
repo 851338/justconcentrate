@@ -33,7 +33,9 @@ class SyncWorker(
     private val myRoomDatabase: MyRoomDatabase
 ) :
     CoroutineWorker(appContext, workerParams) {
-    private val TAG = javaClass.simpleName
+    companion object {
+        private val TAG = SyncWorker::class.java.simpleName
+    }
     private val firestore = Firebase.firestore
     private val sfUtils: SharedPreferencesUtils by lazy {
         SharedPreferencesUtils(appContext)

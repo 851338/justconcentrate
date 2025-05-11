@@ -210,4 +210,13 @@
     <string name="update_download_started">Update download started.</string>
     <string name="update_failed_error">Update failed. Error: %1$d</string>
     <string name="could_not_initiate_update_check">Could not initiate update check: %1$s</string>
+    <string name="subscription_status">Subscription Status:</string>
+    <string name="loading">Loading…</string>
+    <string name="available_subscriptions">Available Subscriptions:</string>
+    <string name="no_subscription_products_found">No subscription products found.</string>
+    <string name="subscribe">Subscribe</string>
+    <string name="no_offers_available">No offers available</string>
+    <string name="plan">%1$s Plan: %2$s / %3$s</string>
+    <string name="n_a">N/A</string>
+    <string name="please_select_an_offer">Please select an offer.</string>
 </resources>

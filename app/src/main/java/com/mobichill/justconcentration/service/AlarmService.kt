@@ -20,7 +20,9 @@ import com.mobichill.justconcentration.constants.Constants.NOTIFICATION.NOTIFICA
 import com.mobichill.justconcentration.utils.AudioUtils
 
 class AlarmService : Service() {
-    private val TAG = javaClass.simpleName
+    companion object {
+        private val TAG = AlarmService::class.java.simpleName
+    }
     private lateinit var mediaPlayer: MediaPlayer
     override fun onCreate() {
         super.onCreate()

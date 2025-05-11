@@ -12,7 +12,9 @@ class StatsCalculateHelper(
     private val sessionRepository: ConcentrateSessionRepository
 ) {
 
-    private val TAG = this::class.java.simpleName
+    companion object {
+        private val TAG = StatsCalculateHelper::class.java.simpleName
+    }
     /**
      * Calculates total focus duration per day within a range.
      * Returns a map of "MMM-dd, yyyy" to total minutes.

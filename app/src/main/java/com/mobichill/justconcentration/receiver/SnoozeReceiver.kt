@@ -23,7 +23,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class SnoozeReceiver : BroadcastReceiver() {
-    private val TAG = javaClass.simpleName
+    companion object {
+        private val TAG = SnoozeReceiver::class.java.simpleName
+    }
+
     private lateinit var task: TaskModel
 
     override fun onReceive(context: Context, intent: Intent) {

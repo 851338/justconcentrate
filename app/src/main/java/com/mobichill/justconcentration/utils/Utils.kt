@@ -31,6 +31,11 @@ import de.hdodenhof.circleimageview.CircleImageView
 import java.util.Calendar
 
 object Utils {
+
+    inline fun <reified T : Activity> Context.openActivity() {
+        startActivity(Intent(this, T::class.java))
+    }
+
     fun getNextRequestCode(context: Context): Int {
         val sharedPreferences =
             context.getSharedPreferences(NAME_ALARM_PREFS, Context.MODE_PRIVATE)

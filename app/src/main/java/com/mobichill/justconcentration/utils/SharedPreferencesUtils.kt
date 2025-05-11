@@ -29,7 +29,9 @@ import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.NA
 import java.time.LocalDate
 
 class SharedPreferencesUtils(context: Context) {
-    private val TAG = javaClass.simpleName
+    companion object {
+        private val TAG = SharedPreferencesUtils::class.java.simpleName
+    }
     private val appContext = context.applicationContext
 
     private val appPrefs: SharedPreferences by lazy {

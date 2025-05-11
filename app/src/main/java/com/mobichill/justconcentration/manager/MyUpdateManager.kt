@@ -26,7 +26,9 @@ class MyUpdateManager(
     private val checkForUpdateOnStart: Boolean = false
 ) : DefaultLifecycleObserver {
 
-    private val TAG = this::class.java.simpleName
+    companion object {
+        private val TAG = MyUpdateManager::class.java.simpleName
+    }
     private var appUpdateManagerInstance: AppUpdateManager? = null
     private lateinit var appUpdateResultLauncher: ActivityResultLauncher<IntentSenderRequest>
 

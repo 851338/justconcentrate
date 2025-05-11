@@ -27,10 +27,12 @@ class TaskViewModel(
     private val firestoreRepo: FirestoreRepository,
     private val taskRepository: TaskRepository
 ) : ViewModel() {
-    private val TAG = javaClass.simpleName
+    companion object {
+        private val TAG = TaskViewModel::class.java.simpleName
+    }
     private val _searchQuery = MutableStateFlow("")
 
-    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
+    private val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
     val allTasks: LiveData<List<TaskModel>> = taskRepository.getAllActiveTasks().asLiveData()
 
@@ -97,7 +99,7 @@ class TaskViewModel(
         _searchQuery.value = query
     }
 
-    suspend fun getCurrentStreak(): Int {
+    private suspend fun getCurrentStreak(): Int {
         val completedDates = taskRepository.getCompletedTaskDates()
         return calculateStreak(completedDates)
     }

@@ -75,8 +75,7 @@ class BadgeProgressManager {
     }
 
     private suspend fun update(badgeId: String, progress: Int, goal: Int) {
-        val badge = badgeRepository.getBadgeById(badgeId).firstOrNull()
-        if (badge == null) return
+        val badge = badgeRepository.getBadgeById(badgeId).firstOrNull() ?: return
         if (badge.isUnlocked) return
 
         val updatedBadge = badge.copy(

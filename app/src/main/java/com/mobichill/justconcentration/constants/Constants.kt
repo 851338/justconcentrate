@@ -6,15 +6,23 @@ import java.util.regex.Pattern
 
 object Constants {
 
+    object SUBSCRIPTION {
+        const val PRO_SUBSCRIPTION_ID = "premium_monthly_v1"
+
+        const val PRO_MONTHLY_BASE_PLAN_ID = "subscription-1month"
+        const val PRO_6_MONTH_BASE_PLAN_ID = "subscription-6month"
+        const val PRO_ANNUAL_BASE_PLAN_ID = "subscription-12month"
+    }
+
     object NOTIFICATION {
         const val NOTIFICATION_ID_FOCUS_SERVICE = 1001
         const val NOTIFICATION_ID_ALARM_AUDIO_SERVICE = 1002
     }
 
     object PRO_BADGES{
-        const val LOYALIST_3_MONTH_GOAL_DAYS = 90
-        const val LOYALIST_6_MONTH_GOAL_DAYS = 180
-        const val LOYALIST_12_MONTH_GOAL_DAYS = 365
+        private const val LOYALIST_3_MONTH_GOAL_DAYS = 90
+        private const val LOYALIST_6_MONTH_GOAL_DAYS = 180
+        private const val LOYALIST_12_MONTH_GOAL_DAYS = 365
 
         val LOYALIST_BADGES_WITH_GOALS = mapOf(
             "pro_loyalist_3" to LOYALIST_3_MONTH_GOAL_DAYS,

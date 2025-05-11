@@ -1,14 +1,13 @@
 package com.mobichill.justconcentration.view
 
 import android.graphics.Color
-import android.os.Bundle
 import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelProvider
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.BarData
@@ -28,6 +27,7 @@ import com.mobichill.justconcentration.constants.TimeRangeOption
 import com.mobichill.justconcentration.databinding.ActivityViewStatsBinding
 import com.mobichill.justconcentration.factory.SessionViewModelFactory
 import com.mobichill.justconcentration.listener.OnSingleClickListener
+import com.mobichill.justconcentration.utils.Utils.openActivity
 import com.mobichill.justconcentration.viewmodel.SessionViewModel
 import java.time.Instant
 import java.time.LocalDate
@@ -37,22 +37,11 @@ import java.time.format.TextStyle
 import java.util.Locale
 
 class ViewStatsActivity : BaseViewBindingActivity<ActivityViewStatsBinding>() {
-    private lateinit var viewModel: SessionViewModel
-
+    private val sessionViewModel: SessionViewModel by viewModels {
+        SessionViewModelFactory(application)
+    }
     override fun initViewBinding(): ActivityViewStatsBinding =
         ActivityViewStatsBinding.inflate(layoutInflater)
-
-    override fun initViewModel() {
-        super.initViewModel()
-        viewModel = ViewModelProvider(
-            this,
-            SessionViewModelFactory(this.application)
-        )[SessionViewModel::class.java]
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
 
     override fun initView() {
         super.initView()
@@ -70,7 +59,17 @@ class ViewStatsActivity : BaseViewBindingActivity<ActivityViewStatsBinding>() {
                 }
             }
         )
+
+        binding.upgradeButton.setOnClickListener(
+            object : OnSingleClickListener() {
+                override fun onSingleClick(view: View) {
+                    openSubscriptionActivity()
+                }
+            }
+        )
     }
+
+    fun openSubscriptionActivity() = openActivity<SubscriptionActivity>()
 
     private fun setAds() {
         //run ads
@@ -80,7 +79,7 @@ class ViewStatsActivity : BaseViewBindingActivity<ActivityViewStatsBinding>() {
 
     private fun setObservers() {
         // Observer user Pro status
-        viewModel.isUserPro.observe(this) { isPro ->
+        sessionViewModel.isUserPro.observe(this) { isPro ->
             Log.d(TAG, "Pro status changed in Activity: $isPro")
             if (isPro) {
                 // User is Pro
@@ -99,7 +98,7 @@ class ViewStatsActivity : BaseViewBindingActivity<ActivityViewStatsBinding>() {
             }
         }
         // Showing chart bar
-        viewModel.barChartData.observe(this) { sessions ->
+        sessionViewModel.barChartData.observe(this) { sessions ->
             val nonNullSessions = sessions ?: emptyList()
             Log.d(
                 TAG,
@@ -149,20 +148,20 @@ class ViewStatsActivity : BaseViewBindingActivity<ActivityViewStatsBinding>() {
         }
 
         // Showing total time
-        viewModel.getTotalFocusTime.observe(this)
+        sessionViewModel.getTotalFocusTime.observe(this)
         { time ->
             binding.totalFocusTime.text = getString(R.string.total_focus_time, time)
         }
 
         // Showing session number
-        viewModel.sessionCount.observe(this)
+        sessionViewModel.sessionCount.observe(this)
         { count ->
             binding.sessionCount.text =
                 getString(R.string.sessions_completed, count, if (count != 1) "s" else "")
         }
 
         // Showing streak
-        viewModel.currentStreak.observe(this)
+        sessionViewModel.currentStreak.observe(this)
         { streak ->
             binding.currentStreak.text =
                 getString(R.string.current_streak_day, streak, if (streak != 1) "s" else "")
@@ -170,33 +169,33 @@ class ViewStatsActivity : BaseViewBindingActivity<ActivityViewStatsBinding>() {
 
         // --- For Pro Status ---
         // Observe data for the Focus Trend Line Chart
-        viewModel.focusTrendData.observe(this) { trendDataMap ->
+        sessionViewModel.focusTrendData.observe(this) { trendDataMap ->
             // Update your Line Chart library with this map (Date -> Duration)
             updateFocusTrendChart(
                 binding.focusTrendLineChart,
-                if (viewModel.isUserPro.value == true) trendDataMap else null
+                if (sessionViewModel.isUserPro.value == true) trendDataMap else null
             )
         }
 
         // Observe Session Success Rate
-        viewModel.sessionSuccessRate.observe(this) { rate ->
+        sessionViewModel.sessionSuccessRate.observe(this) { rate ->
             // Update a TextView, e.g., "%.1f%%".format(rate)
-            if (viewModel.isUserPro.value == true && rate != null)
+            if (sessionViewModel.isUserPro.value == true && rate != null)
                 binding.sessionSuccessRateText.text =
                     getString(R.string.session_success_rate_format, rate)
         }
 
         // Observe Task Completion Rate
-        viewModel.taskCompletionRate.observe(this) { rate ->
-            if (viewModel.isUserPro.value == true && rate != null)
+        sessionViewModel.taskCompletionRate.observe(this) { rate ->
+            if (sessionViewModel.isUserPro.value == true && rate != null)
                 binding.taskCompletionRateText.text =
                     getString(R.string.task_completion_rate_format, rate)
         }
 
         // Observe Overdue Task Analysis
-        viewModel.overdueTaskAnalysis.observe(this) { analysisResult ->
+        sessionViewModel.overdueTaskAnalysis.observe(this) { analysisResult ->
             // Update TextViews with counts like analysisResult.currentlyOverdue, etc.
-            if (viewModel.isUserPro.value == true && analysisResult != null) {
+            if (sessionViewModel.isUserPro.value == true && analysisResult != null) {
                 val overDue = analysisResult.currentlyOverdue
                 val late = analysisResult.completedLate
                 binding.overdueCountText.text =
@@ -457,10 +456,10 @@ class ViewStatsActivity : BaseViewBindingActivity<ActivityViewStatsBinding>() {
                 if (option == TimeRangeOption.CUSTOM) {
                     // show date picker dialog
                     showCustomDatePicker { startDate, endDate ->
-                        viewModel.onCustomDateRangeSelected(startDate, endDate)
+                        sessionViewModel.onCustomDateRangeSelected(startDate, endDate)
                     }
                 } else {
-                    viewModel.setTimeRange(option)
+                    sessionViewModel.setTimeRange(option)
                 }
             }
 

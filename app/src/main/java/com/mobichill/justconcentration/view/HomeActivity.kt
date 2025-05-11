@@ -1,6 +1,5 @@
 package com.mobichill.justconcentration.view
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -21,6 +20,7 @@ import com.mobichill.justconcentration.manager.MyUpdateManager
 import com.mobichill.justconcentration.utils.ConvertUtils.px
 import com.mobichill.justconcentration.utils.SharedPreferencesUtils
 import com.mobichill.justconcentration.utils.Utils
+import com.mobichill.justconcentration.utils.Utils.openActivity
 import com.mobichill.justconcentration.view.popup.UserPopup
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -136,25 +136,13 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>(), AppUpdateLi
         popup.show(view)
     }
 
-    private fun openConcentrateSetupActivity() {
-        startActivity(Intent(this, ConcentrateSetupActivity::class.java))
-    }
-
-    private fun openTaskActivity() {
-        startActivity(Intent(this, TaskActivity::class.java))
-    }
-
-    fun openSettingsActivity() {
-        startActivity(Intent(this, SettingsActivity::class.java))
-    }
-
-    private fun openStatsActivity() {
-        startActivity(Intent(this, ViewStatsActivity::class.java))
-    }
-
-    private fun openAchievementsActivity() {
-        startActivity(Intent(this, AchievementsActivity::class.java))
-    }
+    private fun openConcentrateSetupActivity() = openActivity<ConcentrateSetupActivity>()
+    private fun openTaskActivity() = openActivity<TaskActivity>()
+    fun openSettingsActivity() = openActivity<SettingsActivity>()
+    fun openWelcomeActivity() = openActivity<WelcomeActivity>()
+    fun openSubscriptionActivity() = openActivity<SubscriptionActivity>()
+    private fun openStatsActivity() = openActivity<ViewStatsActivity>()
+    private fun openAchievementsActivity() = openActivity<AchievementsActivity>()
 
     fun setUIAfterLogout() {
         Utils.setAvatar(this, null, binding.ivAvatar)
@@ -165,18 +153,13 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>(), AppUpdateLi
             val currentStreakForToday = withContext(Dispatchers.IO) {
                 calculateStreakAndCheckComeback()
             }
-            // Always update the streak badge based on today's calculated value.
-            Log.d(
-                TAG,
-                "Updating login streak badge. Today's streak value: $currentStreakForToday days"
-            )
+            Log.d(TAG, "Updating login streak. Today's streak value: $currentStreakForToday days")
             try {
                 badgeProgressManager.updateLoginStreak(currentStreakForToday)
                 Log.d(TAG, "Login streak badge update call finished.")
             } catch (e: Exception) {
                 Log.e(TAG, "Error calling updateLoginStreak", e)
             }
-
         }
     }
 
@@ -253,8 +236,10 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>(), AppUpdateLi
 
     override fun onUpdateFlowStartFailed(error: Exception) {
         Log.e(TAG, "Update flow could not be started: ${error.message}", error)
-        Utils.showToast(this,
-            getString(R.string.could_not_initiate_update_check, error.localizedMessage))
+        Utils.showToast(
+            this,
+            getString(R.string.could_not_initiate_update_check, error.localizedMessage)
+        )
     }
 
     override fun onUpdateFlowResultOk() {

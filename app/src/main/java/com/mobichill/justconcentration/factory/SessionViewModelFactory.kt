@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.mobichill.justconcentration.base.application.MyApp
 import com.mobichill.justconcentration.helper.StatsCalculateHelper
+import com.mobichill.justconcentration.repository.FirestoreRepository
 import com.mobichill.justconcentration.viewmodel.SessionViewModel
 
 class SessionViewModelFactory(private val application: Application) : ViewModelProvider.Factory {
@@ -15,8 +16,15 @@ class SessionViewModelFactory(private val application: Application) : ViewModelP
                 taskRepository = myApp.taskRepository,
                 sessionRepository = myApp.concentrateSessionRepository
             )
+            val proBadgeManager = myApp.proBadgeManager
+            val firestoreRepository = FirestoreRepository()
             @Suppress("UNCHECKED_CAST")
-            return SessionViewModel(myApp.concentrateSessionRepository, statsCalculator) as T
+            return SessionViewModel(
+                myApp.concentrateSessionRepository,
+                statsCalculator,
+                proBadgeManager,
+                firestoreRepository
+            ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

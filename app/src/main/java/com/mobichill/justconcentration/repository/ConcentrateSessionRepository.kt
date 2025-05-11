@@ -10,7 +10,9 @@ import java.time.LocalDate
 import java.time.format.DateTimeParseException
 
 class ConcentrateSessionRepository(private val concentrateSessionDAO: ConcentrateSessionDAO) {
-    private val TAG = javaClass.simpleName
+    companion object {
+        private val TAG = ConcentrateSessionRepository::class.java.simpleName
+    }
 
     suspend fun addConcentrateSessionToRoom(session: ConcentrateSessionModel) {
         concentrateSessionDAO.insertSession(session)

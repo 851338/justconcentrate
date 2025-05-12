@@ -14,43 +14,44 @@ import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.firebase.auth.FirebaseAuth
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
-import com.mobichill.justconcentration.base.application.MyApp
 import com.mobichill.justconcentration.databinding.ActivityTaskBinding
-import com.mobichill.justconcentration.factory.TaskViewModelFactory
 import com.mobichill.justconcentration.helper.AlarmHelper
 import com.mobichill.justconcentration.helper.TaskItemTouchHelper
-import com.mobichill.justconcentration.model.TaskModel
-import com.mobichill.justconcentration.repository.FirestoreRepository
-import com.mobichill.justconcentration.utils.SharedPreferencesUtils
-import com.mobichill.justconcentration.utils.Utils
 import com.mobichill.justconcentration.listener.OnItemDismissListener
 import com.mobichill.justconcentration.listener.OnMenuActionListener
 import com.mobichill.justconcentration.listener.OnSingleClickListener
+import com.mobichill.justconcentration.manager.AdsManager
+import com.mobichill.justconcentration.model.TaskModel
+import com.mobichill.justconcentration.utils.SharedPreferencesUtils
+import com.mobichill.justconcentration.utils.Utils
 import com.mobichill.justconcentration.view.adapter.TaskAdapter
 import com.mobichill.justconcentration.viewmodel.TaskViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
     private var isMenuOpen = false
     private lateinit var taskAdapter: TaskAdapter
-    val taskViewModelFactory by lazy {
-        TaskViewModelFactory(
-            FirestoreRepository(),
-            MyApp.instance.taskRepository
-        )
-    }
-    val taskViewModel: TaskViewModel by viewModels {
-        taskViewModelFactory
-    }
+
+    private val taskViewModel: TaskViewModel by viewModels()
 
     private val sfUtils: SharedPreferencesUtils by lazy {
         SharedPreferencesUtils(applicationContext)
     }
+
+    @Inject
+    lateinit var alarmHelper: AlarmHelper
+
+    @Inject
+    lateinit var adsManager: AdsManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,11 +75,27 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
                 }
             }
         }
+
+        lifecycleScope.launch {
+            adsManager.loadAndShowBannerAd(binding.adView)
+        }
     }
 
     override fun onResume() {
         super.onResume()
         setupToolbar(getString(R.string.my_tasks))
+        adsManager.onResume(binding.adView)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        adsManager.onPause(binding.adView)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (isFinishing)
+            adsManager.onDestroy(binding.adView)
     }
 
     fun setupToolbar(title: String) {
@@ -289,7 +306,8 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
         val now = System.currentTimeMillis()
         val updatedTask = taskModel.copy(
             completed = true,
-            completedAt = now)
+            completedAt = now
+        )
         var isSyncedSuccessfully: Boolean
         if (sfUtils.isUserLoggedIn() && Utils.isNetworkAvailable(this@TaskActivity)) {
             try {
@@ -319,7 +337,7 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
     }
 
     private fun cancelAlarm(requestCode: Int) {
-        AlarmHelper().cancelAlarm(this, requestCode)
+        alarmHelper.cancelAlarm(this, requestCode)
     }
 
     private val onItemDismissListener = object : OnItemDismissListener {
@@ -357,6 +375,7 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
     }
 
     // Case choose ringtone of NewOrEditTaskFragment
+    @Deprecated("This method has been deprecated in favor of using the Activity Result API\n      which brings increased type safety via an {@link ActivityResultContract} and the prebuilt\n      contracts for common intents available in\n      {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for\n      testing, and allow receiving results in separate, testable classes independent from your\n      activity. Use\n      {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}\n      with the appropriate {@link ActivityResultContract} and handling the result in the\n      {@link ActivityResultCallback#onActivityResult(Object) callback}.")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode != RESULT_OK || data == null) return

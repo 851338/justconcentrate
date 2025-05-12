@@ -3,8 +3,11 @@ package com.mobichill.justconcentration.repository
 import com.mobichill.justconcentration.dao.BadgeDAO
 import com.mobichill.justconcentration.model.BadgeModel
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class BadgeRepository(private val badgeDAO: BadgeDAO) {
+@Singleton
+class BadgeRepository @Inject constructor(private val badgeDAO: BadgeDAO) {
     suspend fun insertBadge(badge: BadgeModel) {
         badgeDAO.insertBadge(badge)
     }

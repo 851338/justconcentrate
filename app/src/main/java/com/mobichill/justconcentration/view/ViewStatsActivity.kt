@@ -8,6 +8,7 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.BarData
@@ -18,28 +19,39 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
-import com.google.android.gms.ads.AdRequest
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.constants.Constants.OTHERS.DATE_FORMATTER
 import com.mobichill.justconcentration.constants.TimeRangeOption
 import com.mobichill.justconcentration.databinding.ActivityViewStatsBinding
-import com.mobichill.justconcentration.factory.SessionViewModelFactory
 import com.mobichill.justconcentration.listener.OnSingleClickListener
+import com.mobichill.justconcentration.manager.AdsManager
+import com.mobichill.justconcentration.utils.SharedPreferencesUtils
+import com.mobichill.justconcentration.utils.Utils
 import com.mobichill.justconcentration.utils.Utils.openActivity
 import com.mobichill.justconcentration.viewmodel.SessionViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class ViewStatsActivity : BaseViewBindingActivity<ActivityViewStatsBinding>() {
-    private val sessionViewModel: SessionViewModel by viewModels {
-        SessionViewModelFactory(application)
+    @Inject
+    lateinit var adsManager: AdsManager
+
+    private val sessionViewModel: SessionViewModel by viewModels()
+
+    private val sfUtils: SharedPreferencesUtils by lazy {
+        SharedPreferencesUtils(applicationContext)
     }
+
     override fun initViewBinding(): ActivityViewStatsBinding =
         ActivityViewStatsBinding.inflate(layoutInflater)
 
@@ -47,7 +59,7 @@ class ViewStatsActivity : BaseViewBindingActivity<ActivityViewStatsBinding>() {
         super.initView()
         setupSpinner()
         setObservers()
-        setAds()
+        setupAds()
         setBtnOnClick()
     }
 
@@ -63,7 +75,21 @@ class ViewStatsActivity : BaseViewBindingActivity<ActivityViewStatsBinding>() {
         binding.upgradeButton.setOnClickListener(
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
-                    openSubscriptionActivity()
+                    when {
+                        !Utils.isNetworkAvailable(this@ViewStatsActivity) ->
+                            Utils.showToast(
+                                this@ViewStatsActivity,
+                                getString(R.string.no_internet_connection)
+                            )
+
+                        !sfUtils.isUserLoggedIn() ->
+                            Utils.showToast(
+                                this@ViewStatsActivity,
+                                this@ViewStatsActivity.getString(R.string.you_must_log_in_first)
+                            )
+
+                        else -> openSubscriptionActivity()
+                    }
                 }
             }
         )
@@ -71,10 +97,26 @@ class ViewStatsActivity : BaseViewBindingActivity<ActivityViewStatsBinding>() {
 
     fun openSubscriptionActivity() = openActivity<SubscriptionActivity>()
 
-    private fun setAds() {
-        //run ads
-        val adRequest = AdRequest.Builder().build()
-        binding.adView.loadAd(adRequest)
+    private fun setupAds() {
+        lifecycleScope.launch {
+            adsManager.loadAndShowBannerAd(binding.adView)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        adsManager.onResume(binding.adView)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        adsManager.onPause(binding.adView)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (isFinishing)
+            adsManager.onDestroy(binding.adView)
     }
 
     private fun setObservers() {
@@ -488,4 +530,5 @@ class ViewStatsActivity : BaseViewBindingActivity<ActivityViewStatsBinding>() {
 
         dateRangePicker.show(this.supportFragmentManager, "DATE_RANGE_PICKER")
     }
+
 }

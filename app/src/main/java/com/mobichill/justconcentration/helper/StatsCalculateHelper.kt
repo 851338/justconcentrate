@@ -6,8 +6,9 @@ import com.mobichill.justconcentration.repository.ConcentrateSessionRepository
 import com.mobichill.justconcentration.repository.TaskRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class StatsCalculateHelper(
+class StatsCalculateHelper @Inject constructor(
     private val taskRepository: TaskRepository,
     private val sessionRepository: ConcentrateSessionRepository
 ) {

@@ -5,8 +5,11 @@ import com.mobichill.justconcentration.model.UserModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class UserRepository(private val userDAO: UserDAO) {
+@Singleton
+class UserRepository @Inject constructor(private val userDAO: UserDAO) {
     suspend fun getUserById(userId: String): UserModel? = userDAO.getUserById(userId)
 
     //google, signIn, signUp

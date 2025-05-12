@@ -2,10 +2,10 @@ package com.mobichill.justconcentration.worker
 
 import android.content.Context
 import android.util.Log
+import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.mobichill.justconcentration.R
-import com.mobichill.justconcentration.base.application.MyApp
 import com.mobichill.justconcentration.constants.Constants.OTHERS.ACTION_CANCEL_SESSION
 import com.mobichill.justconcentration.constants.Constants.OTHERS.ACTION_SESSION_COMPLETE
 import com.mobichill.justconcentration.constants.Constants.OTHERS.KEY_INTENT_ACTION
@@ -13,26 +13,31 @@ import com.mobichill.justconcentration.constants.Constants.OTHERS.KEY_SESSION_CO
 import com.mobichill.justconcentration.constants.Constants.OTHERS.KEY_SESSION_DATE
 import com.mobichill.justconcentration.constants.Constants.OTHERS.KEY_SESSION_GOAL
 import com.mobichill.justconcentration.constants.Constants.OTHERS.KEY_SESSION_START_TIME
-import com.mobichill.justconcentration.helper.FirestoreHelper
 import com.mobichill.justconcentration.manager.BadgeProgressManager
 import com.mobichill.justconcentration.model.ConcentrateSessionModel
 import com.mobichill.justconcentration.repository.ConcentrateSessionRepository
+import com.mobichill.justconcentration.repository.FirestoreRepository
 import com.mobichill.justconcentration.utils.SharedPreferencesUtils
 import com.mobichill.justconcentration.utils.Utils
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 import java.util.concurrent.TimeUnit
 
-class SaveConcentrateSessionWorker(
-    private val appContext: Context,
-    workerParameters: WorkerParameters
+@HiltWorker
+class SaveConcentrateSessionWorker @AssistedInject constructor(
+    @Assisted private val appContext: Context,
+    @Assisted workerParameters: WorkerParameters,
+    private val sessionRepository: ConcentrateSessionRepository,
+    private val badgeProgressManager: BadgeProgressManager,
+    private val firestoreRepository: FirestoreRepository
 ) : CoroutineWorker(appContext, workerParameters) {
+
     companion object {
         private val TAG = SaveConcentrateSessionWorker::class.java.simpleName
     }
-    private val sessionRepository: ConcentrateSessionRepository by lazy {
-        (appContext.applicationContext as MyApp).concentrateSessionRepository
-    }
-    private val badgeProgressManager: BadgeProgressManager by lazy {
-        (appContext.applicationContext as MyApp).badgeProgressManager
+
+    private val sfUtils: SharedPreferencesUtils by lazy {
+        SharedPreferencesUtils(applicationContext)
     }
 
     override suspend fun doWork(): Result {
@@ -95,11 +100,11 @@ class SaveConcentrateSessionWorker(
 
         // Attempt Firestore sync
         var isSyncedSuccessfully: Boolean
-        if (SharedPreferencesUtils(applicationContext).isUserLoggedIn() && Utils.isNetworkAvailable(appContext)) {
+        if (sfUtils.isUserLoggedIn() && Utils.isNetworkAvailable(appContext)) {
             try {
                 Log.d(TAG, "Attempting Firestore sync for session ${sessionToSave.id}")
                 // Sync the potentially modified session
-                FirestoreHelper.getInstance()
+                firestoreRepository
                     .addConcentrateSessionToFirestore(sessionToSave.copy(isSynced = true)) // Try Firestore with isSynced=true
                 isSyncedSuccessfully = true // Mark as synced ONLY if Firestore call succeeds
                 Log.d(TAG, "Firestore sync SUCCESS for session ${sessionToSave.id}")

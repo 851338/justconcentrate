@@ -3,8 +3,11 @@ package com.mobichill.justconcentration.repository
 import com.mobichill.justconcentration.dao.TaskDAO
 import com.mobichill.justconcentration.model.TaskModel
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class TaskRepository(private val taskDAO: TaskDAO) {
+@Singleton
+class TaskRepository @Inject constructor(private val taskDAO: TaskDAO) {
 
     suspend fun saveTaskToRoom(taskModel: TaskModel) {
         taskDAO.insertTask(taskModel)
@@ -28,7 +31,7 @@ class TaskRepository(private val taskDAO: TaskDAO) {
 
     suspend fun deleteTask(taskModel: TaskModel) {
         // Actually just mark it as deleted it
-        var updatedTask =
+        val updatedTask =
             taskModel.copy(deletedAt = System.currentTimeMillis(), isSynced = false)
         taskDAO.updateTask(updatedTask)
     }

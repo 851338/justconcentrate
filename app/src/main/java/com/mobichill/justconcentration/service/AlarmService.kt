@@ -24,9 +24,6 @@ class AlarmService : Service() {
         private val TAG = AlarmService::class.java.simpleName
     }
     private lateinit var mediaPlayer: MediaPlayer
-    override fun onCreate() {
-        super.onCreate()
-    }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val alarmUri = intent?.getStringExtra(ALARM_URI)

@@ -3,27 +3,29 @@ package com.mobichill.justconcentration.view
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.gms.ads.AdRequest
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
-import com.mobichill.justconcentration.base.application.MyApp
 import com.mobichill.justconcentration.databinding.ActivityAchievementsBinding
 import com.mobichill.justconcentration.databinding.DialogBadgeDetailsBinding
-import com.mobichill.justconcentration.factory.BadgeViewModelFactory
+import com.mobichill.justconcentration.manager.AdsManager
 import com.mobichill.justconcentration.model.BadgeModel
 import com.mobichill.justconcentration.utils.ConvertUtils
 import com.mobichill.justconcentration.view.adapter.BadgeAdapter
 import com.mobichill.justconcentration.viewmodel.BadgeViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class AchievementsActivity : BaseViewBindingActivity<ActivityAchievementsBinding>() {
+
+    @Inject
+    lateinit var adsManager: AdsManager
     private lateinit var badgeAdapter: BadgeAdapter
-    val badgeViewModelFactory by lazy {
-        BadgeViewModelFactory(MyApp.instance.badgeRepository)
-    }
-    val badgeViewModel: BadgeViewModel by viewModels {
-        badgeViewModelFactory
-    }
+
+    private val badgeViewModel: BadgeViewModel by viewModels()
 
     override fun initViewBinding(): ActivityAchievementsBinding =
         ActivityAchievementsBinding.inflate(layoutInflater)
@@ -47,9 +49,10 @@ class AchievementsActivity : BaseViewBindingActivity<ActivityAchievementsBinding
                 if (badgesList.isNullOrEmpty()) View.GONE else View.VISIBLE
         }
 
-        //run ads
-        val adRequest = AdRequest.Builder().build()
-        binding.adView.loadAd(adRequest)
+        // Setup ads
+        lifecycleScope.launch {
+            adsManager.loadAndShowBannerAd(binding.adView)
+        }
     }
 
     private fun showBadgeDetailsDialog(badge: BadgeModel) {
@@ -104,5 +107,21 @@ class AchievementsActivity : BaseViewBindingActivity<ActivityAchievementsBinding
             .setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
             .create()
             .show()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        adsManager.onPause(binding.adView)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        adsManager.onResume(binding.adView)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (isFinishing)
+            adsManager.onDestroy(binding.adView)
     }
 }

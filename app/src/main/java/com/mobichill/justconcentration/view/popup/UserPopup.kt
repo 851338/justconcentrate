@@ -8,18 +8,23 @@ import android.view.ViewGroup
 import android.widget.PopupWindow
 import com.google.firebase.auth.FirebaseAuth
 import com.mobichill.justconcentration.R
-import com.mobichill.justconcentration.base.application.MyApp
 import com.mobichill.justconcentration.databinding.DialogUserProfileBinding
 import com.mobichill.justconcentration.listener.OnSingleClickListener
+import com.mobichill.justconcentration.repository.UserRepository
 import com.mobichill.justconcentration.utils.SharedPreferencesUtils
 import com.mobichill.justconcentration.utils.Utils
 import com.mobichill.justconcentration.view.HomeActivity
+import dagger.hilt.android.qualifiers.ActivityContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class UserPopup(private val context: Context) {
+class UserPopup @Inject constructor(
+    @ActivityContext private val context: Context,
+    private val userRepository: UserRepository
+) {
     private val sfUtils: SharedPreferencesUtils by lazy {
         SharedPreferencesUtils(context.applicationContext)
     }
@@ -40,7 +45,7 @@ class UserPopup(private val context: Context) {
             binding.tvLogout.visibility = View.VISIBLE
             val uid = sfUtils.getUserId()
             CoroutineScope(Dispatchers.IO).launch {
-                val user = MyApp.instance.userRepository.getUserById(uid)
+                val user = userRepository.getUserById(uid)
                 //Update UI here
                 withContext(Dispatchers.Main) {
                     binding.tvName.text = context.getString(R.string.greeting, user?.name)
@@ -108,10 +113,9 @@ class UserPopup(private val context: Context) {
                         Utils.showToast(context, context.getString(R.string.logged_out))
                         popupWindow.dismiss()
                         if (context is HomeActivity)
-                            context.setUIAfterLogout()
+                            context.clearDataAfterLogout()
                         binding.tvLogout.visibility = View.GONE
                         sfUtils.logout()
-                        //TODO reset subscription variable
                     }
                 }
             }

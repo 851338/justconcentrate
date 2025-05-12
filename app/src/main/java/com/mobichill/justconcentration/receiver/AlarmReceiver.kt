@@ -5,23 +5,21 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.mobichill.justconcentration.R
-import com.mobichill.justconcentration.base.application.MyApp
-import com.mobichill.justconcentration.manager.VibrationManager
-import com.mobichill.justconcentration.model.TaskModel
 import com.mobichill.justconcentration.constants.Constants.INTENT_EXTRA.ALARM_URI
 import com.mobichill.justconcentration.constants.Constants.INTENT_EXTRA.REQUEST_CODE
 import com.mobichill.justconcentration.constants.Constants.INTENT_EXTRA.SNOOZE_MINUTES
 import com.mobichill.justconcentration.constants.Constants.INTENT_EXTRA.TASK_ID
 import com.mobichill.justconcentration.constants.Constants.OTHERS.CHANNEL_ALARM
-import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.NAME_SETTINGS_PREFS
-import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_SETTINGS_VIBRATION
+import com.mobichill.justconcentration.di.ReceiverDependencies
+import com.mobichill.justconcentration.manager.VibrationManager
+import com.mobichill.justconcentration.model.TaskModel
 import com.mobichill.justconcentration.service.AlarmService
 import com.mobichill.justconcentration.utils.SharedPreferencesUtils
+import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
@@ -39,9 +37,16 @@ class AlarmReceiver : BroadcastReceiver() {
         val alarmUri = intent?.getStringExtra(ALARM_URI) ?: ""
         val requestCode = intent?.getIntExtra(REQUEST_CODE, 0) ?: 0
 
+        val dependencies = EntryPointAccessors.fromApplication(
+            context.applicationContext,
+            ReceiverDependencies::class.java
+        )
+
+        val taskRepository = dependencies.taskRepository()
+
         // Launch a coroutine to fetch the task
         CoroutineScope(Dispatchers.IO).launch {
-            task = MyApp.instance.taskRepository.getTaskByRequestCode(requestCode).firstOrNull()
+            task = taskRepository.getTaskByRequestCode(requestCode).firstOrNull()
             if (task == null)
                 return@launch
             // Now switch to the Main thread to show the notification (UI operation)

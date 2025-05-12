@@ -2,6 +2,7 @@ package com.mobichill.justconcentration.worker
 
 import android.content.Context
 import android.util.Log
+import androidx.hilt.work.HiltWorker
 import androidx.room.withTransaction
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
@@ -21,12 +22,16 @@ import com.mobichill.justconcentration.repository.ConcentrateSessionRepository
 import com.mobichill.justconcentration.repository.TaskRepository
 import com.mobichill.justconcentration.utils.SharedPreferencesUtils
 import com.mobichill.justconcentration.utils.Utils.isNetworkAvailable
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.tasks.await
 
-class SyncWorker(
-    appContext: Context, workerParams: WorkerParameters,
+@HiltWorker
+class SyncWorker @AssistedInject constructor(
+    @Assisted appContext: Context,
+    @Assisted workerParams: WorkerParameters,
     private val taskRepository: TaskRepository,
     private val sessionRepository: ConcentrateSessionRepository,
     private val badgeRepository: BadgeRepository,

@@ -13,21 +13,28 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.lifecycle.lifecycleScope
-import com.google.android.gms.ads.AdRequest
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.constants.ConcentrationQuotes
 import com.mobichill.justconcentration.constants.Constants
 import com.mobichill.justconcentration.databinding.ActivityConcentrateSetupBinding
 import com.mobichill.justconcentration.listener.OnSingleClickListener
+import com.mobichill.justconcentration.manager.AdsManager
 import com.mobichill.justconcentration.service.FocusService
 import com.mobichill.justconcentration.utils.AudioUtils
 import com.mobichill.justconcentration.utils.SharedPreferencesUtils
 import com.mobichill.justconcentration.utils.Utils
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetupBinding>() {
     private lateinit var pickAudioLauncher: ActivityResultLauncher<Intent>
+
+    @Inject
+    lateinit var adsManager: AdsManager
+
     private var selectedUri: Uri? = null
     private var selectedDuration: Int = 0
     override fun initViewBinding(): ActivityConcentrateSetupBinding =
@@ -56,7 +63,7 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
             }
     }
 
-    override fun initView() = with(binding) {
+    override fun initView() {
         super.initView()
         // Setup view
         binding.tvSelectedSound.text = AudioUtils.defaultSessionName(this@ConcentrateSetupActivity)
@@ -64,13 +71,13 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
         setupSpinner()
 
         //Setup onClick
-        btnBack.setOnClickListener(object : OnSingleClickListener() {
+        binding.btnBack.setOnClickListener(object : OnSingleClickListener() {
             override fun onSingleClick(view: View) {
                 onBackPressedDispatcher.onBackPressed()
             }
         })
 
-        buttonSelectSound.setOnClickListener(
+        binding.buttonSelectSound.setOnClickListener(
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
                     val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
@@ -82,24 +89,25 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
             }
         )
 
-        startConcentrateButton.setOnClickListener(
+        binding.startConcentrateButton.setOnClickListener(
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
                     if (selectedDuration != 0)
                         startFocusSession(
                             selectedDuration,
-                            edtGoal.text.toString(),
+                            binding.edtGoal.text.toString(),
                             selectedUri?.toString()
                         )
-                    else txtInputDuration.error =
+                    else binding.txtInputDuration.error =
                         getString(R.string.you_haven_t_determined_duration)
                 }
             }
         )
 
-        //run ads
-        val adRequest = AdRequest.Builder().build()
-        binding.adView.loadAd(adRequest)
+        // Setup Ads
+        lifecycleScope.launch {
+            adsManager.loadAndShowBannerAd(binding.adView)
+        }
     }
 
     private fun showCustomTimeDialog() {
@@ -207,4 +215,19 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
         startActivity(intent)
     }
 
+    override fun onPause() {
+        super.onPause()
+        adsManager.onPause(binding.adView)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        adsManager.onResume(binding.adView)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (isFinishing)
+            adsManager.onDestroy(binding.adView)
+    }
 }

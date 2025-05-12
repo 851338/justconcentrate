@@ -14,10 +14,16 @@ import com.mobichill.justconcentration.constants.Constants.OTHERS.EMAIL_REGEX
 import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.utils.SharedPreferencesUtils
 import com.mobichill.justconcentration.utils.Utils
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class LoginActivity : BaseViewBindingActivity<ActivityLoginBinding>() {
     override fun initViewBinding(): ActivityLoginBinding =
         ActivityLoginBinding.inflate(layoutInflater)
+
+    @Inject
+    lateinit var firestoreRepository: FirestoreRepository
 
     private lateinit var auth: FirebaseAuth
 
@@ -71,7 +77,7 @@ class LoginActivity : BaseViewBindingActivity<ActivityLoginBinding>() {
                     val uid = FirebaseAuth.getInstance().currentUser?.uid
                     if (uid != null) {
                         //fetch and save local
-                        FirestoreRepository().fetchUserFromFirestore(uid)
+                        firestoreRepository.fetchUserFromFirestore(uid)
                         //save shared preferences
                         SharedPreferencesUtils(applicationContext).saveUserInfoToSF(uid)
 

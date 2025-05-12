@@ -10,6 +10,7 @@ import com.mobichill.justconcentration.model.TaskModel
 import com.mobichill.justconcentration.repository.FirestoreRepository
 import com.mobichill.justconcentration.repository.TaskRepository
 import com.mobichill.justconcentration.utils.ConvertUtils
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,14 +23,18 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalTime
+import javax.inject.Inject
 
-class TaskViewModel(
+@HiltViewModel
+class TaskViewModel @Inject constructor(
     private val firestoreRepo: FirestoreRepository,
-    private val taskRepository: TaskRepository
+    private val taskRepository: TaskRepository,
+    private val badgeProgressManager: BadgeProgressManager
 ) : ViewModel() {
     companion object {
         private val TAG = TaskViewModel::class.java.simpleName
     }
+
     private val _searchQuery = MutableStateFlow("")
 
     private val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
@@ -47,7 +52,7 @@ class TaskViewModel(
     fun updateAfterTaskCompletion(completedAt: Long?) {
         try {
             viewModelScope.launch {
-                BadgeProgressManager().updateAfterTaskCompletion(
+                badgeProgressManager.updateAfterTaskCompletion(
                     totalTasks = taskRepository.getCompletedTaskCount(),
                     taskTime = LocalTime.now(),
                     completedDate = ConvertUtils.convertTimeMillisIntoLocalDate(completedAt!!),

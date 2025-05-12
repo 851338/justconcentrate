@@ -29,6 +29,7 @@ class MyUpdateManager(
     companion object {
         private val TAG = MyUpdateManager::class.java.simpleName
     }
+
     private var appUpdateManagerInstance: AppUpdateManager? = null
     private lateinit var appUpdateResultLauncher: ActivityResultLauncher<IntentSenderRequest>
 
@@ -115,7 +116,7 @@ class MyUpdateManager(
         )
 
         val starter =
-            IntentSenderForResultStarter { intentSender, requestCode, fillInIntent, flagsMask, flagsValues, _, options ->
+            IntentSenderForResultStarter { intentSender, requestCode, fillInIntent, flagsMask, flagsValues, _, _ ->
                 // The requestCode here is APP_UPDATE_REQUEST_CODE
                 // The intentSender is prepared by 'manager.startUpdateFlowForResult'
                 Log.d(
@@ -222,7 +223,10 @@ class MyUpdateManager(
                 Log.d(TAG, "Unregistering install state listener.")
                 manager.unregisterListener(installStateUpdatedListener)
             } catch (e: RuntimeException) { // Catch more specific if possible, but RuntimeException is broad
-                Log.w(TAG, "Error unregistering listener (might not have been registered or Play services issue): ${e.message}")
+                Log.w(
+                    TAG,
+                    "Error unregistering listener (might not have been registered or Play services issue): ${e.message}"
+                )
             }
         }
         activity.lifecycle.removeObserver(this)

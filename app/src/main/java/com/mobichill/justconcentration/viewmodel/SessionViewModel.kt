@@ -15,12 +15,15 @@ import com.mobichill.justconcentration.manager.ProBadgeManager
 import com.mobichill.justconcentration.model.ConcentrateSessionModel
 import com.mobichill.justconcentration.repository.ConcentrateSessionRepository
 import com.mobichill.justconcentration.repository.FirestoreRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.ZoneId
+import javax.inject.Inject
 
-class SessionViewModel(
+@HiltViewModel
+class SessionViewModel @Inject constructor(
     sessionRepository: ConcentrateSessionRepository,
     private val statsCalculator: StatsCalculateHelper,
     private val proBadgeManager: ProBadgeManager,

@@ -60,7 +60,7 @@ class SharedPreferencesUtils(context: Context) {
         return userSessionPrefs.getBoolean(KEY_IS_LOGGED_IN, false)
     }
 
-    fun saveUserId(userId: String) {
+    private fun saveUserId(userId: String) {
         userInfoPrefs.edit { putString(KEY_USERID_PREFS, userId) }
     }
 
@@ -69,14 +69,13 @@ class SharedPreferencesUtils(context: Context) {
         return userInfoPrefs.getString(KEY_USERID_PREFS, "Unknown") ?: "Unknown"
     }
 
-    fun clearUserInfo() {
+    private fun clearUserInfo() {
         userInfoPrefs.edit { clear() }
     }
 
     fun saveUserInfoToSF(userId: String) {
         saveUserId(userId)
         saveLoginState(true)
-        //TODO Subscription info
     }
 
     fun logout() {

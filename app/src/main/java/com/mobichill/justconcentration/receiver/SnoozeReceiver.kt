@@ -14,8 +14,10 @@ import com.mobichill.justconcentration.manager.VibrationManager
 import com.mobichill.justconcentration.model.TaskModel
 import com.mobichill.justconcentration.constants.Constants.INTENT_EXTRA.SNOOZE_MINUTES
 import com.mobichill.justconcentration.constants.Constants.INTENT_EXTRA.TASK_ID
+import com.mobichill.justconcentration.di.ReceiverDependencies
 import com.mobichill.justconcentration.service.AlarmService
 import com.mobichill.justconcentration.utils.Utils
+import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
@@ -33,8 +35,14 @@ class SnoozeReceiver : BroadcastReceiver() {
         val taskId = intent.getStringExtra(TASK_ID) ?: return
         var snoozeMinutes = intent.getIntExtra(SNOOZE_MINUTES, 5) // Default 5 min
 
+        val dependencies = EntryPointAccessors.fromApplication(
+            context.applicationContext,
+            ReceiverDependencies::class.java
+        )
+        val taskRepository = dependencies.taskRepository()
+
         CoroutineScope(Dispatchers.IO).launch {
-            task = MyApp.instance.taskRepository.getTaskById(taskId).firstOrNull() ?: return@launch
+            task = taskRepository.getTaskById(taskId).firstOrNull() ?: return@launch
 
             // Cancel the alarm receiver
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -56,10 +64,14 @@ class SnoozeReceiver : BroadcastReceiver() {
             val stopIntent = Intent(context, AlarmService::class.java)
             context.stopService(stopIntent)
 
-            //testing
+            //todo testing
             snoozeMinutes = 1
             val newReminderTime = System.currentTimeMillis() + snoozeMinutes * 60 * 1000
-            AlarmHelper().setAlarm(context, newReminderTime, task.requestCode, task.alarmSoundUri)
+            val alarmHelper = EntryPointAccessors.fromApplication(
+                context.applicationContext,
+                ReceiverDependencies::class.java
+            ).alarmHelper()
+            alarmHelper.setAlarm(context, newReminderTime, task.requestCode, task.alarmSoundUri)
             withContext(Dispatchers.Main) {
                 Utils.showToast(
                     context,

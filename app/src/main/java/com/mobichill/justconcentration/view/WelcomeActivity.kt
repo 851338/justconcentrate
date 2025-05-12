@@ -19,13 +19,19 @@ import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.repository.FirestoreRepository
 import com.mobichill.justconcentration.utils.SharedPreferencesUtils
 import com.mobichill.justconcentration.utils.Utils
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.security.MessageDigest
 import java.util.UUID
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class WelcomeActivity : BaseViewBindingActivity<ActivityWelcomeBinding>() {
     override fun initViewBinding(): ActivityWelcomeBinding =
         ActivityWelcomeBinding.inflate(layoutInflater)
+
+    @Inject
+    lateinit var firestoreRepository: FirestoreRepository
 
     private lateinit var auth: FirebaseAuth
     private lateinit var credentialManager: CredentialManager
@@ -140,7 +146,7 @@ class WelcomeActivity : BaseViewBindingActivity<ActivityWelcomeBinding>() {
                         val user = auth.currentUser
                         if (user != null) {
                             //save user to firestore checking existence
-                            FirestoreRepository().checkIfUserExists(
+                            firestoreRepository.checkIfUserExistsAndSave(
                                 user.uid,
                                 user.displayName,
                                 user.email,

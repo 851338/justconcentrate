@@ -8,8 +8,11 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class ConcentrateSessionRepository(private val concentrateSessionDAO: ConcentrateSessionDAO) {
+@Singleton
+class ConcentrateSessionRepository @Inject constructor(private val concentrateSessionDAO: ConcentrateSessionDAO) {
     companion object {
         private val TAG = ConcentrateSessionRepository::class.java.simpleName
     }
@@ -42,17 +45,14 @@ class ConcentrateSessionRepository(private val concentrateSessionDAO: Concentrat
         if (completedSessions.isEmpty()) {
             return 0
         }
-        val completedDates = completedSessions
-            .mapNotNull { session ->
-                try {
-                    LocalDate.parse(session.date, DATE_FORMATTER)
-                } catch (e: DateTimeParseException) {
-                    Log.w(TAG, "Could not parse date: ${session.date}", e)
-                    null // Exclude this session from streak calculation
-                }
+        val completedDates = completedSessions.mapNotNull { session ->
+            try {
+                LocalDate.parse(session.date, DATE_FORMATTER)
+            } catch (e: DateTimeParseException) {
+                Log.w(TAG, "Could not parse date: ${session.date}", e)
+                null // Exclude this session from streak calculation
             }
-            .distinct()
-            .sortedDescending()
+        }.distinct().sortedDescending()
 
         if (completedDates.isEmpty()) {
             return 0

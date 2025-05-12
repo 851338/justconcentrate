@@ -1,7 +1,6 @@
 package com.mobichill.justconcentration.view
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.media.RingtoneManager
 import android.net.Uri
@@ -16,7 +15,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.net.toUri
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
-import com.google.android.gms.ads.AdRequest
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingFragment
 import com.mobichill.justconcentration.constants.Constants.INTENT_EXTRA.TASK_KEY
@@ -24,28 +22,38 @@ import com.mobichill.justconcentration.constants.Constants.OTHERS.TIME_FORMAT
 import com.mobichill.justconcentration.databinding.FragmentNewOrEditTaskBinding
 import com.mobichill.justconcentration.helper.AlarmHelper
 import com.mobichill.justconcentration.listener.OnSingleClickListener
+import com.mobichill.justconcentration.manager.AdsManager
 import com.mobichill.justconcentration.model.TaskModel
 import com.mobichill.justconcentration.utils.AudioUtils
 import com.mobichill.justconcentration.utils.ConvertUtils
 import com.mobichill.justconcentration.utils.SharedPreferencesUtils
 import com.mobichill.justconcentration.utils.Utils
 import com.mobichill.justconcentration.viewmodel.TaskViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBinding>() {
     private var timeString: String = ""
     private var alarmTime: Long? = null
     private var dueDate: Long? = null
     private var task: TaskModel? = null
     private var isEdit: Boolean = false
-    private val taskViewModel: TaskViewModel by activityViewModels {
-        (requireActivity() as TaskActivity).taskViewModelFactory
-    }
+
+    private val taskViewModel: TaskViewModel by activityViewModels()
+
+    @Inject
+    lateinit var adsManager: AdsManager
+
+    @Inject
+    lateinit var alarmHelper: AlarmHelper
+
     private val sfUtils: SharedPreferencesUtils by lazy {
         SharedPreferencesUtils(requireActivity())
     }
@@ -58,9 +66,15 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
     override fun initViewBinding(): FragmentNewOrEditTaskBinding =
         FragmentNewOrEditTaskBinding.inflate(layoutInflater)
 
-    override fun onCreate(savedInstanceState: Bundle?) = with(binding) {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //must be called before onCreated() finishes, does not work in bg service
+
+        // Load ads
+        lifecycleScope.launch {
+            adsManager.loadAndShowBannerAd(binding.adView)
+        }
+
+        // Must be called before onCreated() finishes, does not work in bg service
         requestPermissionLauncher = registerForActivityResult(
             ActivityResultContracts.RequestPermission()
         ) { isGranted: Boolean ->
@@ -100,10 +114,6 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
                     }
                 }
             }
-
-        //run ads
-        val adRequest = AdRequest.Builder().build()
-        adView.loadAd(adRequest)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -138,8 +148,19 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
                 if (isEdit) getString(R.string.edit_task_title)
                 else getString(R.string.new_task_title)
             )
+        adsManager.onResume(binding.adView)
     }
 
+    override fun onPause() {
+        super.onPause()
+        adsManager.onPause(binding.adView)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        adsManager.onDestroy(binding.adView)
+    }
+//TODO show ad
     override fun initData() {
         task = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             arguments?.getParcelable(TASK_KEY, TaskModel::class.java) // API 33+
@@ -289,7 +310,7 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
             taskText = etTaskTitle.text.toString(),
             alarmTimeMillis = alarmTime ?: 0L,
             dueDate = dueDate ?: 0L,
-            requestCode = taskModel . requestCode,
+            requestCode = taskModel.requestCode,
             alarmSoundUri = (if (::selectedUri.isInitialized) selectedUri.toString()
             else AudioUtils.defaultAlarmUri(requireContext()).toString()),
         )
@@ -317,7 +338,7 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
                 )
             )
             if (task?.alarmTimeMillis != alarmTime) {
-                AlarmHelper().cancelAlarm(requireContext(), taskModel.requestCode)
+                alarmHelper.cancelAlarm(requireContext(), taskModel.requestCode)
                 setAlarm(updatedTask.requestCode, updatedTask.alarmSoundUri)
             }
             Log.d(TAG, "Room save successful for task ${taskModel.id}")
@@ -331,7 +352,7 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
     private fun setAlarm(requestCode: Int, alarmUri: String) {
         if (alarmTime == null) return
         if (timeString.isNotEmpty() && timeString != getString(R.string.no_time_selected)) {
-            AlarmHelper().setAlarm(requireContext(), alarmTime!!, requestCode, alarmUri)
+            alarmHelper.setAlarm(requireContext(), alarmTime!!, requestCode, alarmUri)
             Utils.showToast(
                 requireContext(), getString(R.string.task_created_with_alarm, timeString)
             )

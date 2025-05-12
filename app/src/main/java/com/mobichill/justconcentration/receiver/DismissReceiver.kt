@@ -9,19 +9,13 @@ import android.content.Intent
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.manager.VibrationManager
 import com.mobichill.justconcentration.constants.Constants.INTENT_EXTRA.REQUEST_CODE
-import com.mobichill.justconcentration.constants.Constants.INTENT_EXTRA.TASK_ID
 import com.mobichill.justconcentration.service.AlarmService
 import com.mobichill.justconcentration.utils.Utils
 
 class DismissReceiver : BroadcastReceiver() {
-    companion object {
-        private val DismissReceiver = this::class.java.simpleName
-    }
 
     override fun onReceive(context: Context, intent: Intent) {
         val requestCode = intent.getIntExtra(REQUEST_CODE, 0)
-        val taskId = intent.getStringExtra(TASK_ID) ?: return
-        val pendingResult = goAsync() // Like await
 
         // Cancel the alarm receiver
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager

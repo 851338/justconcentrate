@@ -11,8 +11,10 @@ import com.mobichill.justconcentration.view.adapter.TaskAdapter
 import com.mobichill.justconcentration.base.BaseViewBindingFragment
 import com.mobichill.justconcentration.databinding.FragmentSearchTasksBinding
 import com.mobichill.justconcentration.viewmodel.TaskViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class SearchTasksFragment : BaseViewBindingFragment<FragmentSearchTasksBinding>() {
     private val taskViewModel: TaskViewModel by activityViewModels()
     private lateinit var taskAdapter: TaskAdapter
@@ -56,7 +58,7 @@ class SearchTasksFragment : BaseViewBindingFragment<FragmentSearchTasksBinding>(
         }
     }
 
-    fun showEmptyResultsView(isEmpty: Boolean) = with(binding) {
+    private fun showEmptyResultsView(isEmpty: Boolean) = with(binding) {
         emptyMessage.isVisible = isEmpty
         recyclerView.isVisible = !isEmpty
     }

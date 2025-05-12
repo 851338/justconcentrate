@@ -76,7 +76,7 @@ object AudioUtils {
         pickAudioLauncher.launch(intent)
     }
 
-    fun openSystemRingtonePicker(activity: Activity) {
+    private fun openSystemRingtonePicker(activity: Activity) {
         val intent = Intent(RingtoneManager.ACTION_RINGTONE_PICKER).apply {
             putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_ALARM)
             putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Select Alarm Tone")
@@ -166,24 +166,40 @@ object AudioUtils {
             try {
                 // Try to open the URI using ContentResolver. This is a good check
                 // for existence and permissions.
-                val pfd: ParcelFileDescriptor? = context.contentResolver.openFileDescriptor(effectiveSoundUri, "r")
+                val pfd: ParcelFileDescriptor? =
+                    context.contentResolver.openFileDescriptor(effectiveSoundUri, "r")
                 pfd?.close() // Close it immediately, we just needed to know if it opens
                 if (pfd == null) {
                     // Some content providers might return null instead of throwing
-                    Log.w(TAG, "ContentResolver returned null for URI: $effectiveSoundUri. Falling back to default.")
+                    Log.w(
+                        TAG,
+                        "ContentResolver returned null for URI: $effectiveSoundUri. Falling back to default."
+                    )
                     effectiveSoundUri = null // Treat as invalid
                 } else {
                     Log.d(TAG, "Custom sound URI seems valid: $effectiveSoundUri")
                 }
             } catch (e: FileNotFoundException) {
-                Log.w(TAG, "Custom sound URI not found: $effectiveSoundUri. Falling back to default.", e)
+                Log.w(
+                    TAG,
+                    "Custom sound URI not found: $effectiveSoundUri. Falling back to default.",
+                    e
+                )
                 effectiveSoundUri = null // URI is invalid, clear it
             } catch (e: SecurityException) {
-                Log.w(TAG, "Permission denied for custom sound URI: $effectiveSoundUri. Falling back to default.", e)
+                Log.w(
+                    TAG,
+                    "Permission denied for custom sound URI: $effectiveSoundUri. Falling back to default.",
+                    e
+                )
                 effectiveSoundUri = null // URI is invalid, clear it
             } catch (e: Exception) {
                 // Catch other potential issues during the check
-                Log.e(TAG, "Error checking custom sound URI: $effectiveSoundUri. Falling back to default.", e)
+                Log.e(
+                    TAG,
+                    "Error checking custom sound URI: $effectiveSoundUri. Falling back to default.",
+                    e
+                )
                 effectiveSoundUri = null // Treat as invalid on other errors too
             }
         } else {
@@ -199,7 +215,10 @@ object AudioUtils {
             if (effectiveSoundUri == null) {
                 // Maybe try TYPE_RINGTONE as a last resort?
                 effectiveSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
-                Log.w(TAG, "Default ALARM sound not found, trying default RINGTONE: $effectiveSoundUri")
+                Log.w(
+                    TAG,
+                    "Default ALARM sound not found, trying default RINGTONE: $effectiveSoundUri"
+                )
 //                if (effectiveSoundUri == null) {
 //                    Log.e(TAG, "Could not find any default sound URI. Cannot play sound.")
 //                    // Handle this critical failure case - maybe stop the service or notify the user?
@@ -207,6 +226,7 @@ object AudioUtils {
 //                }
             }
         }
-        return effectiveSoundUri
+        return effectiveSoundUri ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
+        ?: throw IllegalStateException("No valid sound URI could be resolved.")
     }
 }

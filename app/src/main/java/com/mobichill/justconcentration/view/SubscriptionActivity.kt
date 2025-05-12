@@ -14,26 +14,22 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.databinding.ActivitySubscriptionBinding
-import com.mobichill.justconcentration.factory.SessionViewModelFactory
+import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.manager.SubscriptionManager
 import com.mobichill.justconcentration.view.adapter.ProductDetailsAdapter
-import com.mobichill.justconcentration.viewmodel.SubscriptionViewModel
-import com.mobichill.justconcentration.factory.SubscriptionViewModelFactory
-import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.viewmodel.SessionViewModel
+import com.mobichill.justconcentration.viewmodel.SubscriptionViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class SubscriptionActivity : BaseViewBindingActivity<ActivitySubscriptionBinding>() {
     override fun initViewBinding(): ActivitySubscriptionBinding =
         ActivitySubscriptionBinding.inflate(layoutInflater)
 
-    private val subscriptionViewModel: SubscriptionViewModel by viewModels {
-        SubscriptionViewModelFactory(application)
-    }
+    private val subscriptionViewModel: SubscriptionViewModel by viewModels()
 
-    private val sessionViewModel: SessionViewModel by viewModels {
-        SessionViewModelFactory(application)
-    }
+    private val sessionViewModel: SessionViewModel by viewModels()
 
     private lateinit var productDetailsAdapter: ProductDetailsAdapter
 
@@ -51,7 +47,11 @@ class SubscriptionActivity : BaseViewBindingActivity<ActivitySubscriptionBinding
     private fun setupRecyclerView() {
         productDetailsAdapter = ProductDetailsAdapter(emptyList()) { productDetails, offerToken ->
             Log.d(TAG, "Subscribe clicked for ${productDetails.productId} with token $offerToken")
-            subscriptionViewModel.subscriptionManager.launchPurchaseFlow(this, productDetails, offerToken)
+            subscriptionViewModel.subscriptionManager.launchPurchaseFlow(
+                this,
+                productDetails,
+                offerToken
+            )
         }
         binding.rvProductDetails.apply {
             layoutManager = LinearLayoutManager(this@SubscriptionActivity)
@@ -160,11 +160,6 @@ class SubscriptionActivity : BaseViewBindingActivity<ActivitySubscriptionBinding
             is SubscriptionManager.PurchaseEvent.PurchaseErrorGeneric -> {
                 showLoading(false)
                 showSnackbar("An error occurred. Please try again.")
-            }
-            // Handle other events like ConsumedSuccess, ConsumedFailure if you implement consumables
-            else -> {
-                showLoading(false) // Catch-all for other events
-                Log.d(TAG, "Unhandled purchase event: $event")
             }
         }
     }

@@ -9,8 +9,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class ProBadgeManager(
+@Singleton
+class ProBadgeManager @Inject constructor(
     private val badgeRepository: BadgeRepository,
     private val firestoreRepository: FirestoreRepository
 ) {

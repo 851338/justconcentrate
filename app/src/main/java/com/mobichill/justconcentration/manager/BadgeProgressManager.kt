@@ -1,16 +1,19 @@
 package com.mobichill.justconcentration.manager
 
-import com.mobichill.justconcentration.base.application.MyApp
+import com.mobichill.justconcentration.repository.BadgeRepository
+import com.mobichill.justconcentration.repository.TaskRepository
 import kotlinx.coroutines.flow.firstOrNull
 import java.time.LocalDate
 import java.time.LocalTime
 import java.util.Calendar
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class BadgeProgressManager {
-    private val myApplication = MyApp.instance
-    private val badgeRepository = myApplication.badgeRepository
-    private val taskRepository = myApplication.taskRepository
-
+@Singleton
+class BadgeProgressManager @Inject constructor(
+    private val badgeRepository: BadgeRepository,
+    private val taskRepository: TaskRepository
+) {
     suspend fun updateAfterTaskCompletion(
         totalTasks: Int,
         taskTime: LocalTime,
@@ -85,6 +88,5 @@ class BadgeProgressManager {
             unlockedAt = if (progress >= goal) System.currentTimeMillis() else null
         )
         badgeRepository.insertBadge(updatedBadge)
-//        syncBadgeToFirestore(userId, updatedBadge)
     }
 }

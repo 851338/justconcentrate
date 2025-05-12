@@ -7,18 +7,23 @@ import android.content.Intent
 import android.os.Build
 import android.provider.Settings
 import androidx.annotation.RequiresApi
-import com.mobichill.justconcentration.base.application.MyApp
 import com.mobichill.justconcentration.constants.Constants.INTENT_EXTRA.ALARM_URI
 import com.mobichill.justconcentration.constants.Constants.INTENT_EXTRA.REQUEST_CODE
 import com.mobichill.justconcentration.receiver.AlarmReceiver
+import com.mobichill.justconcentration.repository.TaskRepository
 import com.mobichill.justconcentration.utils.AudioUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class AlarmHelper {
+@Singleton
+class AlarmHelper @Inject constructor(
+    private val taskRepository: TaskRepository
+) {
     fun setAlarm(context: Context, triggerTime: Long, requestCode: Int, alarmUri: String) {
-        val finalUri = if (alarmUri.isEmpty()) AudioUtils.defaultAlarmString(context) else alarmUri
+        val finalUri = alarmUri.ifEmpty { AudioUtils.defaultAlarmString(context) }
 
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
         val intent = Intent(context, AlarmReceiver::class.java).apply {
@@ -74,7 +79,7 @@ class AlarmHelper {
     //rescheduleAlarms after reboot
     fun rescheduleAlarms(context: Context) {
         CoroutineScope(Dispatchers.IO).launch {
-            val tasks = MyApp.instance.taskRepository.getAllActiveTasks()
+            val tasks = taskRepository.getAllActiveTasks()
             tasks.collect { list ->
                 list.forEach { task ->
                     if (task.alarmTimeMillis != 0L && task.alarmTimeMillis > System.currentTimeMillis()) {

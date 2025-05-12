@@ -2,27 +2,26 @@ package com.mobichill.justconcentration.view
 
 import android.view.View
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingFragment
-import com.mobichill.justconcentration.databinding.FragmentCreateAccountBinding
-import com.mobichill.justconcentration.repository.FirestoreRepository
 import com.mobichill.justconcentration.constants.Constants.OTHERS.EMAIL_REGEX
+import com.mobichill.justconcentration.databinding.FragmentCreateAccountBinding
 import com.mobichill.justconcentration.listener.OnSingleClickListener
+import com.mobichill.justconcentration.repository.FirestoreRepository
 import com.mobichill.justconcentration.utils.SharedPreferencesUtils
 import com.mobichill.justconcentration.utils.Utils
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class CreateAccountFragment : BaseViewBindingFragment<FragmentCreateAccountBinding>() {
-    private lateinit var auth: FirebaseAuth
-    private lateinit var db: FirebaseFirestore
 
+    @Inject
+    lateinit var firestoreRepository: FirestoreRepository
     override fun initViewBinding(): FragmentCreateAccountBinding =
         FragmentCreateAccountBinding.inflate(layoutInflater)
 
-    override fun initData() {
-        auth = FirebaseAuth.getInstance()
-        db = FirebaseFirestore.getInstance()
-    }
+    override fun initData() {}
 
     override fun initView() = with(binding) {
         binding.btnSignup.setOnClickListener(object : OnSingleClickListener() {
@@ -90,7 +89,7 @@ class CreateAccountFragment : BaseViewBindingFragment<FragmentCreateAccountBindi
                     val uid = firebaseUser?.uid
                     //Save user data to Firestore and Room
                     if (uid != null) {
-                        FirestoreRepository().addNewUserBySigningUp(
+                        firestoreRepository.addNewUserBySigningUp(
                             requireContext(),
                             uid,
                             email,

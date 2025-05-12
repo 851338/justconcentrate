@@ -5,17 +5,22 @@ import android.content.Context
 import android.util.Log
 import com.android.billingclient.api.*
 import com.mobichill.justconcentration.constants.Constants.SUBSCRIPTION.PRO_SUBSCRIPTION_ID
+import com.mobichill.justconcentration.di.ApplicationCoroutineScope
 import com.mobichill.justconcentration.repository.FirestoreRepository
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class SubscriptionManager(
-    private val context: Context,
-    private val externalScope: CoroutineScope,
+@Singleton
+class SubscriptionManager @Inject constructor(
+    @ApplicationContext private val context: Context,
+    @ApplicationCoroutineScope private val externalScope: CoroutineScope,
     private val firestoreRepository: FirestoreRepository
 ) : PurchasesUpdatedListener, BillingClientStateListener {
 

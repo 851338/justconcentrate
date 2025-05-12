@@ -9,13 +9,17 @@ import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
 import com.mobichill.justconcentration.manager.SubscriptionManager
 import com.mobichill.justconcentration.repository.FirestoreRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class SubscriptionViewModel(application: Application) : AndroidViewModel(application) {
-    private val firestoreRepository = FirestoreRepository()
-
-    val subscriptionManager = SubscriptionManager(application, viewModelScope, firestoreRepository)
+@HiltViewModel
+class SubscriptionViewModel @Inject constructor(
+    application: Application,
+    private val firestoreRepository: FirestoreRepository,
+    val subscriptionManager: SubscriptionManager
+) : AndroidViewModel(application) {
 
     val productDetailsList: StateFlow<List<ProductDetails>> = subscriptionManager.productDetailsFlow
     val userPurchases: StateFlow<List<Purchase>> = subscriptionManager.userPurchasesFlow
@@ -31,7 +35,8 @@ class SubscriptionViewModel(application: Application) : AndroidViewModel(applica
             userPurchases.collect { purchases ->
                 // Basic check: is there any active "PRO_SUBSCRIPTION_ID" purchase?
                 // More robust check involves expiry date and server validation via UserRepository
-                val proStatus = firestoreRepository.isUserPro() // This should reflect the true status
+                val proStatus =
+                    firestoreRepository.isUserPro() // This should reflect the true status
                 _isUserPro.postValue(proStatus)
             }
         }

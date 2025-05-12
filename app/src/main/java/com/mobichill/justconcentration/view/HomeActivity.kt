@@ -4,34 +4,54 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.lifecycle.lifecycleScope
-import com.google.android.gms.ads.AdRequest
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.play.core.install.model.AppUpdateType
 import com.mobichill.justconcentration.BuildConfig
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
-import com.mobichill.justconcentration.base.application.MyApp
 import com.mobichill.justconcentration.databinding.ActivityHomeBinding
 import com.mobichill.justconcentration.helper.SyncHelper
 import com.mobichill.justconcentration.listener.AppUpdateListener
 import com.mobichill.justconcentration.listener.OnSingleClickListener
+import com.mobichill.justconcentration.manager.AdsManager
 import com.mobichill.justconcentration.manager.BadgeProgressManager
 import com.mobichill.justconcentration.manager.MyUpdateManager
+import com.mobichill.justconcentration.repository.UserRepository
 import com.mobichill.justconcentration.utils.ConvertUtils.px
 import com.mobichill.justconcentration.utils.SharedPreferencesUtils
 import com.mobichill.justconcentration.utils.Utils
 import com.mobichill.justconcentration.utils.Utils.openActivity
 import com.mobichill.justconcentration.view.popup.UserPopup
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
+import javax.inject.Inject
+import com.google.firebase.auth.FirebaseAuth
+import com.mobichill.justconcentration.repository.DataCleanupRepository
 
+@AndroidEntryPoint
 class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>(), AppUpdateListener {
 
-    // Update feature
+    @Inject
+    lateinit var popup: UserPopup
+
+    @Inject
+    lateinit var adsManager: AdsManager
+
+    @Inject
+    lateinit var badgeProgressManager: BadgeProgressManager
+
+    @Inject
+    lateinit var userRepository: UserRepository
+
+    @Inject
+    lateinit var dataCleanupRepository: DataCleanupRepository
+
+    // Not hilt
     private lateinit var myUpdateManager: MyUpdateManager
     private var chosenUpdateType = AppUpdateType.FLEXIBLE // Default or decide dynamically
 
@@ -39,9 +59,6 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>(), AppUpdateLi
         SharedPreferencesUtils(applicationContext)
     }
 
-    private val badgeProgressManager: BadgeProgressManager by lazy {
-        BadgeProgressManager()
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,29 +66,52 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>(), AppUpdateLi
             // Debug-specific behavior
             Log.d("HomeActivity", "This is a debug build!")
         }
+        handleUpdate()
+        handleDailyActivityCheck()
+        enqueueSync()
+    }
 
-        // Handle update
+    override fun initViewBinding(): ActivityHomeBinding =
+        ActivityHomeBinding.inflate(layoutInflater)
+
+    override fun initView() {
+        super.initView()
+        loadUserAvatar()
+        setupOnclick()
+        setupAds()
+    }
+
+    private fun enqueueSync() {
+        val isSynced = sfUtils.isSettingsSyncEnabled()
+        if (!isSynced) return
+        SyncHelper.enqueueOneTimeSync(this)
+    }
+
+    private fun handleUpdate() {
         myUpdateManager = MyUpdateManager(
             activity = this,
             currentUpdateType = chosenUpdateType,
             appUpdateListener = this,
             checkForUpdateOnStart = true
         )
+    }
 
-        // Check login streak and handle comeback
-        handleDailyActivityCheck()
+    private fun setupAds() {
+        lifecycleScope.launch {
+            adsManager.loadAndShowBannerAd(binding.adView)
+        }
+    }
 
-        // Load user avatar
+    private fun loadUserAvatar() {
         if (sfUtils.isUserLoggedIn()) {
-            val uid = sfUtils.getUserId()
             CoroutineScope(Dispatchers.IO).launch {
-                val user =
-                    MyApp.instance.userRepository.getUserById(uid)
+                val fallbackAvatarUrl = FirebaseAuth.getInstance().currentUser?.photoUrl?.toString()
+
                 // Update UI here
                 withContext(Dispatchers.Main) {
                     binding.ivAvatar.setPadding(0, 0, 0, 0)
-                    Utils.setAvatar(this@HomeActivity, user?.profilePic, binding.ivAvatar)
-                    Log.d(TAG, "Set user avatar: ${user?.profilePic}")
+                    Utils.setAvatar(this@HomeActivity, fallbackAvatarUrl, binding.ivAvatar)
+                    Log.d(TAG, "Set user avatar: $fallbackAvatarUrl")
                 }
             }
         } else {
@@ -79,19 +119,9 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>(), AppUpdateLi
             binding.ivAvatar.setImageResource(R.drawable.ic_setting)
             Log.d(TAG, "ivAvatar: Settings icon")
         }
-        binding.btnBack.visibility = View.GONE
-
-        // Sync function
-        val isSynced = sfUtils.isSettingsSyncEnabled()
-        if (!isSynced) return
-        SyncHelper.enqueueOneTimeSync(this)
     }
 
-    override fun initViewBinding(): ActivityHomeBinding =
-        ActivityHomeBinding.inflate(layoutInflater)
-
-    override fun initView(): Unit = with(binding) {
-        super.initView()
+    private fun setupOnclick() = with(binding) {
         ivAvatar.setOnClickListener(
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
@@ -125,14 +155,9 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>(), AppUpdateLi
                 }
             }
         )
-
-        //run ads
-        val adRequest = AdRequest.Builder().build()
-        adView.loadAd(adRequest)
     }
 
     private fun showUserPopup(view: View) {
-        val popup = UserPopup(this)
         popup.show(view)
     }
 
@@ -144,7 +169,10 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>(), AppUpdateLi
     private fun openStatsActivity() = openActivity<ViewStatsActivity>()
     private fun openAchievementsActivity() = openActivity<AchievementsActivity>()
 
-    fun setUIAfterLogout() {
+    fun clearDataAfterLogout() {
+        lifecycleScope.launch {
+            dataCleanupRepository.clearAllAndPrepopulateDatabase()
+        }
         Utils.setAvatar(this, null, binding.ivAvatar)
     }
 
@@ -163,14 +191,6 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>(), AppUpdateLi
         }
     }
 
-    /**
-     * Calculates the current login streak and checks for the comeback condition.
-     * Updates persistent storage (last active date, streak count).
-     * Calls the comeback badge update directly if conditions are met.
-     * Should run on a background thread (e.g., Dispatchers.IO).
-     *
-     * @return The calculated login streak count applicable for *today*.
-     */
     private suspend fun calculateStreakAndCheckComeback(): Int {
         val today = LocalDate.now()
         // Get the last active date *before* any updates for today
@@ -218,7 +238,9 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>(), AppUpdateLi
         return calculatedStreak
     }
 
-    //Listener implementation:
+
+    // ---LISTENER IMPLEMENTATION---
+
     override fun showUpdateDownloadedSnackbar(onCompleteUpdate: () -> Unit) {
         Log.d(TAG, "showUpdateDownloadedSnackbar called")
         Snackbar.make(
@@ -236,10 +258,6 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>(), AppUpdateLi
 
     override fun onUpdateFlowStartFailed(error: Exception) {
         Log.e(TAG, "Update flow could not be started: ${error.message}", error)
-        Utils.showToast(
-            this,
-            getString(R.string.could_not_initiate_update_check, error.localizedMessage)
-        )
     }
 
     override fun onUpdateFlowResultOk() {
@@ -257,10 +275,24 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>(), AppUpdateLi
 
     override fun onUpdateFlowResultFailed(resultCode: Int) {
         Log.e(TAG, "Update flow failed with result code: $resultCode. Type: $chosenUpdateType")
-        Utils.showToast(this, getString(R.string.update_failed_error, resultCode))
     }
 
-    override fun onUpdateNotAvailable() {
-        Utils.showToast(this, getString(R.string.no_update_available_at_this_moment))
+    override fun onUpdateNotAvailable() {}
+
+    // ---ACTIVITY LIFECYCLE FOR ADS MANAGER ---
+    override fun onPause() {
+        super.onPause()
+        adsManager.onPause(binding.adView)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        adsManager.onResume(binding.adView)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (isFinishing)
+            adsManager.onDestroy(binding.adView)
     }
 }

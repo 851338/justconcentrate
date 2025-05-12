@@ -328,6 +328,7 @@ class SettingsActivity : BaseViewBindingActivity<ActivitySettingsBinding>(), App
     }
 
     // Case choose ringtone
+    @Deprecated("This method has been deprecated in favor of using the Activity Result API\n      which brings increased type safety via an {@link ActivityResultContract} and the prebuilt\n      contracts for common intents available in\n      {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for\n      testing, and allow receiving results in separate, testable classes independent from your\n      activity. Use\n      {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}\n      with the appropriate {@link ActivityResultContract} and handling the result in the\n      {@link ActivityResultCallback#onActivityResult(Object) callback}.")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode != RESULT_OK || data == null) return
@@ -379,15 +380,15 @@ class SettingsActivity : BaseViewBindingActivity<ActivitySettingsBinding>(), App
 
     override fun onUpdateFlowStartFailed(error: Exception) {
         Log.e(TAG, "Update flow could not be started: ${error.message}", error)
-        Utils.showToast(this,
-            getString(R.string.could_not_initiate_update_check, error.localizedMessage))
+        Utils.showToast(
+            this,
+            getString(R.string.could_not_initiate_update_check, error.localizedMessage)
+        )
     }
 
     override fun onUpdateFlowResultOk() {
         Log.i(TAG, "Update flow successful (RESULT_OK). Type: $updateTypeForSettings")
-        if (updateTypeForSettings == AppUpdateType.FLEXIBLE) {
-            Utils.showToast(this, getString(R.string.update_download_started))
-        }
+        Utils.showToast(this, getString(R.string.update_download_started))
         // For IMMEDIATE, app will likely restart soon. No Toast needed usually.
     }
 

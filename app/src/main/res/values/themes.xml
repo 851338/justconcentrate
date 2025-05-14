@@ -14,12 +14,18 @@
         <item name="colorPrimaryVariant">@color/purple_700</item>
         <item name="colorOnPrimary">@color/white</item>
         <item name="android:forceDarkAllowed">false</item>
-        <!--        Fcking darkmode bugs-->
-        <item name="android:theme">@style/Theme.MaterialComponents.Light</item>
-
     </style>
 
     <style name="Theme.JustConcentration" parent="Base.Theme.JustConcentration">
+        <item name="colorSurface">@android:color/white</item>
+        <!-- Potentially also override colorSurfaceContainer and colorSurfaceBright if needed -->
+        <item name="colorSurfaceContainer">@android:color/white</item>
+        <item name="colorSurfaceBright">@android:color/white</item>
+        <item name="colorSurfaceVariant">@android:color/white</item> <!-- ADD THIS -->
+        <item name="colorOnSurface">@android:color/black</item> <!-- Keep text visible -->
+        <item name="colorOnBackground">@android:color/black</item>
+        <item name="android:windowBackground">@android:color/white</item>
         <!--        <item name="android:windowBackground">@drawable/app_bg</item>-->
+        <item name="android:colorBackground">@android:color/white</item>
     </style>
 </resources>

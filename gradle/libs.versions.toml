@@ -46,6 +46,7 @@ navigationUiKtx = "2.9.0"
 firebaseAnalytics = "22.4.0"
 firebaseCrashlytics = "19.4.3"
 googleFirebaseCrashlytics = "3.0.3"
+carUiLib = "2.6.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }

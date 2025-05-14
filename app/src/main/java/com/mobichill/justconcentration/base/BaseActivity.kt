@@ -20,7 +20,6 @@ abstract class BaseActivity : AppCompatActivity(), BaseActivityListener {
     @get:LayoutRes
     abstract val layoutId: Int
     override fun onCreate(savedInstanceState: Bundle?) {
-        ThemeHelper.setTheme(context = this, isDarkMode = false)
         timeStartOnCreate = System.currentTimeMillis()
         super.onCreate(savedInstanceState)
         isPaused = false

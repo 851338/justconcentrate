@@ -234,7 +234,8 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
             etTaskTitle.setText(task?.taskText)
             tvSelectedAlarmTime.text =
                 ConvertUtils.convertTimeMillisIntoText(requireContext(), task!!.alarmTimeMillis)
-
+            tvSelectedDueDate.text =
+                ConvertUtils.convertTimeMillisIntoText(requireContext(), task!!.dueDate)
             tvSelectedAlarmSound.text = if (task!!.alarmSoundUri.isNotEmpty()) {
                 selectedUri = task!!.alarmSoundUri.toUri()
                 AudioUtils.getAudioNameFromUri(

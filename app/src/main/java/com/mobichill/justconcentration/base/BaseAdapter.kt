@@ -13,6 +13,10 @@ abstract class BaseAdapter<Model, ViewHolder : RecyclerView.ViewHolder> :
     open fun compareDiffUtil(oldItem: Model, newItem: Model): Boolean = oldItem == newItem
 
     private var items = mutableListOf<Model>()
+
+    fun getCurrentItems(): List<Model> {
+        return items.toList() // Return a copy
+    }
     override fun getItemId(position: Int): Long {
         val item = getItem(position)
         return item?.hashCode()?.toLong() ?: System.currentTimeMillis()

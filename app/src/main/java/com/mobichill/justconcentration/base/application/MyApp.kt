@@ -2,6 +2,8 @@ package com.mobichill.justconcentration.base.application
 
 import android.app.Application
 import android.util.Log
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import com.google.firebase.FirebaseApp
@@ -24,6 +26,7 @@ class MyApp : Application(), Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
+        AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_NO)
         FirebaseApp.initializeApp(this)
         Firebase.analytics.setAnalyticsCollectionEnabled(true)
     }

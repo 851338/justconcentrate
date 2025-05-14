@@ -10,6 +10,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.mobichill.justconcentration.view.adapter.TaskAdapter
 import com.mobichill.justconcentration.base.BaseViewBindingFragment
 import com.mobichill.justconcentration.databinding.FragmentSearchTasksBinding
+import com.mobichill.justconcentration.listener.SelectionListener
+import com.mobichill.justconcentration.model.TaskModel
 import com.mobichill.justconcentration.viewmodel.TaskViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -25,15 +27,7 @@ class SearchTasksFragment : BaseViewBindingFragment<FragmentSearchTasksBinding>(
     override fun initData() {}
 
     override fun initView() {
-        taskAdapter = TaskAdapter(
-            { taskModel ->
-                run {
-                    if (requireActivity() is TaskActivity)
-                        (requireActivity() as TaskActivity).openNewOrEditTaskFragment(taskModel)
-                }
-            },
-            null, null
-        )
+        taskAdapter = TaskAdapter(searchSelectionListener, null, null)
 
         binding.recyclerView.layoutManager = LinearLayoutManager(requireActivity())
         binding.recyclerView.adapter = taskAdapter
@@ -61,5 +55,23 @@ class SearchTasksFragment : BaseViewBindingFragment<FragmentSearchTasksBinding>(
     private fun showEmptyResultsView(isEmpty: Boolean) = with(binding) {
         emptyMessage.isVisible = isEmpty
         recyclerView.isVisible = !isEmpty
+    }
+
+    private val searchSelectionListener = object : SelectionListener {
+        override fun onItemClick(task: TaskModel, position: Int) {
+            (requireActivity() as? TaskActivity)?.openNewOrEditTaskFragment(task)
+        }
+
+        override fun onItemLongClick(task: TaskModel, position: Int): Boolean {
+            return false
+        }
+
+        override fun isTaskSelected(task: TaskModel): Boolean {
+            return false
+        }
+
+        override fun isActionModeActive(): Boolean {
+            return false
+        }
     }
 }

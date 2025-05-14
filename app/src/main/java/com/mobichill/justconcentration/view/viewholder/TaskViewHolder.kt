@@ -1,10 +1,13 @@
 package com.mobichill.justconcentration.view.viewholder
 
+import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.databinding.ItemTaskBinding
@@ -12,50 +15,75 @@ import com.mobichill.justconcentration.model.TaskModel
 import com.mobichill.justconcentration.utils.ConvertUtils
 import com.mobichill.justconcentration.listener.OnMenuActionListener
 import com.mobichill.justconcentration.listener.OnSingleClickListener
+import com.mobichill.justconcentration.listener.SelectionListener
 
 class TaskViewHolder(private val binding: ItemTaskBinding) : RecyclerView.ViewHolder(binding.root) {
 
     fun onBind(
-        taskModel: TaskModel?,
-        onItemClick: (TaskModel) -> Unit,
+        taskModel: TaskModel,
+        selectionListener: SelectionListener,
         menuListener: OnMenuActionListener?
     ) {
         val context = binding.root.context
-        if (taskModel == null)
-            return
 
         binding.doneView.visibility = if (taskModel.completed) View.VISIBLE else View.GONE
+
         if (taskModel.alarmTimeMillis == 0L)
             binding.tvAlarm.text = context.getString(R.string.no_alarm_set)
         else binding.tvAlarm.text = context.getString(
             R.string.alarm,
             ConvertUtils.convertTimeMillisIntoText(context, taskModel.alarmTimeMillis)
         )
+
         if (taskModel.dueDate == 0L)
             binding.tvDue.text = context.getString(R.string.no_due_date)
         else binding.tvDue.text = context.getString(
             R.string.due,
             ConvertUtils.convertTimeMillisIntoText(context, taskModel.dueDate)
         )
+
         binding.tvCreatedAt.text = context.getString(
             R.string.created_at,
             ConvertUtils.convertTimeMillisIntoText(context, taskModel.createdAt)
         )
         binding.tvDesc.text = taskModel.taskText
+
+        if (selectionListener.isTaskSelected(taskModel)) {
+            binding.root.setBackgroundColor(
+                ContextCompat.getColor(
+                    context,
+                    R.color.selected_item_background
+                )
+            )
+        } else {
+            binding.root.setBackgroundColor(Color.TRANSPARENT)
+        }
+
         binding.root.setOnClickListener(
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
-                    onItemClick(taskModel)
+                    selectionListener.onItemClick(taskModel, adapterPosition)
                 }
             }
         )
-        binding.imageViewMenu.setOnClickListener(
-            object : OnSingleClickListener() {
-                override fun onSingleClick(view: View) {
-                    showPopupMenu(binding.imageViewMenu, taskModel, menuListener)
-                }
-            }
-        )
+
+        binding.root.setOnLongClickListener {
+            selectionListener.onItemLongClick(taskModel, adapterPosition)
+            true
+        }
+
+        binding.imageViewMenu.isVisible = !selectionListener.isActionModeActive()
+
+        if (binding.imageViewMenu.isVisible) {
+            binding.imageViewMenu.setOnClickListener(
+                object : OnSingleClickListener() {
+                    override fun onSingleClick(view: View) {
+                        showPopupMenu(binding.imageViewMenu, taskModel, menuListener)
+                    }
+                })
+        } else {
+            binding.imageViewMenu.setOnClickListener(null) // Remove listener if hidden
+        }
     }
 
     private fun showPopupMenu(view: View, task: TaskModel, menuListener: OnMenuActionListener?) {

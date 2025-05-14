@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="24dp"
+    android:background="@android:color/white"
     tools:context=".view.TaskActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -67,7 +68,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/adView"
         app:layout_constraintTop_toBottomOf="@id/layout_action_bar">
@@ -103,6 +104,7 @@
         android:layout_marginBottom="16dp"
         android:orientation="vertical"
         android:visibility="gone"
+        tools:visibility="visible"
         app:layout_constraintBottom_toTopOf="@id/fabMain"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -114,26 +116,19 @@
             android:layout_marginBottom="12dp"
             android:gravity="center_vertical">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:text="@string/add_task"
-                android:textColor="@android:color/black" />
-
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fabAdd"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:backgroundTint="@color/transparent"
+                android:backgroundTint="@color/orange"
                 android:clickable="true"
                 android:contentDescription="@string/add_task"
                 android:focusable="true"
                 android:src="@drawable/ic_add"
                 app:elevation="0dp"
                 app:maxImageSize="40dp"
-                app:tint="@color/yellow" />
+                app:tint="@color/blue" />
         </LinearLayout>
 
         <!-- Search -->
@@ -144,18 +139,11 @@
             android:layout_marginBottom="12dp"
             android:gravity="center_vertical">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:text="@string/search"
-                android:textColor="@android:color/black" />
-
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fabSearch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/transparent"
+                android:backgroundTint="@color/orange"
                 android:clickable="true"
                 android:contentDescription="@string/search"
                 android:focusable="true"
@@ -172,7 +160,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:backgroundTint="@color/transparent"
+        android:backgroundTint="@color/orange"
         android:clickable="true"
         android:contentDescription="@string/main_fab"
         android:focusable="true"

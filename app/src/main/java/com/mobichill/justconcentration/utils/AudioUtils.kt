@@ -123,7 +123,22 @@ object AudioUtils {
 
     fun getAudioNameFromUri(stringId: Int, context: Context, uri: Uri): String {
         return try {
-            // First try OpenableColumns (works for document/file pickers)
+            // Attempt 1: Use RingtoneManager (Handles system sounds like alarms, notifications, ringtones)
+            try {
+                val ringtone = RingtoneManager.getRingtone(context, uri)
+                val title = ringtone.getTitle(context)
+                if (!title.isNullOrEmpty() && title != "Unknown") {
+                    return title
+                }
+            } catch (e: SecurityException) {
+                // Handle cases where permission might be missing for certain system sounds
+                Log.w(TAG, "SecurityException getting ringtone title for $uri", e)
+            } catch (e: Exception) {
+                // Catch other potential exceptions from getRingtone or getTitle
+                Log.w(TAG, "Exception getting ringtone title for $uri", e)
+            }
+
+            // Attempt 2: Use OpenableColumns (For file/document provider URIs)
             context.contentResolver.query(
                 uri,
                 arrayOf(OpenableColumns.DISPLAY_NAME),
@@ -138,19 +153,18 @@ object AudioUtils {
                 }
             }
 
-            // If it's a ringtone URI, use RingtoneManager
-            if (uri.toString().startsWith("content://media/internal") || uri.toString()
-                    .startsWith("content://media/external")
-            ) {
-                val ringtone = RingtoneManager.getRingtone(context, uri)
-                val title = ringtone.getTitle(context)
-                if (!title.isNullOrEmpty()) return title
+            // Attempt 3: Use DocumentFile (Specifically for SAF URIs if OpenableColumns didn't work)
+            DocumentFile.fromSingleUri(context, uri)?.name?.let { name ->
+                if (name.isNotEmpty()) return name
             }
 
-            // Fallbacks
-            DocumentFile.fromSingleUri(context, uri)?.name
-                ?: uri.lastPathSegment?.substringAfterLast('/')
-                ?: context.getString(stringId)
+            // Fallbacks: Less reliable
+            uri.lastPathSegment?.substringAfterLast('/')?.let { segment ->
+                if (segment.isNotEmpty()) return segment
+            }
+
+            // Final Fallback: Default string
+            context.getString(stringId)
 
         } catch (e: Exception) {
             Log.e("AudioUtils", "getAudioNameFromUri", e)

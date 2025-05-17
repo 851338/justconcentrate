@@ -232,4 +232,14 @@
         <item quantity="one">Are you sure you want to mark this task as done?</item>
         <item quantity="other">Are you sure you want to mark these %d tasks as done?</item>
     </plurals>
+    <string name="subscription_plan_format">Subscription-%1$s Plan: %2$s</string>
+    <string name="subscription_plan_format_cleaned">Subscription-%1$s Plan: %2$s</string>
+    <string name="free_trial_for_period">Free trial for 1 %s</string>
+    <string name="discounted_period_at_price">%1$d %2$s at %3$s / %2$s</string>
+    <string name="period_price_standard">%1$s / %2$s</string>
+    <string name="one_time_payment">One-time payment: %s</string>
+    <string name="phase_description_separator">then</string>
+    <string name="phase_free_trial">Free trial for %s</string>
+    <string name="phase_one_time">One-time payment: %s</string>
+    <string name="unknown_price_format">Unknown price format</string>
 </resources>

@@ -6,7 +6,6 @@ import com.mobichill.justconcentration.base.BaseAdapter
 import com.mobichill.justconcentration.view.viewholder.ProductViewHolder
 
 class ProductDetailsAdapter(
-    private var productDetailsList: List<ProductDetails>,
     private val onSubscribeClicked: (productDetails: ProductDetails, offerToken: String) -> Unit
 ) : BaseAdapter<ProductDetails, ProductViewHolder>() {
 
@@ -17,17 +16,15 @@ class ProductDetailsAdapter(
         ProductViewHolder.from(parent)
 
     override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
-        val productDetails = productDetailsList[position]
-        holder.bind(productDetails, selectedOfferTokens, onSubscribeClicked)
+        val productDetails = getItem(position)
+        if (productDetails != null) {
+            holder.bind(productDetails, selectedOfferTokens, onSubscribeClicked)
+        }
     }
 
-    override fun getItemCount(): Int = productDetailsList.size
-
     fun updateData(newProductDetailsList: List<ProductDetails>) {
-        this.productDetailsList = newProductDetailsList
-        // Clear previous selections when data updates
         selectedOfferTokens.clear()
-        notifyDataSetChanged()
+        updateItems(newProductDetailsList)
     }
 
 }

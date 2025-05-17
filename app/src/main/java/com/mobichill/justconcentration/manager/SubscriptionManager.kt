@@ -63,6 +63,7 @@ class SubscriptionManager @Inject constructor(
     private fun initializeBillingClient() {
         Log.d(TAG, "Initializing BillingClient.")
         billingClient = BillingClient.newBuilder(context)
+            .enablePendingPurchases()
             .setListener(this)
             .build()
         connectToGooglePlay()

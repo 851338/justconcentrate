@@ -45,7 +45,7 @@ class SubscriptionActivity : BaseViewBindingActivity<ActivitySubscriptionBinding
     }
 
     private fun setupRecyclerView() {
-        productDetailsAdapter = ProductDetailsAdapter(emptyList()) { productDetails, offerToken ->
+        productDetailsAdapter = ProductDetailsAdapter { productDetails, offerToken ->
             Log.d(TAG, "Subscribe clicked for ${productDetails.productId} with token $offerToken")
             subscriptionViewModel.subscriptionManager.launchPurchaseFlow(
                 this,

@@ -36,8 +36,8 @@ android {
         applicationId = "com.mobichill.justconcentration"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 2
+        versionName = "1.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -118,7 +118,6 @@ dependencies {
     implementation(libs.billing.ktx)
     implementation(libs.firebase.auth)
     implementation(libs.play.services.auth)
-    implementation(libs.firebase.firestore)
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.circleimageview)

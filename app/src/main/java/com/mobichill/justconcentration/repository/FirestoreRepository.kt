@@ -5,13 +5,19 @@ import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import com.google.firebase.firestore.ktx.snapshots
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.helper.FirestoreHelper
+import com.mobichill.justconcentration.manager.SubscriptionManager
 import com.mobichill.justconcentration.model.ConcentrateSessionModel
 import com.mobichill.justconcentration.model.TaskModel
 import com.mobichill.justconcentration.model.UserModel
 import com.mobichill.justconcentration.utils.Utils
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -202,6 +208,8 @@ class FirestoreRepository @Inject constructor(
             }
     }
 
+
+    // SUBSCRIPTION HELPER
     suspend fun isUserPro(): Boolean =
         withContext(Dispatchers.IO) { // Use IO dispatcher for network/firestore
             val currentUser = auth.currentUser
@@ -299,6 +307,67 @@ class FirestoreRepository @Inject constructor(
             Log.e(TAG, "Error getting subscription start date for $userId from Firestore", e)
             return@withContext null // Return null on error
         }
+    }
+
+    suspend fun updateUserSubscriptionStatus(
+        userId: String,
+        status: SubscriptionManager.UserSubscriptionStatus
+    ) {
+        Log.d(TAG, "Attempting Firestore update for user $userId with status: $status")
+
+        if (userId.isBlank()) {
+            Log.e(TAG, "Cannot update Firestore: userId is blank.")
+            return
+        }
+
+        // Map the relevant fields from UserSubscriptionStatus to your UserModel structure for update
+        val updateData = hashMapOf<String, Any?>()
+
+        updateData["subscriptionStatus"] = status.isPro
+
+        // Only update start/expiry if the user is becoming Pro or if dates are provided
+        if (status.isPro) {
+            if (status.expiryDateMillis != null) {
+                updateData["subscriptionExpiryDate"] = status.expiryDateMillis
+            }
+        } else {
+            // If setting to non-Pro (e.g., validation failed), clear related fields
+            // Using null effectively removes the field in Firestore if it exists
+            updateData["subscriptionStartDate"] = null
+            updateData["subscriptionExpiryDate"] = null
+        }
+
+        try {
+            firestore.collection("users")
+                .document(userId)
+                .set(updateData, SetOptions.merge())
+                .await()
+
+            Log.d(TAG, "Firestore update successful for user $userId. Updated fields: $updateData")
+
+        } catch (e: Exception) {
+            Log.e(TAG, "Firestore update failed for user $userId", e)
+            throw e
+        }
+    }
+
+    fun getUserModelFlow(userId: String): Flow<UserModel?> {
+        if (userId.isBlank()) {
+            Log.e(TAG, "getUserModelFlow: userId is blank, returning empty flow.")
+            return kotlinx.coroutines.flow.flowOf(null) // Return a flow that immediately emits null and completes
+        }
+        return firestore.collection("users").document(userId)
+            .snapshots() // Use the snapshots extension to get Flow<DocumentSnapshot>
+            .map { snapshot ->
+                val userModel = snapshot.toObject(UserModel::class.java)
+                Log.d(TAG, "UserModel flow updated for $userId: $userModel")
+                userModel // Emit the UserModel (or null if document doesn't exist)
+            }
+            .catch { e ->
+                Log.e(TAG, "Error getting UserModel flow for $userId", e)
+                emit(null) // Emit null on error so the flow doesn't crash
+            }
+            .flowOn(Dispatchers.IO) // Run Firestore operations on the IO dispatcher
     }
     // --- Optional: Add Caching ---
     // You could add functions here to cache/retrieve status from UserDao/SharedPreferences

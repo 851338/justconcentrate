@@ -242,4 +242,10 @@
     <string name="phase_free_trial">Free trial for %s</string>
     <string name="phase_one_time">One-time payment: %s</string>
     <string name="unknown_price_format">Unknown price format</string>
+    <string name="purchase_successful">Purchase successful!</string>
+    <string name="purchase_failed">Purchase failed: %1$s</string>
+    <string name="purchase_cancelled">Purchase cancelled.</string>
+    <string name="an_error_occurred_during_purchase">An error occurred during purchase.</string>
+    <string name="subscription_activation_failed_please_contact_support">Subscription activation failed. Please contact support.</string>
+    <string name="you_already_own_this_subscription">You already own this subscription.</string>
 </resources>

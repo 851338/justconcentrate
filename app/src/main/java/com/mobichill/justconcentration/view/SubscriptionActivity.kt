@@ -11,13 +11,15 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.android.billingclient.api.BillingClient.BillingResponseCode
+import com.android.billingclient.api.BillingResult
 import com.google.android.material.snackbar.Snackbar
+import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.databinding.ActivitySubscriptionBinding
 import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.manager.SubscriptionManager
 import com.mobichill.justconcentration.view.adapter.ProductDetailsAdapter
-import com.mobichill.justconcentration.viewmodel.SessionViewModel
 import com.mobichill.justconcentration.viewmodel.SubscriptionViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -28,8 +30,6 @@ class SubscriptionActivity : BaseViewBindingActivity<ActivitySubscriptionBinding
         ActivitySubscriptionBinding.inflate(layoutInflater)
 
     private val subscriptionViewModel: SubscriptionViewModel by viewModels()
-
-    private val sessionViewModel: SessionViewModel by viewModels()
 
     private lateinit var productDetailsAdapter: ProductDetailsAdapter
 
@@ -120,71 +120,82 @@ class SubscriptionActivity : BaseViewBindingActivity<ActivitySubscriptionBinding
         Log.d(TAG, "Purchase Event: $event")
         when (event) {
             is SubscriptionManager.PurchaseEvent.InProgress -> {
-                showLoading(true, "Processing purchase...")
+                showLoading(true, "Initiating purchase...")
             }
 
             is SubscriptionManager.PurchaseEvent.PurchaseSuccess -> {
                 showLoading(false)
-                showSnackbar("Purchase successful! Order ID: ${event.purchase.orderId}")
-                subscriptionViewModel.refreshSubscriptionStatus() // Refresh status after purchase
-                sessionViewModel.onProSubscriptionActivated()
+                showSnackbar(getString(R.string.purchase_successful))
             }
 
             is SubscriptionManager.PurchaseEvent.PurchaseFailure -> {
                 showLoading(false)
-                showSnackbar("Purchase failed: ${event.message ?: event.billingResult.debugMessage} (Code: ${event.billingResult.responseCode})")
+                val message = event.message ?: billingResultToMessage(event.billingResult)
+                showSnackbar(getString(R.string.purchase_failed, message))
             }
 
             is SubscriptionManager.PurchaseEvent.PurchaseCancelled -> {
                 showLoading(false)
-                showSnackbar("Purchase cancelled by user.")
-            }
-
-            is SubscriptionManager.PurchaseEvent.AlreadyOwned -> {
-                showLoading(false)
-                showSnackbar("You already own this subscription.")
-                subscriptionViewModel.refreshSubscriptionStatus()
-            }
-
-            is SubscriptionManager.PurchaseEvent.AcknowledgmentSuccess -> {
-                // This might be too noisy for user, good for logs
-                Log.i(TAG, "Purchase Acknowledgment successful.")
-                // Optionally show a subtle confirmation or just rely on pro status update
-            }
-
-            is SubscriptionManager.PurchaseEvent.AcknowledgmentFailure -> {
-                showLoading(false)
-                showSnackbar("Failed to acknowledge purchase. Please contact support. (Code: ${event.billingResult.responseCode})")
+                showSnackbar(getString(R.string.purchase_cancelled))
             }
 
             is SubscriptionManager.PurchaseEvent.PurchaseErrorGeneric -> {
                 showLoading(false)
-                showSnackbar("An error occurred. Please try again.")
+                showSnackbar(getString(R.string.an_error_occurred_during_purchase))
+            }
+
+            is SubscriptionManager.PurchaseEvent.AcknowledgmentSuccess -> {
+                Log.d(TAG, "Purchase Acknowledged successfully.")
+            }
+
+            is SubscriptionManager.PurchaseEvent.AcknowledgmentFailure -> {
+                Log.e(TAG, "Purchase Acknowledgment failed.")
+                showSnackbar(getString(R.string.subscription_activation_failed_please_contact_support))
+            }
+
+            is SubscriptionManager.PurchaseEvent.AlreadyOwned -> {
+                showLoading(false)
+                showSnackbar(getString(R.string.you_already_own_this_subscription))
+            }
+
+            is SubscriptionManager.PurchaseEvent.BillingClientDisconnected -> {
+                Log.d(TAG, "BillingClient Disconnected. Update UI.")
+                showLoading(true, "Connecting to billing service...")
+            }
+
+            is SubscriptionManager.PurchaseEvent.BillingClientReady -> {
+                Log.d(TAG, "Purchase Event: BillingClient Ready.")
             }
         }
+        // IMPORTANT: Consume the event after handling
+        subscriptionViewModel.consumePurchaseEvent()
     }
 
     private fun showLoading(isLoading: Boolean, message: String? = null) {
         binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         binding.tvLoadingMessage.apply {
             text = message
-            visibility = if (isLoading && message == null) View.VISIBLE else View.GONE
+            visibility = if (isLoading && message != null) View.VISIBLE else View.GONE
         }
 
-        if (isLoading && message != null) startRefreshAnimation() else stopRefreshAnimation()
+        if (isLoading && message != null && message.contains("loading", ignoreCase = true)) {
+            startRefreshAnimation()
+        } else {
+            stopRefreshAnimation()
+        }
     }
 
     private fun initRefreshAnimation() {
         refreshAnimator =
             ObjectAnimator.ofFloat(binding.btnRefreshStatus, View.ROTATION, 0f, 360f).apply {
-                duration = 1000 // 1 second for a full rotation
-                repeatCount = ValueAnimator.INFINITE // Rotate indefinitely
+                duration = 1000
+                repeatCount = ValueAnimator.INFINITE
                 interpolator = LinearInterpolator() // Smooth, constant speed rotation
             }
     }
 
     private fun startRefreshAnimation() {
-        binding.btnRefreshStatus.isClickable = false // Disable clicking during animation
+        binding.btnRefreshStatus.isClickable = false
         if (refreshAnimator?.isRunning == false) {
             refreshAnimator?.start()
         }
@@ -192,11 +203,22 @@ class SubscriptionActivity : BaseViewBindingActivity<ActivitySubscriptionBinding
 
     private fun stopRefreshAnimation() {
         refreshAnimator?.cancel()
-        binding.btnRefreshStatus.rotation = 0f // Reset rotation
-        binding.btnRefreshStatus.isClickable = true // Re-enable clicking
+        binding.btnRefreshStatus.rotation = 0f
+        binding.btnRefreshStatus.isClickable = true
     }
 
     private fun showSnackbar(message: String) {
         Snackbar.make(binding.coordinatorLayout, message, Snackbar.LENGTH_LONG).show()
+    }
+
+    private fun billingResultToMessage(billingResult: BillingResult): String {
+        return when (billingResult.responseCode) {
+            BillingResponseCode.USER_CANCELED -> "Purchase was cancelled."
+            BillingResponseCode.SERVICE_UNAVAILABLE -> "Billing service unavailable. Try again later."
+            BillingResponseCode.BILLING_UNAVAILABLE -> "Billing is unavailable on this device."
+            BillingResponseCode.ITEM_UNAVAILABLE -> "Item is not available for purchase."
+            BillingResponseCode.DEVELOPER_ERROR -> billingResult.debugMessage
+            else -> billingResult.debugMessage
+        }
     }
 }

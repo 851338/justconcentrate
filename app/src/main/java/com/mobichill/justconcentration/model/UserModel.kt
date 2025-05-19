@@ -5,13 +5,16 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "users")
 data class UserModel(
-    @PrimaryKey val uid: String,
-    var name: String?,
-    var email: String?,
-    var profilePic: String?,
-    var createdAt: Long?,
-    var lastLogin: Long,
+    @PrimaryKey var uid: String = "",
+    var name: String? = null,
+    var email: String? = null,
+    var profilePic: String? = null,
+    var createdAt: Long? = null,
+    var lastLogin: Long = 0L,
     var subscriptionStatus: Boolean = false,
     var subscriptionStartDate: Long? = null,
     var subscriptionExpiryDate: Long? = null
-)
+) {
+    // For firebase mapping
+    constructor() : this("", null, null, null, null, 0L, false, null, null)
+}

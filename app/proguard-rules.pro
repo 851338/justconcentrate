@@ -19,10 +19,14 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
--assumenosideeffects class android.util.Log {
-    public static boolean isLoggable(java.lang.String, int);
-    public static int v(...);
-    public static int i(...);
-    public static int d(...);
-    public static int w(...);
-}
+
+-keep class com.mobichill.justconcentration.model.UserModel { *; }
+
+#-assumenosideeffects class android.util.Log {
+#    public static boolean isLoggable(java.lang.String, int);
+#    public static int v(...);
+#    public static int i(...);
+#    public static int d(...);
+#    public static int w(...);
+#}
+#todo comment log-remover for temporarily

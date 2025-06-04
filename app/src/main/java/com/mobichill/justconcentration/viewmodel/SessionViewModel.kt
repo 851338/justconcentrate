@@ -26,7 +26,6 @@ import javax.inject.Inject
 class SessionViewModel @Inject constructor(
     sessionRepository: ConcentrateSessionRepository,
     private val statsCalculator: StatsCalculateHelper,
-    private val proBadgeManager: ProBadgeManager,
     private val firestoreRepository: FirestoreRepository
 ) : ViewModel() {
 
@@ -201,11 +200,6 @@ class SessionViewModel @Inject constructor(
 //        _selectedTimeRange.value = _selectedTimeRange.value
         Log.d(TAG, "SessionViewModel init block END")
 
-        // Checking pro badges
-        viewModelScope.launch {
-            Log.d(TAG, "SessionViewModel init: Calling checkAndUpdateLoyalistBadges.")
-            proBadgeManager.checkAndUpdateLoyalistBadges()
-        }
     }
 
     // Important
@@ -395,20 +389,5 @@ class SessionViewModel @Inject constructor(
         }
 
         return streak
-    }
-
-    // Call this inside SubscriptionActivity
-    fun onProSubscriptionActivated() {
-        viewModelScope.launch {
-            Log.d(TAG, "SessionViewModel: Pro subscription activated. Awarding supporter badge.")
-            proBadgeManager.awardProSupporterBadge()
-            // Trigger check for loyalist badges too, as their start date might now be set
-            proBadgeManager.checkAndUpdateLoyalistBadges()
-
-            // Important: Re-check and update _isUserPro LiveData
-            // as the underlying Firestore data should now reflect Pro status.
-            val proStatus = firestoreRepository.isUserPro() // Re-fetch from repository
-            _isUserPro.postValue(proStatus)
-        }
     }
 }

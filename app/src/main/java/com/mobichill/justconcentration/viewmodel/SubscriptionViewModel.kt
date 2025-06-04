@@ -7,20 +7,23 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.android.billingclient.api.ProductDetails
-import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuth // Import FirebaseAuth
+import com.mobichill.justconcentration.manager.ProBadgeManager
 import com.mobichill.justconcentration.manager.SubscriptionManager
 import com.mobichill.justconcentration.repository.FirestoreRepository
+import com.mobichill.justconcentration.viewmodel.SessionViewModel.Companion
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.map // Import map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class SubscriptionViewModel @Inject constructor(
     application: Application,
-    private val firestoreRepository: FirestoreRepository,
-    val subscriptionManager: SubscriptionManager
+    private val firestoreRepository: FirestoreRepository, // Keep FirestoreRepository
+    val subscriptionManager: SubscriptionManager,
+    private val proBadgeManager: ProBadgeManager
 ) : AndroidViewModel(application) {
 
     companion object {
@@ -35,36 +38,64 @@ class SubscriptionViewModel @Inject constructor(
     val isUserPro: LiveData<Boolean> = _isUserPro
 
     init {
-        subscriptionManager.startConnection()
-        // Observe userPurchases to update isUserPro status
+        Log.d(TAG, "SubscriptionViewModel init block START")
+        subscriptionManager.startConnection() // Start BillingClient connection
 
+        // Observing Firestore  user's status changes
         viewModelScope.launch {
             val userId = FirebaseAuth.getInstance().currentUser?.uid
             if (userId != null) {
                 firestoreRepository.getUserModelFlow(userId)
-                    .map { userModel -> // Map the UserModel to the 'isPro' boolean
-                        userModel?.subscriptionStatus ?: false
+                    .map { userModel ->
+                        val topLevelStatus = userModel?.subscriptionStatus == true
+                        val expiryDateMillis = userModel?.subscriptionDetails?.expiryDateMillis ?: 0L
+                        val isActive = expiryDateMillis > System.currentTimeMillis()
+                        topLevelStatus && isActive
                     }
                     .collect { isPro ->
-                        Log.d(TAG, "User isPro status updated from Firestore: $isPro")
-                        _isUserPro.postValue(isPro) // Update the LiveData on the main thread
+                        // This block runs whenever the Firestore document changes or initially
+                        Log.d(TAG, "User isPro status updated from Firestore flow: $isPro")
+                        _isUserPro.postValue(isPro) // Update the LiveData
                     }
             } else {
                 Log.w(TAG, "User not logged in, cannot observe Firestore status.")
                 _isUserPro.postValue(false)
             }
         }
-        // Query purchases on init to get current status
-        // The SubscriptionManager already calls queryUserPurchases on setup
+
+        Log.d(TAG, "SubscriptionViewModel init block END")
     }
 
     fun refreshSubscriptionStatus() {
-        Log.d(TAG, "Refresh subscription status requested.")
+        Log.d(TAG, "Manual subscription status refresh requested.")
         subscriptionManager.queryUserPurchases()
+
+        viewModelScope.launch {
+            val userId = FirebaseAuth.getInstance().currentUser?.uid
+            if (userId != null) {
+               firestoreRepository.fetchUserFromFirestore(userId)
+            } else {
+                Log.w(TAG, "User not logged in, cannot refresh status from Firestore.")
+            }
+        }
     }
 
     fun consumePurchaseEvent() {
         subscriptionManager.consumePurchaseEvent()
+    }
+
+    fun onProSubscriptionActivated() {
+        viewModelScope.launch {
+            Log.d(TAG, "SessionViewModel: Pro subscription activated. Awarding supporter badge.")
+            proBadgeManager.awardProSupporterBadge()
+            // Trigger check for loyalist badges too, as their start date might now be set
+            proBadgeManager.checkAndUpdateLoyalistBadges()
+
+            // Important: Re-check and update _isUserPro LiveData
+            // as the underlying Firestore data should now reflect Pro status.
+            val proStatus = firestoreRepository.isUserPro() // Re-fetch from repository
+            _isUserPro.postValue(proStatus)
+        }
     }
 
     override fun onCleared() {

@@ -160,7 +160,7 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
         super.onDestroy()
         adsManager.onDestroy(binding.adView)
     }
-//TODO show ad
+
     override fun initData() {
         task = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             arguments?.getParcelable(TASK_KEY, TaskModel::class.java) // API 33+

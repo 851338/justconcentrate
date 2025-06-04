@@ -248,4 +248,6 @@
     <string name="an_error_occurred_during_purchase">An error occurred during purchase.</string>
     <string name="subscription_activation_failed_please_contact_support">Subscription activation failed. Please contact support.</string>
     <string name="you_already_own_this_subscription">You already own this subscription.</string>
+    <string name="subscription_activation_failed_auth_error">Subscription activation failed: Authentication error. Please check your account status or contact support.</string>
+    <string name="subscription_activation_failed_verification_error">Subscription activation failed: Could not verify purchase with the server. Please contact support.</string>
 </resources>

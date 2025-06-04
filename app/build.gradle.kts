@@ -11,6 +11,7 @@ plugins {
     id("com.google.gms.google-services")
     id("com.google.devtools.ksp")
     id("kotlin-parcelize")
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.23"
     id("kotlin-kapt")
     alias(libs.plugins.google.firebase.crashlytics)
 }
@@ -36,8 +37,8 @@ android {
         applicationId = "com.mobichill.justconcentration"
         minSdk = 26
         targetSdk = 35
-        versionCode = 7
-        versionName = "1.0.6"
+        versionCode = 14
+        versionName = "1.1.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -132,6 +133,7 @@ dependencies {
     implementation(libs.androidx.media)
     implementation(libs.app.update.ktx)
     implementation(libs.app.update)
+    implementation (libs.slf4j.android)
 
     // Hilt
     implementation(libs.hilt.android)
@@ -139,4 +141,14 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.hilt.work)
     kapt(libs.androidx.hilt.compiler)
+
+    // Ktor
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.android)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlinx.coroutines.play.services)
+    implementation(libs.ktor.client.logging)
+    implementation(libs.gson)
 }

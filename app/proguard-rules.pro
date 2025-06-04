@@ -21,7 +21,16 @@
 #-renamesourcefileattribute SourceFile
 
 -keep class com.mobichill.justconcentration.model.UserModel { *; }
+# Keep the SubscriptionDetails data class itself and its constructors for Gson/JSON deserialization
+-keepnames class com.mobichill.justconcentration.model.SubscriptionDetails # Keep the original name if needed by other reflection (good practice)
+-keep class com.mobichill.justconcentration.model.SubscriptionDetails { *; } # Keep all members, including constructors and fields
 
+# Optional: Keep names for UserModel if Room mapping has issues, though Room is usually better handled
+-keepnames class com.mobichill.justconcentration.model.UserModel
+# If Room mapping to/from Firestore needs specific fields kept by name:
+# -keepclassmembers class com.mobichill.justconcentration.model.UserModel {
+#   !synthetic <fields>; # Keep all non-synthetic fields
+# }
 #-assumenosideeffects class android.util.Log {
 #    public static boolean isLoggable(java.lang.String, int);
 #    public static int v(...);

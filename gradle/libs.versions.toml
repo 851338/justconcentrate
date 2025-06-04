@@ -1,15 +1,16 @@
 [versions]
-agp = "8.10.0"
+agp = "8.10.1"
 appUpdateKtx = "2.1.0"
 billingKtx = "7.1.1"
 circleimageview = "3.1.0"
 compiler = "4.16.0"
 credentials = "1.5.0"
 credentialsPlayServicesAuth = "1.5.0"
-firebaseAuth = "23.2.0"
-firebaseBom = "33.13.0"
-fragmentKtx = "1.8.6"
+firebaseAuth = "23.2.1"
+firebaseBom = "33.14.0"
+fragmentKtx = "1.8.7"
 glide = "4.16.0"
+gson = "2.13.1"
 hiltAndroid = "2.56.2"
 hiltCompiler = "2.56.2"
 hiltNavigationCompose = "1.2.0"
@@ -21,16 +22,24 @@ junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 appcompat = "1.7.0"
+kotlinxCoroutinesPlayServices = "1.7.3"
+ktorClientContentNegotiation = "2.3.11"
+kotlinxSerializationJson = "1.7.3"
+ktorClientCore = "2.3.11"
+ktorClientAndroid = "2.3.11"
+ktorClientLogging = "2.3.11"
+ktorSerializationKotlinxJson = "2.3.11"
 lifecycleViewmodelKtx = "2.9.0"
 material = "1.12.0"
 activity = "1.10.1"
 constraintlayout = "2.2.1"
 media = "1.7.0"
 mpandroidchart = "3.1.0"
-playServicesAds = "24.2.0"
+playServicesAds = "24.3.0"
 playServicesAuth = "21.3.0"
 playServicesOssLicenses = "17.1.0"
 roomRuntime = "2.7.1"
+slf4jAndroid = "1.7.36"
 viewbinding = "8.10.0"
 firebaseFirestoreKtx = "25.1.4"
 databindingRuntime = "8.10.0"
@@ -69,12 +78,20 @@ firebase-auth = { module = "com.google.firebase:firebase-auth", version.ref = "f
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-database = { module = "com.google.firebase:firebase-database" }
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltCompiler" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+kotlinx-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "kotlinxCoroutinesPlayServices" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktorClientAndroid" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktorClientContentNegotiation" }
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktorClientCore" }
+ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktorClientLogging" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktorSerializationKotlinxJson" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
@@ -93,6 +110,7 @@ androidx-navigation-fragment-ktx = { group = "androidx.navigation", name = "navi
 androidx-navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "navigationUiKtx" }
 firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics", version.ref = "firebaseAnalytics" }
 firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics", version.ref = "firebaseCrashlytics" }
+slf4j-android = { module = "org.slf4j:slf4j-android", version.ref = "slf4jAndroid" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

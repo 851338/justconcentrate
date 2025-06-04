@@ -8,8 +8,8 @@ import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.snapshots
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.helper.FirestoreHelper
-import com.mobichill.justconcentration.manager.SubscriptionManager
 import com.mobichill.justconcentration.model.ConcentrateSessionModel
+import com.mobichill.justconcentration.model.SubscriptionDetails
 import com.mobichill.justconcentration.model.TaskModel
 import com.mobichill.justconcentration.model.UserModel
 import com.mobichill.justconcentration.utils.Utils
@@ -191,55 +191,104 @@ class FirestoreRepository @Inject constructor(
                 val name = document.getString("name") ?: ""
                 val email = document.getString("email") ?: ""
                 val createdAt = document.getLong("createdAt")
-                val isSubscribed = document.getBoolean("subscriptionStatus") == true
-                val startPro = document.getLong("subscriptionStartDate")
-                val expiry = document.getLong("subscriptionExpiryDate")
+
+                val isSubscribed = document.getBoolean("subscriptionStatus") == true // Read status from root
+
+                // --- Read subscription details from the nested map ---
+                val subscriptionDetailsMap = document.get("subscriptionDetails") as? Map<String, Any>
+
+                // --- Create the strongly typed SubscriptionDetails object ---
+                val subscriptionDetails = if (subscriptionDetailsMap != null) {
+                    try {
+                        SubscriptionDetails(
+                            productId = subscriptionDetailsMap["productId"] as? String,
+                            purchaseToken = subscriptionDetailsMap["purchaseToken"] as? String,
+                            expiryDateMillis = subscriptionDetailsMap["expiryDateMillis"] as? Long,
+                            startDateMillis = subscriptionDetailsMap["startDateMillis"] as? Long // Read start date
+                            // ... cast other fields you store ...
+                        )
+                    } catch (e: Exception) {
+                        // Handle potential casting errors if data types in Firestore are unexpected
+                        Log.e(TAG, "Error mapping subscriptionDetails map to data class for user $userId", e)
+                        null // Set subscriptionDetails to null if mapping fails
+                    }
+                } else {
+                    null // subscriptionDetails map does not exist
+                }
+
+
                 val user =
                     UserModel(
-                        userId, name, email, null, createdAt, now, isSubscribed, startPro, expiry
+                        uid = userId, // Use named arguments for clarity
+                        name = name,
+                        email = email,
+                        profilePic = null,
+                        createdAt = createdAt,
+                        lastLogin = now,
+                        subscriptionStatus = isSubscribed,
+                        // Pass the created SubscriptionDetails object
+                        subscriptionDetails = subscriptionDetails
                     )
-                //save room
+
+                // Save to Room
                 userRepository.saveUserToRoom(user)
-                Log.d(TAG, "UserInfo fetched successful")
+                Log.d(TAG, "UserInfo fetched successful for user: $userId")
+            } else {
+                Log.d(TAG, "User document does not exist for user: $uid")
             }
         }
             .addOnFailureListener {
-                Log.e(TAG, "Failed to fetch user: ${it.message}")
+                Log.e(TAG, "Failed to fetch user $uid: ${it.message}", it)
             }
     }
 
-
     // SUBSCRIPTION HELPER
     suspend fun isUserPro(): Boolean =
-        withContext(Dispatchers.IO) { // Use IO dispatcher for network/firestore
+        withContext(Dispatchers.IO) {
             val currentUser = auth.currentUser
             if (currentUser == null) {
                 Log.w(TAG, "isUserPro check failed: No authenticated user.")
-                return@withContext false // Not logged in, definitely not Pro
+                return@withContext false
             }
             val userId = currentUser.uid
 
             try {
                 val documentRef = firestore.collection("users").document(userId)
-                val documentSnapshot = documentRef.get().await() // Suspend until fetch completes
+                val documentSnapshot = documentRef.get().await()
 
                 if (!documentSnapshot.exists()) {
                     Log.w(TAG, "isUserPro check failed: User document for $userId does not exist.")
-                    return@withContext false // User document doesn't exist
+                    return@withContext false
                 }
 
                 val status = documentSnapshot.getBoolean("subscriptionStatus")
-                val expiryDate = documentSnapshot.getLong("subscriptionExpiryDate")
 
-                if (status == null || expiryDate == null)
-                    return@withContext false // Essential fields missing
+                // --- Read the nested map and create the data class ---
+                val subscriptionDetailsMap = documentSnapshot.get("subscriptionDetails") as? Map<String, Any?>
+                val subscriptionDetails = if (subscriptionDetailsMap != null) {
+                    SubscriptionDetails(
+                        productId = subscriptionDetailsMap["productId"] as? String,
+                        purchaseToken = subscriptionDetailsMap["purchaseToken"] as? String,
+                        expiryDateMillis = subscriptionDetailsMap["expiryDateMillis"] as? Long,
+                        startDateMillis = subscriptionDetailsMap["startDateMillis"] as? Long
+                    )
+                } else {
+                    null
+                }
+
+
+                // Now check against the properties of the data class
+                if (status == null || subscriptionDetails?.expiryDateMillis == null) { // Check expiryDateMillis from the data class
+                    Log.w(TAG, "isUserPro check failed: Essential fields missing or null for $userId.")
+                    return@withContext false
+                }
 
                 val isProStatus = status == true
-                val isActive = expiryDate > System.currentTimeMillis() // Compare Timestamps
+                val isActive = subscriptionDetails.expiryDateMillis!! > System.currentTimeMillis() // Check expiryDateMillis from the data class
 
                 Log.d(
                     TAG,
-                    "isUserPro check for $userId: Status='$status'(isPro=$isProStatus), Expiry=$expiryDate, IsActive=$isActive"
+                    "isUserPro check for $userId: Status='$status'(isPro=$isProStatus), Expiry=${subscriptionDetails.expiryDateMillis}, IsActive=$isActive"
                 )
                 return@withContext isProStatus && isActive
 
@@ -269,85 +318,55 @@ class FirestoreRepository @Inject constructor(
                 return@withContext null
             }
 
-            // --- First, re-verify if user is currently considered Pro ---
-            // (Avoid returning a start date if they aren't actually Pro right now)
+            // --- First, re-verify if user is currently considered Pro based on the latest data ---
+            // This prerequisite check is still important: we only want to return a start date
+            // if the user is currently believed to be Pro and active.
+
             val status = documentSnapshot.getBoolean("subscriptionStatus")
-            val expiryDate = documentSnapshot.getLong("subscriptionExpiryDate")
+
+            // Read the expiry date from the correct nested path
+            val expiryDate = documentSnapshot.get("subscriptionDetails.expiryDateMillis") as? Long
+
+            // We need both status and a valid expiry date to determine current "Pro" status for this check
             if (status == null || expiryDate == null) {
                 Log.w(
                     TAG,
-                    "getSubscriptionStartDateMillis prerequisite check failed: Missing status or expiry for user $userId."
+                    "getSubscriptionStartDateMillis prerequisite check failed: Missing status or expiryDateMillis in subscriptionDetails for user $userId."
                 )
                 return@withContext null
             }
+
             val isProStatus = status == true
             val isActive = expiryDate > System.currentTimeMillis()
+
             if (!isProStatus || !isActive) {
                 Log.d(
                     TAG,
-                    "getSubscriptionStartDateMillis failed: User $userId is not currently considered Pro (Status: $status, Active: $isActive)."
+                    "getSubscriptionStartDateMillis failed: User $userId is not currently considered Pro (Status: $status, Active: $isActive based on expiryDateMillis). Not returning start date."
                 )
-                return@withContext null // Not currently Pro, so start date isn't relevant
+                return@withContext null // Not currently Pro, so returning a start date isn't relevant
             }
-            // --- Verification complete, proceed to get start date ---
+            // --- Prerequisite verification complete ---
 
-            val startDate = documentSnapshot.getLong("subscriptionStartDate")
+            // --- Get the start date from the correct nested path ---
+            val startDateMillis =
+                documentSnapshot.get("subscriptionDetails.startDateMillis") as? Long // Correct field name
 
-            if (startDate == null) {
+            if (startDateMillis == null) {
                 Log.w(
                     TAG,
-                    "getSubscriptionStartDateMillis failed: subscriptionStartDate field missing for Pro user $userId."
+                    "getSubscriptionStartDateMillis failed: startDateMillis field missing or null in subscriptionDetails for Pro user $userId." // Correct field name in log
                 )
                 return@withContext null
             }
 
-            return@withContext startDate
+            Log.d(TAG, "Retrieved subscription start dateMillis for user $userId: $startDateMillis") // Log the retrieved value
+
+            return@withContext startDateMillis // Return the retrieved value
 
         } catch (e: Exception) {
-            Log.e(TAG, "Error getting subscription start date for $userId from Firestore", e)
+            Log.e(TAG, "Error getting subscription startDateMillis for $userId from Firestore", e) // Correct field name in log
             return@withContext null // Return null on error
-        }
-    }
-
-    suspend fun updateUserSubscriptionStatus(
-        userId: String,
-        status: SubscriptionManager.UserSubscriptionStatus
-    ) {
-        Log.d(TAG, "Attempting Firestore update for user $userId with status: $status")
-
-        if (userId.isBlank()) {
-            Log.e(TAG, "Cannot update Firestore: userId is blank.")
-            return
-        }
-
-        // Map the relevant fields from UserSubscriptionStatus to your UserModel structure for update
-        val updateData = hashMapOf<String, Any?>()
-
-        updateData["subscriptionStatus"] = status.isPro
-
-        // Only update start/expiry if the user is becoming Pro or if dates are provided
-        if (status.isPro) {
-            if (status.expiryDateMillis != null) {
-                updateData["subscriptionExpiryDate"] = status.expiryDateMillis
-            }
-        } else {
-            // If setting to non-Pro (e.g., validation failed), clear related fields
-            // Using null effectively removes the field in Firestore if it exists
-            updateData["subscriptionStartDate"] = null
-            updateData["subscriptionExpiryDate"] = null
-        }
-
-        try {
-            firestore.collection("users")
-                .document(userId)
-                .set(updateData, SetOptions.merge())
-                .await()
-
-            Log.d(TAG, "Firestore update successful for user $userId. Updated fields: $updateData")
-
-        } catch (e: Exception) {
-            Log.e(TAG, "Firestore update failed for user $userId", e)
-            throw e
         }
     }
 

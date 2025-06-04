@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.mobichill.justconcentration.model.UserModel
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface UserDAO {
@@ -17,4 +18,7 @@ interface UserDAO {
 
     @Query("SELECT * FROM users WHERE uid = :uid LIMIT 1")
     suspend fun getUserById(uid: String): UserModel?
+
+    @Query("SELECT * FROM users WHERE uid = :uid")
+    fun getUserFlow(uid: String): Flow<UserModel?>
 }

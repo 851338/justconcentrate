@@ -146,6 +146,7 @@ class SubscriptionActivity : BaseViewBindingActivity<ActivitySubscriptionBinding
 
             is SubscriptionManager.PurchaseEvent.AcknowledgmentSuccess -> {
                 Log.d(TAG, "Purchase Acknowledged successfully.")
+                subscriptionViewModel.onProSubscriptionActivated()
             }
 
             is SubscriptionManager.PurchaseEvent.AcknowledgmentFailure -> {
@@ -165,6 +166,18 @@ class SubscriptionActivity : BaseViewBindingActivity<ActivitySubscriptionBinding
 
             is SubscriptionManager.PurchaseEvent.BillingClientReady -> {
                 Log.d(TAG, "Purchase Event: BillingClient Ready.")
+            }
+
+            is SubscriptionManager.PurchaseEvent.FirebaseAuthTokenError -> {
+                Log.e(TAG, "Failed to get Firebase Auth ID token for backend verification.")
+                showLoading(false) // Hide loading
+                showSnackbar(getString(R.string.subscription_activation_failed_auth_error))
+            }
+
+            is SubscriptionManager.PurchaseEvent.ServerVerificationFailure -> {
+                Log.e(TAG, "Backend server verification failed.")
+                showLoading(false) // Hide loading
+                showSnackbar(getString(R.string.subscription_activation_failed_verification_error))
             }
         }
         // IMPORTANT: Consume the event after handling

@@ -6,6 +6,11 @@ import java.util.regex.Pattern
 
 object Constants {
 
+    object BACKEND {
+        const val BASE_URL = "https://validatepurchaseapi-viyslskjca-uc.a.run.app"
+        const val VALIDATE_PURCHASE_ENDPOINT = "/api/validate-purchase"
+    }
+
     object SUBSCRIPTION {
         const val PRO_SUBSCRIPTION_ID = "premium_monthly_v1"
 

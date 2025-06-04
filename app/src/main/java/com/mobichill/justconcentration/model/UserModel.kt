@@ -12,9 +12,8 @@ data class UserModel(
     var createdAt: Long? = null,
     var lastLogin: Long = 0L,
     var subscriptionStatus: Boolean = false,
-    var subscriptionStartDate: Long? = null,
-    var subscriptionExpiryDate: Long? = null
+    var subscriptionDetails: SubscriptionDetails? = null
 ) {
     // For firebase mapping
-    constructor() : this("", null, null, null, null, 0L, false, null, null)
+    constructor() : this("", null, null, null, null, 0L, false, null)
 }

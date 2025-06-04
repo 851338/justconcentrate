@@ -287,6 +287,7 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>(), AppUpdateLi
 
     override fun onResume() {
         super.onResume()
+        setupAds()
         adsManager.onResume(binding.adView)
     }
 

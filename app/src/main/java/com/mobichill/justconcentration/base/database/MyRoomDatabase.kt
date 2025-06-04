@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.mobichill.justconcentration.constants.Achievements
 import com.mobichill.justconcentration.constants.Constants.OTHERS.DB_NAME
@@ -29,6 +30,7 @@ import kotlinx.coroutines.launch
     version = 1,
     exportSchema = false
 )
+@TypeConverters(Converters::class)
 abstract class MyRoomDatabase : RoomDatabase() {
     abstract val taskDAO: TaskDAO
     abstract val userDAO: UserDAO
@@ -66,7 +68,6 @@ abstract class MyRoomDatabase : RoomDatabase() {
                 MyRoomDatabase::class.java,
                 DB_NAME
             )
-                .setJournalMode(JournalMode.TRUNCATE) //TODO remove after test phase
                 .fallbackToDestructiveMigration(false)
                 .addCallback(PrepopulateBadgeCallback(context.applicationContext)).build()
         }

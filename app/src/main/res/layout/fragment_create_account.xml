@@ -24,6 +24,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="5dp"
+        android:inputType="textEmailAddress"
         android:background="@android:drawable/editbox_background"
         android:hint="@string/enter_email"
         android:padding="12dp"
@@ -46,7 +47,7 @@
         android:layout_marginBottom="5dp"
         android:background="@android:drawable/editbox_background"
         android:hint="@string/password_min_6_characters"
-        android:inputType="textEmailAddress"
+        android:inputType="textPassword"
         android:padding="12dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

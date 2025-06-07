@@ -86,8 +86,12 @@ class FocusService : Service() {
                     NOTIFICATION_ID_FOCUS_SERVICE,
                     buildNotification(goal, durationInMinutes, cancelPendingIntent)
                 )
+
+                // --- Play Start Sound ---
+                playNotificationSound(R.raw.session_start)
+
                 if (!soundUri.isNullOrEmpty()) {
-                    startPlayingSound(soundUri)
+                    startPlayingBackground(soundUri)
                 }
                 startCountDownTimer(
                     durationInMillis,
@@ -106,9 +110,10 @@ class FocusService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        stopPlayingSound()
+        stopPlayingBackground()
         notificationManager.cancel(NOTIFICATION_ID_FOCUS_SERVICE)
-        countDownTimer.cancel()
+        if (::countDownTimer.isInitialized)
+            countDownTimer.cancel()
         isRunning = false
         sfUtils.setFocusSessionActive(false)
     }
@@ -145,10 +150,12 @@ class FocusService : Service() {
             }
 
             override fun onFinish() {
+                // --- Play End Sound ---
+                playNotificationSound(R.raw.session_end)
+                sendBroadcast(finishIntent)
+                sendFinishedNotification()
                 stopForeground(STOP_FOREGROUND_REMOVE)
                 stopSelf()
-                sendFinishedNotification()
-                sendBroadcast(finishIntent)
             }
         }.start()
     }
@@ -202,7 +209,7 @@ class FocusService : Service() {
         notificationManager.notify(NOTIFICATION_ID_FOCUS_SERVICE + 1, notification)
     }
 
-    private fun startPlayingSound(uri: String) {
+    private fun startPlayingBackground(uri: String) {
         try {
             val afd = contentResolver.openAssetFileDescriptor(uri.toUri(), "r")
             afd?.use {
@@ -212,18 +219,32 @@ class FocusService : Service() {
                     setOnPreparedListener {
                         start()
                     }
+                    isLooping = true
                 }
             }
         } catch (e: Exception) {
-            Log.e(TAG, "startPlayingSound: ", e)
+            Log.e(TAG, "startPlayingBackground: ", e)
         }
     }
 
-    private fun stopPlayingSound() {
+    private fun stopPlayingBackground() {
         mediaPlayer?.apply {
             stop()
             release()
         }
         mediaPlayer = null
+    }
+
+    private fun playNotificationSound(soundResId: Int) {
+        try {
+            // Create MediaPlayer from resource
+            val player = MediaPlayer.create(this, soundResId)
+            player?.setOnCompletionListener { mp ->
+                mp.release() // Release resources when playback is complete
+            }
+            player?.start() // Start playback
+        } catch (e: Exception) {
+            Log.e(TAG, "Error playing notification sound: $soundResId", e)
+        }
     }
 }

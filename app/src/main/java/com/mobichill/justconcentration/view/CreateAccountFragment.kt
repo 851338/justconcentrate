@@ -97,6 +97,8 @@ class CreateAccountFragment : BaseViewBindingFragment<FragmentCreateAccountBindi
                         )
                         //save shared preferences
                         SharedPreferencesUtils(requireContext()).saveUserInfoToSF(uid)
+                        if (requireActivity() is WelcomeActivity)
+                            (requireActivity() as WelcomeActivity).gotoLoginActivity()
                     }
                 } else {
                     Utils.showToast(requireContext(), "Signup failed: ${task.exception?.message}")

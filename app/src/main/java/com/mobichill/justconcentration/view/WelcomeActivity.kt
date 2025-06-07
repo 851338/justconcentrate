@@ -71,7 +71,7 @@ class WelcomeActivity : BaseViewBindingActivity<ActivityWelcomeBinding>() {
         })
     }
 
-    private fun gotoLoginActivity() {
+    fun gotoLoginActivity() {
         startActivity(Intent(this, LoginActivity::class.java))
     }
 

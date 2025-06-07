@@ -64,8 +64,6 @@ class SnoozeReceiver : BroadcastReceiver() {
             val stopIntent = Intent(context, AlarmService::class.java)
             context.stopService(stopIntent)
 
-            //todo testing
-            snoozeMinutes = 1
             val newReminderTime = System.currentTimeMillis() + snoozeMinutes * 60 * 1000
             val alarmHelper = EntryPointAccessors.fromApplication(
                 context.applicationContext,

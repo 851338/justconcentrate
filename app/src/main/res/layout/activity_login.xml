@@ -37,6 +37,7 @@
         android:background="@android:drawable/editbox_background"
         android:hint="@string/enter_email"
         android:padding="12dp"
+        android:inputType="textEmailAddress"
         android:textColorHint="@color/gray"
         app:layout_constraintBottom_toTopOf="@id/passwordEditText"
         app:layout_constraintEnd_toEndOf="parent"

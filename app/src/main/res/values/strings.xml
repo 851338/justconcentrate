@@ -250,4 +250,6 @@
     <string name="you_already_own_this_subscription">You already own this subscription.</string>
     <string name="subscription_activation_failed_auth_error">Subscription activation failed: Authentication error. Please check your account status or contact support.</string>
     <string name="subscription_activation_failed_verification_error">Subscription activation failed: Could not verify purchase with the server. Please contact support.</string>
+    <string name="notification_required">Notification permission is required to show session progress.</string>
+    <string name="alarms_may_not_show_without_notification_permission">Alarms may not show without notification permission.</string>
 </resources>

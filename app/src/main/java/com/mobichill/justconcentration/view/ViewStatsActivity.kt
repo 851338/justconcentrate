@@ -127,6 +127,7 @@ class ViewStatsActivity : BaseViewBindingActivity<ActivityViewStatsBinding>() {
                 // User is Pro
                 binding.proFeaturesSection.visibility = View.VISIBLE // Show Pro stats section
                 binding.upgradeButton.visibility = View.GONE
+                binding.adView.visibility = View.GONE
                 // Maybe enable certain interactions or show more detailed charts
             } else {
                 // User is Free

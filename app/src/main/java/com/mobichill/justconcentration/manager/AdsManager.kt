@@ -30,8 +30,6 @@ class AdsManager @Inject constructor(
     companion object {
         private val TAG = AdsManager::class.java.simpleName
         private const val INTERSTITIAL_AD_UNIT_ID = "ca-app-pub-9156563357147909/2804992230"
-//        private const val BANNER_AD_UNIT_ID = "ca-app-pub-9156563357147909/6188577744"
-        private const val BANNER_AD_UNIT_ID = "ca-app-pub-3940256099942544/6300978111" //test id
     }
 
     private var mInterstitialAd: InterstitialAd? = null
@@ -63,7 +61,6 @@ class AdsManager @Inject constructor(
             // ... other listener methods (onAdOpened, onAdClicked, onAdClosed)
         }
 
-        adView.adUnitId = BANNER_AD_UNIT_ID
         val adRequest = AdRequest.Builder().build()
         adView.loadAd(adRequest)
         Log.d(TAG, "Banner Ad load request initiated.")

@@ -1,6 +1,7 @@
 package com.mobichill.justconcentration.view
 
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -12,6 +13,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatEditText
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
@@ -37,6 +39,8 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
 
     private var selectedUri: Uri? = null
     private var selectedDuration: Int = 0
+    private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
+
     override fun initViewBinding(): ActivityConcentrateSetupBinding =
         ActivityConcentrateSetupBinding.inflate(layoutInflater)
 
@@ -61,6 +65,17 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
                     }
                 }
             }
+        requestPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                Log.d(TAG, "Notifications permission granted! Starting session.")
+                startFocusSessionWithValidation()
+            } else {
+                Log.e(TAG, "User denied notifications.")
+                Utils.showToast(this, getString(R.string.notification_required))
+            }
+        }
     }
 
     override fun initView() {
@@ -92,14 +107,7 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
         binding.startConcentrateButton.setOnClickListener(
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
-                    if (selectedDuration != 0)
-                        startFocusSession(
-                            selectedDuration,
-                            binding.edtGoal.text.toString(),
-                            selectedUri?.toString()
-                        )
-                    else binding.txtInputDuration.error =
-                        getString(R.string.you_haven_t_determined_duration)
+                    requestPermissionAndStartSession()
                 }
             }
         )
@@ -185,11 +193,56 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
         }
     }
 
+    private fun requestPermissionAndStartSession() {
+        // First, validate that a duration has been selected
+        if (selectedDuration == 0) {
+            binding.txtInputDuration.error = getString(R.string.you_haven_t_determined_duration)
+            return
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            when {
+                // Permission is already granted, proceed to start the service
+                ContextCompat.checkSelfPermission(
+                    this,
+                    android.Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED -> {
+                    Log.d(TAG, "Permission already granted. Starting session.")
+                    startFocusSessionWithValidation()
+                }
+                shouldShowRequestPermissionRationale(android.Manifest.permission.POST_NOTIFICATIONS) -> {
+                    // Show a dialog explaining why you need the permission
+                    // For now, we'll just request it directly.
+                    requestPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                }
+                // Request the permission
+                else -> {
+                    Log.d(TAG, "Requesting notifications permission.")
+                    requestPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
+        } else {
+            // No runtime permission needed for older Android versions
+            Log.d(TAG, "Not on Android 13+, starting session directly.")
+            startFocusSessionWithValidation()
+        }
+    }
+
+    private fun startFocusSessionWithValidation() {
+        if (selectedDuration == 0) {
+            binding.txtInputDuration.error = getString(R.string.you_haven_t_determined_duration)
+            return
+        }
+        startFocusSession(
+            selectedDuration,
+            binding.edtGoal.text.toString(),
+            selectedUri?.toString()
+        )
+    }
+
     fun startFocusSession(duration: Int, goal: String, audioUri: String?) {
         val isActive = SharedPreferencesUtils(applicationContext).isFocusSessionActive()
-        //Shared preference: Imagine the service crashes but the flag still says "active" — you'd block new sessions forever.
-        //is Running: Some OEMs aggressively kill services in the background without notice.
-        //So we use both
+        //Some OEMs aggressively kill services in the background without notice.
         if (isActive &&
             FocusService.isRunning
         ) {

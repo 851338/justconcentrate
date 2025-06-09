@@ -1,7 +1,9 @@
 package com.mobichill.justconcentration.view
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
@@ -12,6 +14,7 @@ import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -79,10 +82,16 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
             ActivityResultContracts.RequestPermission()
         ) { isGranted: Boolean ->
             if (isGranted) {
-                Log.d(TAG, "Notifications enabled!")
+                Log.d(TAG, "Notifications permission granted! Proceeding to save task.")
+                // Now that we have permission, we can save the task
+                saveTask()
             } else {
                 Log.e(TAG, "User denied notifications.")
-                Utils.showCustomPermissionDialog(requireContext(), requestPermissionLauncher)
+                // You can show a toast explaining that alarms might not work without this permission
+                Utils.showToast(requireContext(),
+                    getString(R.string.alarms_may_not_show_without_notification_permission))
+                // Still save the task, but the alarm notification might be blocked by the OS
+                saveTask()
             }
         }
         // Use one register for both ringtone and audio picker
@@ -179,10 +188,7 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
 
         btnSave.setOnClickListener(object : OnSingleClickListener() {
             override fun onSingleClick(view: View) {
-                if (checkDataValid()) {
-                    if (isEdit) updateExistedTask(task!!)
-                    else createNewTask()
-                }
+                requestPermissionAndSaveTask()
             }
         })
 
@@ -216,7 +222,7 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
                     timeString = formattedString
                     tvSelectedDueDate.error = null
                     tvSelectedDueDate.text = timeString
-                    alarmTime = calendar.timeInMillis
+                    dueDate = calendar.timeInMillis
                 }
             }
         })
@@ -426,7 +432,7 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
             }
             // Check if user selected an already passed due date
             (dueDate != null && dueDate!! <= System.currentTimeMillis()) -> {
-                tvSelectedAlarmTime.error = getString(R.string.time_choosen_has_passed)
+                tvSelectedDueDate.error = getString(R.string.time_choosen_has_passed)
                 return false
             }
             // Check if alarm time greater than due date in case both are chosen
@@ -438,6 +444,42 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
             else -> {
                 return true
             }
+        }
+    }
+
+    private fun requestPermissionAndSaveTask() {
+        // First, run all your data validation
+        if (!checkDataValid()) {
+            return // Stop if data is not valid
+        }
+
+        // Only check for notification permission if an alarm is actually being set.
+        val isAlarmSet = alarmTime != null && alarmTime!! > 0
+
+        if (isAlarmSet && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // Check if we already have the permission on Android 13+
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                // Permission granted, proceed with saving
+                saveTask()
+            } else {
+                // Permission not granted, request it
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        } else {
+            // No permission needed (no alarm is set or device is older than Android 13)
+            saveTask()
+        }
+    }
+
+    private fun saveTask() {
+        if (isEdit) {
+            updateExistedTask(task!!)
+        } else {
+            createNewTask()
         }
     }
 }

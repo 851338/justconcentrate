@@ -9,6 +9,7 @@ import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.databinding.ActivityAchievementsBinding
 import com.mobichill.justconcentration.databinding.DialogBadgeDetailsBinding
+import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.manager.AdsManager
 import com.mobichill.justconcentration.model.BadgeModel
 import com.mobichill.justconcentration.utils.ConvertUtils
@@ -33,6 +34,11 @@ class AchievementsActivity : BaseViewBindingActivity<ActivityAchievementsBinding
     override fun initView() {
         super.initView()
 
+        binding.btnBack.setOnClickListener(object : OnSingleClickListener(){
+            override fun onSingleClick(view: View) {
+                onBackPressedDispatcher.onBackPressed()
+            }
+        })
         badgeAdapter = BadgeAdapter { badge ->
             showBadgeDetailsDialog(badge)
         }

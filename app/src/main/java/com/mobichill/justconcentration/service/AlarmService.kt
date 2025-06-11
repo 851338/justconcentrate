@@ -34,8 +34,8 @@ class AlarmService : Service() {
         startForeground(NOTIFICATION_ID_ALARM_AUDIO_SERVICE, createNotification())
 
         val audioAttributes = AudioAttributes.Builder()
-            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-            .setUsage(AudioAttributes.USAGE_MEDIA)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .setUsage(AudioAttributes.USAGE_ALARM)
             .build()
 
         if (::mediaPlayer.isInitialized && mediaPlayer.isPlaying) {

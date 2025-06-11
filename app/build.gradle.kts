@@ -37,8 +37,8 @@ android {
         applicationId = "com.mobichill.justconcentration"
         minSdk = 26
         targetSdk = 35
-        versionCode = 17
-        versionName = "1.1.5"
+        versionCode = 21
+        versionName = "1.1.9"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

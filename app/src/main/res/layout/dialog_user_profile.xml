@@ -19,7 +19,7 @@
         android:padding="10dp"
         android:textSize="16sp"
         android:textStyle="bold"
-        android:textColor="@color/black"
+        android:textColor="@color/text_primary"
         tools:text="User Name" />
 
     <androidx.appcompat.widget.AppCompatTextView
@@ -29,7 +29,7 @@
         android:drawableStart="@drawable/ic_subscription"
         android:drawablePadding="10dp"
         android:padding="10dp"
-        android:textColor="@color/black"
+        android:textColor="@color/text_primary"
         android:text="@string/subscription"
         android:textSize="16sp" />
 
@@ -41,7 +41,7 @@
         android:drawablePadding="10dp"
         android:padding="10dp"
         android:drawableTint="?attr/colorControlNormal"
-        android:textColor="@color/black"
+        android:textColor="@color/text_primary"
         android:text="@string/settings"
         android:textSize="16sp" />
 

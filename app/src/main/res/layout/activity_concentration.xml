@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
+    android:background="@color/screen_background"
     tools:context=".view.ConcentrationActivity">
 
     <androidx.appcompat.widget.AppCompatTextView
@@ -14,9 +14,9 @@
         android:layout_height="wrap_content"
         android:textSize="18sp"
         android:textStyle="italic"
+        android:textColor="@color/text_primary"
         app:fontFamily="@font/cardo_italic"
         app:layout_constraintBottom_toBottomOf="parent"
-
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"

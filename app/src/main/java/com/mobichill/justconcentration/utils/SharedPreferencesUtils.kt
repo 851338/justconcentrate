@@ -5,6 +5,7 @@ import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import android.net.Uri
 import android.util.Log
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
 import com.google.firebase.Timestamp
 import com.mobichill.justconcentration.constants.Constants.OTHERS.DATE_FORMATTER
@@ -15,11 +16,11 @@ import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KE
 import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_LAST_SYNC_TIMESTAMP_NANOS
 import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_LAST_SYNC_TIMESTAMP_SECONDS
 import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_LOGIN_STREAK
-import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_SETTINGS_DARK_MODE
 import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_SETTINGS_DEFAULT_ALARM_SOUND
 import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_SETTINGS_SYNC
 import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_SETTINGS_VIBRATION
 import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_SETTING_DEFAULT_SESSION_SOUND
+import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_SETTING_THEME_MODE
 import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_SKIPPED_LOGIN
 import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.KEY_USERID_PREFS
 import com.mobichill.justconcentration.constants.Constants.SHARED_PREFERENCES.NAME_APP_PREFS
@@ -32,6 +33,7 @@ class SharedPreferencesUtils(context: Context) {
     companion object {
         private val TAG = SharedPreferencesUtils::class.java.simpleName
     }
+
     private val appContext = context.applicationContext
 
     private val appPrefs: SharedPreferences by lazy {
@@ -107,7 +109,6 @@ class SharedPreferencesUtils(context: Context) {
 
     fun setLastActiveDate(date: LocalDate) {
         appPrefs.edit { putString(KEY_LAST_ACTIVE_DATE, date.format(DATE_FORMATTER)) }
-
     }
 
     fun setSkippedLogin(isSkipped: Boolean) {
@@ -123,11 +124,12 @@ class SharedPreferencesUtils(context: Context) {
     }
 
     // Settings Shared Preferences
-    fun isSettingsSyncEnabled() = settingPrefs.getBoolean(KEY_SETTINGS_SYNC, true)
+    fun isSettingsSyncEnabled() = settingPrefs.getBoolean(KEY_SETTINGS_SYNC, false)
 
-    fun isVibrationEnabled() = settingPrefs.getBoolean(KEY_SETTINGS_VIBRATION, false)
+    fun isVibrationEnabled() = settingPrefs.getBoolean(KEY_SETTINGS_VIBRATION, true)
 
-    fun isDarkModeEnabled() = settingPrefs.getBoolean(KEY_SETTINGS_DARK_MODE, false)
+    fun getThemeMode() =
+        settingPrefs.getInt(KEY_SETTING_THEME_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
 
     fun getDefaultAlarmSound() = settingPrefs.getString(KEY_SETTINGS_DEFAULT_ALARM_SOUND, "")
 
@@ -141,8 +143,8 @@ class SharedPreferencesUtils(context: Context) {
         settingPrefs.edit { putBoolean(KEY_SETTINGS_VIBRATION, isChecked) }
     }
 
-    fun updateSettingsDarkMode(isChecked: Boolean) {
-        settingPrefs.edit { putBoolean(KEY_SETTINGS_DARK_MODE, isChecked) }
+    fun setThemeMode(themeMode: Int) {
+        settingPrefs.edit { putInt(KEY_SETTING_THEME_MODE, themeMode) }
     }
 
     fun updateSettingsDefaultAlarmSound(uri: Uri) {
@@ -168,10 +170,24 @@ class SharedPreferencesUtils(context: Context) {
     }
 
     fun saveLastSyncTimestamp(timestamp: Timestamp) {
-        Log.d(TAG, "Saving last sync timestamp: seconds=${timestamp.seconds}, nanos=${timestamp.nanoseconds}")
+        Log.d(
+            TAG,
+            "Saving last sync timestamp: seconds=${timestamp.seconds}, nanos=${timestamp.nanoseconds}"
+        )
         appPrefs.edit {
             putLong(KEY_LAST_SYNC_TIMESTAMP_SECONDS, timestamp.seconds)
                 .putInt(KEY_LAST_SYNC_TIMESTAMP_NANOS, timestamp.nanoseconds)
         }
+    }
+
+    // Suppress Annoying Switch Listener
+    fun setShouldSuppressSwitchListener(value: Boolean) {
+        appPrefs.edit { putBoolean("suppress_switch_listener_once", value) }
+    }
+
+    fun consumeShouldSuppressSwitchListener(): Boolean {
+        val suppress = appPrefs.getBoolean("suppress_switch_listener_once", false)
+        appPrefs.edit { remove("suppress_switch_listener_once") }
+        return suppress
     }
 }

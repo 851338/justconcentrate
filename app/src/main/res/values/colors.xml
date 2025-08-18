@@ -3,7 +3,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="yellow">#E8C900</color>
-    <color name="transparent">#FFFFFF</color>
+    <color name="transparent">#00000000</color>
     <color name="gray">#D3D3D3</color>
     <color name="dark_gray">#A9A9A9</color>
     <color name="purple_500">#a46ede</color>
@@ -19,4 +19,26 @@
     <color name="chart_secondary">#03DAC5</color>
     <color name="colorAccent">#FF4081</color>
     <color name="selected_item_background">#E0E0E0</color>
+
+    <color name="screen_background">#FFFFFF</color>
+    <color name="text_primary">#000000</color>
+    <color name="text_secondary">#666666</color>
+    <color name="text_inverse">#FFFFFF</color>
+    <color name="text_field_background">#FFFFFF</color>
+    <color name="tooltip_background">#CC000000</color>
+    <color name="spinner_border_color">#666666</color>
+    <color name="progress_background">#E0E0E0</color>
+    <color name="dialog_background">#FFFFFF</color>
+    <color name="negative_button_bg">#FFFFFF</color>
+    <color name="negative_button_border">#D32F2F</color>
+    <color name="positive_gradient_start">#FFF176</color>
+    <color name="positive_gradient_center">#FFEB3B</color>
+    <color name="positive_gradient_end">#FDD835</color>
+    <color name="positive_button_border">#FBC02D</color>
+    <color name="toast_background_color">#CC000000</color>
+    <color name="gradient_start">#6A11CB</color>
+    <color name="premium_gradient_start">#FF8A00</color>
+    <color name="gradient_end">#2575FC</color>
+    <color name="premium_gradient_end">#E52E71</color>
+
 </resources>

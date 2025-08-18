@@ -5,7 +5,7 @@
     android:id="@+id/coordinatorLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
+    android:background="@color/screen_background"
     tools:context=".view.SubscriptionActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -19,7 +19,8 @@
             app:layout_constraintBottom_toBottomOf="@id/tvSubscriptionStatusTitle"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/tvSubscriptionStatusTitle"
-            app:srcCompat="@drawable/ic_back" />
+            app:srcCompat="@drawable/ic_back"
+            android:tint="?attr/colorOnBackground" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvSubscriptionStatusTitle"
@@ -27,6 +28,7 @@
             android:layout_height="wrap_content"
             android:text="@string/subscription_status"
             style="@style/TextTitleStyle"
+            android:textColor="?attr/colorOnBackground"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -37,7 +39,7 @@
             android:layout_height="wrap_content"
             android:text="@string/loading"
             style="@style/TextTitleStyle"
-            android:textColor="@color/orange"
+            android:textColor="?attr/colorSecondary"
             app:layout_constraintTop_toBottomOf="@id/tvSubscriptionStatusTitle"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
@@ -51,10 +53,10 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
             android:focusable="true"
-            android:tint="@color/blue"
+            android:tint="?attr/colorPrimary"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/tvSubscriptionStatusTitle"
-            app:layout_constraintBottom_toBottomOf="@id/tvSubscriptionStatusTitle"/>
+            app:layout_constraintBottom_toBottomOf="@id/tvSubscriptionStatusTitle" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvAvailableSubscriptions"
@@ -63,6 +65,7 @@
             android:layout_marginTop="24dp"
             android:text="@string/available_subscriptions"
             android:textAppearance="?attr/textAppearanceSubtitle1"
+            android:textColor="?attr/colorOnBackground"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvSubscriptionStatus" />
 
@@ -94,10 +97,11 @@
             android:layout_height="wrap_content"
             tools:text="@string/loading"
             android:visibility="gone"
+            android:textColor="?attr/colorOnBackground"
             app:layout_constraintTop_toBottomOf="@id/progressBar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            tools:visibility="visible"/>
+            tools:visibility="visible" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvNoProducts"
@@ -105,11 +109,12 @@
             android:layout_height="wrap_content"
             android:text="@string/no_subscription_products_found"
             android:visibility="gone"
+            android:textColor="?attr/colorOnBackground"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvAvailableSubscriptions"
-            tools:visibility="visible"/>
+            tools:visibility="visible" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -23,7 +23,6 @@ abstract class BaseActivity : AppCompatActivity(), BaseActivityListener {
         timeStartOnCreate = System.currentTimeMillis()
         super.onCreate(savedInstanceState)
         isPaused = false
-        setTheme()
         setContentView(layoutId)
         initView()
         initData(intent = intent, isNewIntent = false)
@@ -127,18 +126,11 @@ abstract class BaseActivity : AppCompatActivity(), BaseActivityListener {
 
     override fun initView() {}
 
-    override fun setTheme() {
-        //TODO override this function in other screen if needed, do not change this code
-        Log.i(TAG, "setTheme")
-//        StatusBarUtil.setLightMode(this)
-        //BarUtils.setStatusBarColor(window, Color.WHITE)
-    }
 }
 
 interface BaseActivityListener {
     fun initData(intent: Intent?, isNewIntent: Boolean)
     fun initView()
-    fun setTheme()
     fun onFragmentAttached(tag: String)
     fun onFragmentDetached(tag: String)
 }

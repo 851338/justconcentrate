@@ -5,9 +5,10 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@color/screen_background"
     tools:context=".view.HomeActivity">
 
+    <!-- Top App Bar -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layout_action_bar"
         android:layout_width="match_parent"
@@ -19,6 +20,7 @@
             android:id="@+id/ab_title"
             style="@style/TextTitleStyle"
             android:text="@string/main_title"
+            android:textColor="@color/text_primary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -43,18 +45,17 @@
             tools:src="@drawable/ic_setting" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <!-- Main Card Grid -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:columnCount="2"
-        android:rowCount="2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/layout_action_bar">
 
+        <!-- Card: Tasks -->
         <androidx.cardview.widget.CardView
             android:id="@+id/card_tasks"
             style="@style/CardViewMainActivity"
-            app:layout_constraintBottom_toTopOf="@id/card_stats"
             app:layout_constraintEnd_toStartOf="@id/card_concentrate"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -70,21 +71,21 @@
                     android:id="@+id/btn_task"
                     style="@style/ButtonMainActivity"
                     android:padding="5dp"
-                    android:scaleType="fitCenter"
                     app:srcCompat="@drawable/ic_task" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     style="@style/TextStyle"
+                    android:textColor="@color/text_primary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/task_title" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
+        <!-- Card: Concentrate -->
         <androidx.cardview.widget.CardView
             android:id="@+id/card_concentrate"
             style="@style/CardViewMainActivity"
-            app:layout_constraintBottom_toTopOf="@id/card_achievements"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/card_tasks"
             app:layout_constraintTop_toTopOf="parent">
@@ -104,19 +105,20 @@
 
                 <androidx.appcompat.widget.AppCompatTextView
                     style="@style/TextStyle"
+                    android:textColor="@color/text_primary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/concentrate_title" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
+        <!-- Card: Stats -->
         <androidx.cardview.widget.CardView
             android:id="@+id/card_stats"
             style="@style/CardViewMainActivity"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/card_achievements"
+            app:layout_constraintTop_toBottomOf="@id/card_tasks"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/card_tasks">
+            app:layout_constraintEnd_toStartOf="@id/card_achievements">
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -133,19 +135,20 @@
 
                 <androidx.appcompat.widget.AppCompatTextView
                     style="@style/TextStyle"
+                    android:textColor="@color/text_primary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/stats_title" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
+        <!-- Card: Achievements -->
         <androidx.cardview.widget.CardView
             android:id="@+id/card_achievements"
             style="@style/CardViewMainActivity"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/card_concentrate"
             app:layout_constraintStart_toEndOf="@id/card_stats"
-            app:layout_constraintTop_toBottomOf="@id/card_concentrate">
+            app:layout_constraintEnd_toEndOf="parent">
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -162,6 +165,7 @@
 
                 <androidx.appcompat.widget.AppCompatTextView
                     style="@style/TextStyle"
+                    android:textColor="@color/text_primary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/achievements" />
@@ -169,19 +173,21 @@
         </androidx.cardview.widget.CardView>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <!-- Ads -->
     <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
         android:id="@+id/adView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="3dp"
         ads:adSize="BANNER"
-        ads:adUnitId="ca-app-pub-3940256099942544/6300978111"
-        ads:layout_constraintBottom_toBottomOf="parent" />
+        ads:adUnitId="ca-app-pub-9156563357147909/6188577744"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
+    <!-- Fragment Container -->
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/layout_action_bar" />
+        app:layout_constraintTop_toBottomOf="@id/layout_action_bar"
+        app:layout_constraintBottom_toTopOf="@id/adView" />
 </androidx.constraintlayout.widget.ConstraintLayout>

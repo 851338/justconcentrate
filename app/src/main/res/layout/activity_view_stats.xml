@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
+    android:background="@color/screen_background"
     tools:context=".view.ViewStatsActivity">
 
     <!-- Action Bar -->
@@ -23,6 +23,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/session_stats_title"
+            android:textColor="@color/text_primary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -33,6 +34,7 @@
             style="@style/ButtonActionBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:tint="@color/text_primary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -46,7 +48,7 @@
         android:layout_height="wrap_content"
         ads:adSize="BANNER"
         tools:visibility="gone"
-        ads:adUnitId="ca-app-pub-3940256099942544/6300978111"
+        ads:adUnitId="ca-app-pub-9156563357147909/6188577744"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -72,7 +74,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/select_time_range"
-                android:textColor="@android:color/black"
+                android:textColor="@color/text_primary"
                 android:textSize="16sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -87,14 +89,14 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/selectTimeRangeLabel" />
 
-            <!-- Basic Stats (For Everyone) -->
+            <!-- Basic Stats -->
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/basicStatsLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="@string/general_stats_label"
-                android:textColor="@color/design_default_color_primary_dark"
+                android:textColor="@color/chart_primary"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
@@ -114,7 +116,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:textColor="@android:color/black"
+                android:textColor="@color/text_primary"
                 android:textSize="16sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/barChart"
@@ -125,7 +127,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:textColor="@android:color/black"
+                android:textColor="@color/text_primary"
                 android:textSize="16sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/totalFocusTime"
@@ -136,14 +138,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:textColor="@android:color/black"
+                android:textColor="@color/text_primary"
                 android:textSize="16sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/sessionCount"
                 tools:text="Current Streak: 5 days" />
 
-
-            <!-- Upgrade Button (Initially GONE, shown if not Pro) -->
+            <!-- Upgrade Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/upgradeButton"
                 android:layout_width="match_parent"
@@ -157,8 +158,7 @@
                 app:layout_constraintTop_toBottomOf="@id/currentStreak"
                 tools:visibility="visible" />
 
-
-            <!-- Pro Features Section (Initially GONE, shown if Pro) -->
+            <!-- Pro Section -->
             <LinearLayout
                 android:id="@+id/proFeaturesSection"
                 android:layout_width="0dp"
@@ -176,7 +176,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/focus_time_trend_label"
-                    android:textColor="@color/design_default_color_primary_dark"
+                    android:textColor="@color/chart_primary"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
@@ -192,7 +192,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:text="@string/detailed_stats_label"
-                    android:textColor="@color/design_default_color_primary_dark"
+                    android:textColor="@color/chart_primary"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
@@ -201,7 +201,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:textColor="@android:color/black"
+                    android:textColor="@color/text_primary"
                     android:textSize="16sp"
                     tools:text="Session Success (Range): 85.0%" />
 
@@ -210,7 +210,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:textColor="@android:color/black"
+                    android:textColor="@color/text_primary"
                     android:textSize="16sp"
                     tools:text="Task Completion (Range): 72.5%" />
 
@@ -220,7 +220,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:text="@string/overdue_tasks_label"
-                    android:textColor="@android:color/holo_red_dark"
+                    android:textColor="@color/red"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
@@ -229,7 +229,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:textColor="@android:color/black"
+                    android:textColor="@color/text_primary"
                     android:textSize="16sp"
                     tools:text="Currently Overdue (Range): 5" />
 
@@ -239,12 +239,10 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:paddingBottom="16dp"
-                    android:textColor="@android:color/black"
+                    android:textColor="@color/text_primary"
                     android:textSize="16sp"
                     tools:text="Completed Late (Range): 3" />
-
-            </LinearLayout> <!-- End of proFeaturesSection -->
-
+            </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

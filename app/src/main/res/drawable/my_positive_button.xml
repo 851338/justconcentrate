@@ -3,11 +3,11 @@
     <gradient
         android:type="linear"
         android:angle="270"
-        android:startColor="#FFF176"
-        android:centerColor="#FFEB3B"
-        android:endColor="#FDD835" />
+        android:startColor="@color/positive_gradient_start"
+        android:centerColor="@color/positive_gradient_center"
+        android:endColor="@color/positive_gradient_end" />
     <corners android:radius="8dp" />
     <stroke
         android:width="1dp"
-        android:color="#FBC02D" />
+        android:color="@color/positive_button_border" />
 </shape>

@@ -70,11 +70,10 @@
     # If you added a no-arg constructor for Firestore/Gson manually
     public <init>();
 }
-#-assumenosideeffects class android.util.Log {
-#    public static boolean isLoggable(java.lang.String, int);
-#    public static int v(...);
-#    public static int i(...);
-#    public static int d(...);
-#    public static int w(...);
-#}
-#todo
+-assumenosideeffects class android.util.Log {
+    public static boolean isLoggable(java.lang.String, int);
+    public static int v(...);
+    public static int i(...);
+    public static int d(...);
+    public static int w(...);
+}

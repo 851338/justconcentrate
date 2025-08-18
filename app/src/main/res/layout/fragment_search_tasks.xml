@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:clickable="true"
     android:focusable="true"
-    android:background="@android:color/white"
+    android:background="@color/screen_background"
     tools:context=".view.SearchTasksFragment">
 
     <androidx.appcompat.widget.AppCompatTextView
@@ -16,13 +16,17 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:text="@string/no_tasks_found"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:textColor="@color/text_primary"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:padding="8dp"
+        android:background="@color/screen_background" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

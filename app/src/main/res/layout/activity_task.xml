@@ -6,8 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="24dp"
-    android:background="@android:color/white"
-    tools:context=".view.TaskActivity">
+    android:background="@color/screen_background">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layout_action_bar"
@@ -20,6 +19,7 @@
             android:id="@+id/ab_title"
             style="@style/TextTitleStyle"
             android:text="@string/task_title"
+            android:textColor="@color/text_primary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -28,6 +28,7 @@
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/btn_back"
             style="@style/ButtonActionBar"
+            android:tint="@color/text_primary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -44,6 +45,8 @@
             android:drawablePadding="5dp"
             android:hint="@string/search"
             android:paddingHorizontal="10dp"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_secondary"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/btn_back"
@@ -57,13 +60,13 @@
             android:layout_marginEnd="5dp"
             android:clickable="false"
             android:padding="5dp"
+            android:tint="@color/text_secondary"
             android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="@id/edt_search"
             app:layout_constraintEnd_toEndOf="@id/edt_search"
             app:layout_constraintTop_toTopOf="@id/edt_search"
             app:srcCompat="@drawable/ic_close"
             tools:visibility="visible" />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -79,7 +82,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:text="@string/there_are_no_tasks"
-            android:textColor="@android:color/darker_gray"
+            android:textColor="@color/text_secondary"
             android:textSize="18sp"
             android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
@@ -128,7 +131,7 @@
                 android:src="@drawable/ic_add"
                 app:elevation="0dp"
                 app:maxImageSize="40dp"
-                app:tint="@color/blue" />
+                app:tint="@color/white" />
         </LinearLayout>
 
         <!-- Search -->
@@ -150,7 +153,7 @@
                 android:src="@drawable/ic_search"
                 app:elevation="0dp"
                 app:maxImageSize="40dp"
-                app:tint="@color/blue" />
+                app:tint="@color/white" />
         </LinearLayout>
     </LinearLayout>
 
@@ -168,7 +171,8 @@
         app:elevation="0dp"
         app:layout_constraintBottom_toTopOf="@id/adView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:maxImageSize="40dp" />
+        app:maxImageSize="40dp"
+        app:tint="@color/white" />
 
     <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
         android:id="@+id/adView"
@@ -176,7 +180,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="3dp"
         ads:adSize="BANNER"
-        ads:adUnitId="ca-app-pub-3940256099942544/6300978111"
+        ads:adUnitId="ca-app-pub-9156563357147909/6188577744"
         ads:layout_constraintBottom_toBottomOf="parent" />
 
     <androidx.fragment.app.FragmentContainerView

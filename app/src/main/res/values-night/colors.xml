@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FFFFFFFF</color>
+    <color name="white">#FF000000</color>
+    <color name="gray">#444444</color>
+    <color name="light_gray">#666666</color>
+    <color name="selected_item_background">#333333</color>
+    <color name="error_color">#B00020</color>
+
+    <color name="screen_background">#121212</color>
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#AAAAAA</color>
+    <color name="text_inverse">#000000</color>
+    <color name="text_field_background">#121212</color>
+    <color name="tooltip_background">#CCFFFFFF</color>
+    <color name="spinner_border_color">#AAAAAA</color>
+    <color name="progress_background">#444444</color>
+    <color name="dialog_background">#1E1E1E</color>
+    <color name="negative_button_bg">#1E1E1E</color>
+    <color name="negative_button_border">#EF5350</color>
+    <color name="positive_gradient_start">#FFF176</color>
+    <color name="positive_gradient_center">#FFEB3B</color>
+    <color name="positive_gradient_end">#FDD835</color>
+    <color name="positive_button_border">#FBC02D</color>
+    <color name="toast_background_color">#EEFFFFFF</color>
+    <color name="gradient_start">#1A1A2E</color>
+    <color name="premium_gradient_start">#FFB347</color>
+    <color name="gradient_end">#16213E</color>
+    <color name="premium_gradient_end">#C2185B</color>
+</resources>

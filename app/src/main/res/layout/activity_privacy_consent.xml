@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
-    android:background="@android:color/white"
+    android:background="@color/screen_background"
     android:orientation="vertical"
     android:padding="24dp">
 
@@ -14,6 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:text="@string/privacy_policy"
+        android:textColor="?attr/colorOnBackground"
         android:textSize="22sp"
         android:textStyle="bold" />
 
@@ -24,6 +25,7 @@
         android:layout_marginHorizontal="24dp"
         android:layout_marginBottom="14dp"
         android:text="@string/please_read_and_accept_our_privacy_policy_to_continue_using_the_app"
+        android:textColor="?attr/colorOnBackground"
         android:textSize="16sp" />
 
     <androidx.appcompat.widget.AppCompatTextView
@@ -32,13 +34,14 @@
         android:layout_height="wrap_content"
         android:padding="10dp"
         android:text="@string/view_privacy_policy"
-        android:textColor="@color/blue" />
+        android:textColor="?attr/colorPrimary" />
 
     <CheckBox
         android:id="@+id/accept_checkbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/i_accept_the_privacy_policy" />
+        android:text="@string/i_accept_the_privacy_policy"
+        android:textColor="?attr/colorOnBackground" />
 
     <Button
         android:id="@+id/continue_button"
@@ -48,4 +51,5 @@
         android:layout_marginTop="14dp"
         android:enabled="false"
         android:text="@string/continue_button" />
+
 </LinearLayout>

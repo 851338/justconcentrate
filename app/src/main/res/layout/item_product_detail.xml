@@ -23,7 +23,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?attr/textAppearanceHeadline6"
-            android:textColor="@android:color/white"
+            android:textColor="@color/text_inverse"
             android:textStyle="bold"
             tools:text="Pro Subscription" />
 
@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:textAppearance="?attr/textAppearanceBody2"
-            android:textColor="@android:color/white"
+            android:textColor="@color/text_inverse"
             tools:text="Unlock all premium features and remove ads." />
 
         <TextView
@@ -43,7 +43,7 @@
             android:layout_marginTop="16dp"
             android:text="Select an Offer:"
             android:textAppearance="?attr/textAppearanceSubtitle2"
-            android:textColor="@android:color/white"
+            android:textColor="@color/text_inverse"
             android:visibility="gone"
             tools:visibility="visible" />
 
@@ -63,7 +63,7 @@
             android:layout_marginTop="20dp"
             android:backgroundTint="@color/yellow"
             android:text="@string/subscribe"
-            android:textColor="@android:color/white"
+            android:textColor="@color/text_inverse"
             android:textStyle="bold" />
 
     </LinearLayout>

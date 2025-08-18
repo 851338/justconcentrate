@@ -16,8 +16,10 @@ import android.widget.PopupWindow
 import androidx.activity.addCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.graphics.drawable.toDrawable
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.play.core.install.model.AppUpdateType
@@ -25,6 +27,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.databinding.ActivitySettingsBinding
+import com.mobichill.justconcentration.helper.ThemeHelper
 import com.mobichill.justconcentration.listener.AppUpdateListener
 import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.manager.MyUpdateManager
@@ -38,6 +41,7 @@ import kotlinx.coroutines.withContext
 class SettingsActivity : BaseViewBindingActivity<ActivitySettingsBinding>(), AppUpdateListener {
     private lateinit var settingsUpdateManager: MyUpdateManager
     private val updateTypeForSettings = AppUpdateType.FLEXIBLE
+    private var suppressSyncSwitchListener = false
 
     private enum class SoundType {
         ALARM, FOCUS
@@ -94,11 +98,13 @@ class SettingsActivity : BaseViewBindingActivity<ActivitySettingsBinding>(), App
             }
         }
 
+        suppressSyncSwitchListener = sfUtils.consumeShouldSuppressSwitchListener()
         super.onCreate(savedInstanceState)
     }
 
     override fun initView() = with(binding) {
         super.initView()
+
         // Back button
         btnBack.setOnClickListener(object : OnSingleClickListener() {
             override fun onSingleClick(view: View) {
@@ -108,9 +114,13 @@ class SettingsActivity : BaseViewBindingActivity<ActivitySettingsBinding>(), App
 
         // Sync with cloud switch
         itemSyncWithCloud.settingToggleTitle.text = getString(R.string.sync_with_cloud)
-        val isSynced = sfUtils.isSettingsSyncEnabled()
-        itemSyncWithCloud.settingToggleSwitch.isChecked = isSynced
+        itemSyncWithCloud.settingToggleSwitch.isChecked = sfUtils.isSettingsSyncEnabled()
         itemSyncWithCloud.settingToggleSwitch.setOnCheckedChangeListener { switch, isChecked ->
+            if (suppressSyncSwitchListener) {
+                suppressSyncSwitchListener = false // only suppress once
+                return@setOnCheckedChangeListener
+            }
+
             switch.isEnabled = false
             if (sfUtils.isUserLoggedIn()) {
                 sfUtils.updateSettingSync(isChecked)
@@ -153,8 +163,7 @@ class SettingsActivity : BaseViewBindingActivity<ActivitySettingsBinding>(), App
 
         // Vibration switch
         itemVibrationSwitch.settingToggleTitle.text = getString(R.string.vibration)
-        val vibrationEnabled = sfUtils.isVibrationEnabled()
-        itemVibrationSwitch.settingToggleSwitch.isChecked = vibrationEnabled
+        itemVibrationSwitch.settingToggleSwitch.isChecked = sfUtils.isVibrationEnabled()
         itemVibrationSwitch.settingToggleSwitch.setOnCheckedChangeListener { switch, isChecked ->
             switch.isEnabled = false
             sfUtils.updateSettingsVibration(isChecked)
@@ -211,17 +220,8 @@ class SettingsActivity : BaseViewBindingActivity<ActivitySettingsBinding>(), App
             }
         )
 
-        // Dark mode
-        itemDarkMode.settingToggleTitle.text = getString(R.string.dark_mode_text)
-        val darkModeEnabled = sfUtils.isDarkModeEnabled()
-        itemDarkMode.settingToggleSwitch.isChecked = darkModeEnabled
-        itemDarkMode.settingToggleSwitch.setOnCheckedChangeListener { switch, isChecked ->
-            switch.isEnabled = false
-            sfUtils.updateSettingsDarkMode(isChecked)
-            Handler(Looper.getMainLooper()).postDelayed({
-                switch.isEnabled = true
-            }, 1000)
-        }
+        // Theme mode
+        setupThemeSelector()
 
         // Update button
         itemUpdate.settingTitle.text = getString(R.string.check_for_update)
@@ -404,5 +404,58 @@ class SettingsActivity : BaseViewBindingActivity<ActivitySettingsBinding>(), App
 
     override fun onUpdateNotAvailable() {
         Utils.showToast(this, getString(R.string.no_update_available_at_this_moment))
+    }
+
+    private fun setupThemeSelector() {
+        loadInitialThemeState()
+
+        binding.itemThemeMode.themeSettingClickableLayout.setOnClickListener {
+            toggleThemeOptionsVisibility()
+        }
+
+        binding.itemThemeMode.themeRadioGroup.setOnCheckedChangeListener { _, checkedId ->
+            val selectedThemeMode = when (checkedId) {
+                R.id.radioLight -> AppCompatDelegate.MODE_NIGHT_NO
+                R.id.radioDark -> AppCompatDelegate.MODE_NIGHT_YES
+                else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+            }
+
+            ThemeHelper.setTheme(this, selectedThemeMode)
+
+            updateThemeDescription(selectedThemeMode)
+
+//            toggleThemeOptionsVisibility(forceCollapse = true)
+        }
+    }
+
+    private fun loadInitialThemeState() {
+        val currentTheme = sfUtils.getThemeMode()
+        updateThemeDescription(currentTheme)
+
+        val radioId = when (currentTheme) {
+            AppCompatDelegate.MODE_NIGHT_NO -> R.id.radioLight
+            AppCompatDelegate.MODE_NIGHT_YES -> R.id.radioDark
+            else -> R.id.radioSystem
+        }
+        binding.itemThemeMode.themeRadioGroup.check(radioId)
+    }
+
+    private fun updateThemeDescription(themeMode: Int) {
+        binding.itemThemeMode.settingCurrentTheme.text = when (themeMode) {
+            AppCompatDelegate.MODE_NIGHT_NO -> getString(R.string.light)
+            AppCompatDelegate.MODE_NIGHT_YES -> getString(R.string.dark)
+            else -> getString(R.string.follow_system)
+        }
+    }
+
+    private fun toggleThemeOptionsVisibility(forceCollapse: Boolean = false) {
+        val isCurrentlyVisible = binding.itemThemeMode.themeRadioGroup.isVisible
+        val shouldBeVisible = if (forceCollapse) false else !isCurrentlyVisible
+
+        binding.itemThemeMode.themeRadioGroup.isVisible = shouldBeVisible
+
+        val rotationAngle = if (shouldBeVisible) 180f else 0f
+        binding.itemThemeMode.settingExpandIcon.animate().rotation(rotationAngle).setDuration(200)
+            .start()
     }
 }

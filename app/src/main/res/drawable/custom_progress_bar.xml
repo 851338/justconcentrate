@@ -3,14 +3,14 @@
     <item android:id="@android:id/background">
         <shape>
             <corners android:radius="3dp" />
-            <solid android:color="#E0E0E0" /> <!-- Light grey background -->
+            <solid android:color="@color/progress_background" />
         </shape>
     </item>
     <item android:id="@android:id/progress">
         <clip>
             <shape>
                 <corners android:radius="3dp" />
-                <solid android:color="@color/teal_700" /> <!-- Your app's primary color -->
+                <solid android:color="@color/teal_700" />
             </shape>
         </clip>
     </item>

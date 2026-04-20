@@ -3,11 +3,14 @@ package com.mobichill.justconcentration.base
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
+import android.content.Context
 import android.util.Log
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
 import com.mobichill.justconcentration.BuildConfig
 import com.mobichill.justconcentration.helper.ThemeHelper
+import com.mobichill.justconcentration.constants.MyContextWrapper
+import com.mobichill.justconcentration.utils.LanguageUtil
 
 
 abstract class BaseActivity : AppCompatActivity(), BaseActivityListener {
@@ -16,6 +19,11 @@ abstract class BaseActivity : AppCompatActivity(), BaseActivityListener {
     private var timeStartOnCreate: Long = 0
     var isPaused = false
     private val isOverrideBackPressed = false
+
+    override fun attachBaseContext(newBase: Context) {
+        val lang = LanguageUtil.getPreLanguage(newBase) ?: "en"
+        super.attachBaseContext(MyContextWrapper.wrap(newBase, lang))
+    }
 
     @get:LayoutRes
     abstract val layoutId: Int

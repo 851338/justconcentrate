@@ -1,0 +1,222 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Apenas concentração</string>
+    <string name="note_your_task_here">Anote a sua tarefa aqui</string>
+    <string name="main_title">Página principal</string>
+    <string name="task_title">Página de tarefas</string>
+    <string name="enter_task_name">Introduza o nome da tarefa</string>
+    <string name="title_activity_welcome">WelcomeActivity</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Palavra-passe</string>
+    <string name="action_sign_in">Iniciar sessão ou registar-se</string>
+    <string name="action_sign_in_short">Entrar</string>
+    <string name="welcome">"Bem-vindo !"</string>
+    <string name="invalid_password">A senha deve ter &gt;5 caracteres</string>
+    <string name="app_slogan">Mantenha-se Organizado, Mantenha-se Produtivo!</string>
+    <string name="create_an_account">Criar uma conta</string>
+    <string name="default_web_client_id">662460448010-d8ckf1eef8c2di5olp9kbbco8j51997s.apps.googleusercontent.com</string>
+    <string name="sign_in_successful">Início de sessão bem sucedido!</string>
+    <string name="authentication_failed">Falha na autenticação</string>
+    <string name="slogan_description">Faça a gestão das suas tarefas sem esforço com a nossa aplicação de afazeres inteligente.</string>
+    <string name="subscription">Subscrição</string>
+    <string name="about">Sobre</string>
+    <string name="logout">Logout</string>
+    <string name="alarm_triggered">* Alarme acionado!</string>
+    <string name="please_enter_task_title">Introduza o título da tarefa</string>
+    <string name="task_created_with_alarm">A tarefa criada/atualizada disparará um alarme em %1$s</string>
+    <string name="task_without_alarm">Tarefa criada/atualizada sem alarme</string>
+    <string name="task_created_success">Tarefa criada com sucesso!</string>
+    <string name="time_choosen_has_passed">A data e a hora selecionadas já passaram.</string>
+    <string name="unexpected_error">erro inesperado</string>
+    <string name="sign_up">Cadastre-se</string>
+    <string name="password_min_6_characters">Senha (mínimo de 6 caracteres)</string>
+    <string name="reenter_password">Introduza novamente a palavra-passe</string>
+    <string name="create_account">Criar conta</string>
+    <string name="empty_name">O nome não pode estar vazio.</string>
+    <string name="empty_password">A palavra-passe não pode estar vazia.</string>
+    <string name="wrong_format_email">O seu e-mail é inválido.</string>
+    <string name="password_min_6_characters_error">A senha deve ter pelo menos 6 caracteres.</string>
+    <string name="confirm_password_mismatch">Confirmar incompatibilidade de palavra-passe</string>
+    <string name="signup_failed">Falha no registo: %1$s</string>
+    <string name="signup_successful">Cadastro realizado com sucesso!</string>
+    <string name="already_have_an_account">Já tem uma conta? Iniciar sessão</string>
+    <string name="skip">Ignorar para usar a versão offline</string>
+    <string name="welcome_back">Prazer em vê-lo!</string>
+    <string name="password">Palavra-passe</string>
+    <string name="login">Login</string>
+    <string name="or">Ou</string>
+    <string name="login_success">Bem-vindo de volta!</string>
+    <string name="login_failed">Falha ao iniciar sessão: %1$s</string>
+    <string name="app_email">%1$s@justconcentration.com</string>
+    <string name="back">Voltar</string>
+    <string name="no_internet_connection">Sem ligação à Internet.</string>
+    <string name="logged_out">Desconectado.</string>
+    <string name="unknown_exception">Exceção desconhecida</string>
+    <string name="pick_date_amp_time">Escolher data e hora</string>
+    <string name="no_date_selected">Nenhuma data seleccionada</string>
+    <string name="choose_alarm_sound">Escolha o som do alarme</string>
+    <string name="default_alarm_sound">Som de alarme predefinido</string>
+    <string name="default_session_sound">Som de sessão de concentrado predefinido</string>
+    <string name="cancel">Cancelar</string>
+    <string name="save_task">Guardar tarefa</string>
+    <string name="alarm_dismissed">Alarme dispensado.</string>
+    <string name="task_snoozed_for_minutes">Tarefa pausada por %1$d minutos.</string>
+    <string name="task_not_created">A tarefa não foi criada devido a %1$s.</string>
+    <string name="task_updated_success">Tarefa atualizada com sucesso!</string>
+    <string name="task_not_updated">A tarefa não foi atualizada devido a %1$s.</string>
+    <string name="alarm_updated_success">Alarme atualizado com sucesso!</string>
+    <string name="alarm_not_updated">O alarme não foi atualizado devido a %1$s.</string>
+    <string name="task_deleted">Tarefa excluída.</string>
+    <string name="task_description">Esta é a nota que mostra o que fazer\n</string>
+    <string name="restore">Restaurar</string>
+    <string name="delete">Eliminar</string>
+    <string name="task_restored">Tarefa restaurada.</string>
+    <string name="add_task">Adicionar tarefa</string>
+    <string name="search">Pesquisa</string>
+    <string name="deleted_tasks">Tarefas eliminadas</string>
+    <string name="main_fab">FAB PRINCIPAL</string>
+    <string name="there_are_no_tasks">Não há tarefas.</string>
+    <string name="there_are_no_deleted_tasks">Não há tarefas excluídas.</string>
+    <string name="reset">Redefinir</string>
+    <string name="no_tasks_found">Nenhuma tarefa encontrada.</string>
+    <string name="my_tasks">As minhas tarefas</string>
+    <string name="edit_task_title">Editar tarefa</string>
+    <string name="new_task_title">Nova tarefa</string>
+    <string name="stats_title">Estatísticas</string>
+    <string name="i_accept_the_privacy_policy">Aceito a Política de Privacidade</string>
+    <string name="view_privacy_policy">Ver Política de Privacidade</string>
+    <string name="continue_button">Continue</string>
+    <string name="privacy_policy">Política de Privacidade</string>
+    <string name="please_read_and_accept_our_privacy_policy_to_continue_using_the_app">Leia e aceite a nossa Política de Privacidade para continuar a utilizar a aplicação.</string>
+    <string name="enter_your_name">Introduza o seu nome</string>
+    <string name="enter_email">Introduzir e-mail</string>
+    <string name="empty_email">O e-mail não pode estar vazio.</string>
+    <string name="app_version">Versão 1.0.0</string>
+    <string name="view_open_source_licenses">Ver licenças de código aberto</string>
+    <string name="rate_on_play_store">Avaliar na Play Store</string>
+    <string name="my_store_name">Mobi Chill</string>
+    <string name="creator">Criador:</string>
+    <string name="my_email">Contacto: tvndbhk@gmail.com</string>
+    <string name="about_title">Sobre</string>
+    <string name="about_content">O Just Concentration é o seu gestor de tarefas pessoal inteligente. Planeie o seu dia, defina alarmes e aumente a sua produtividade com facilidade.</string>
+    <string name="greeting">Olá, %1$s</string>
+    <string name="concentrate_title">Concentrado</string>
+    <string name="select_duration">Seleccionar duração</string>
+    <string name="select_apps_to_block">Selecionar aplicações para bloquear</string>
+    <string name="go_concentrate_mode">Vá para o Modo Concentrado!</string>
+    <string name="concentrate_mode_setup_title">Configuração do Modo Concentrado</string>
+    <string name="duration">Duração em minutos</string>
+    <string name="duration_input_hint">Insira o número de minutos, por exemplo, 60</string>
+    <string name="enter_your_focus_goal">Introduza o seu objetivo de foco</string>
+    <string name="do_you_have_any_goal">Tem algum objectivo?</string>
+    <string name="select_sound">Seleccionar som</string>
+    <string name="silence">Silence.mp5</string>
+    <string name="really">Verdade?</string>
+    <string name="you_haven_t_determined_duration">Não determinou a duração.</string>
+    <string name="focus_session_already_running">Uma sessão de foco já está em execução!</string>
+    <string name="invalid_audio">Ficheiro de áudio inválido. Selecione outro!</string>
+    <string name="enter_custom_time">Introduza a hora personalizada</string>
+    <string name="custom">Personalizado…</string>
+    <string name="_5_minutes">5 minutos</string>
+    <string name="_10_minutes">10 minutos</string>
+    <string name="_30_minutes">30 minutos</string>
+    <string name="_60_minutes">60 minutos</string>
+    <string name="focus_session_canceled">Sessão de foco cancelada</string>
+    <string name="focus_session_completed">Sessão de foco concluída 🎉</string>
+    <string name="you_must_log_in_first">Tem de iniciar sessão primeiro.</string>
+    <string name="yes">Sim</string>
+    <string name="discard_changes">Descartar alterações?</string>
+    <string name="unsaved_changes_message">Tem alterações não guardadas. Deseja descartá-los?</string>
+    <string name="delete_confirm">Excluir confirmação</string>
+    <string name="done_confirm">Marcar como concluído confirmar</string>
+    <string name="delete_confirm_message">Tem a certeza de que pretende eliminar esta tarefa?</string>
+    <string name="done_confirm_message">Tem a certeza de que deseja marcar esta tarefa como concluída e cancelar o alarme?</string>
+    <string name="session_stats_title">Concentrar Estatísticas da Sessão</string>
+    <string name="select_time_range">Selecionar intervalo de tempo</string>
+    <string name="no_alarm_set">Nenhum alarme definido</string>
+    <string name="alarm">Alarme: %1$s</string>
+    <string name="created_at">Criado em: %1$s</string>
+    <string name="unknown_audio_file">Ficheiro_audio_desconhecido</string>
+    <string name="sessions_completed">Sessões concluídas: %1$d</string>
+    <string name="current_streak_day">Sequência atual: %1$d dia%2$s</string>
+    <string name="session_stats_chart_label">Duração do Foco</string>
+    <string name="share_progress">Partilhar progresso</string>
+    <string name="total_focus_time">Tempo total concentrado: %1$s</string>
+    <string name="dark_mode_text">Modo escuro (em breve)</string>
+    <string name="setting_title">Título das definições</string>
+    <string name="toggle_setting">Alternar definição</string>
+    <string name="vibration">Vibração do alarme</string>
+    <string name="default_alarm_time">Hora de alarme predefinida</string>
+    <string name="sync_with_cloud">Sincronizar com a nuvem</string>
+    <string name="change_password">Alterar palavra-passe</string>
+    <string name="setting_general">General</string>
+    <string name="setting_account">Account</string>
+    <string name="setting_feature">Funcionalidade</string>
+    <string name="settings">Definições</string>
+    <string name="google_signed_password_change_not_available">Iniciaste sessão com Google. As alterações de palavra-passe não estão disponíveis aqui.</string>
+    <string name="password_changed">Palavra-passe alterada.</string>
+    <string name="password_change_failed">Falha ao alterar a palavra-passe.</string>
+    <string name="confirm">Confirmar</string>
+    <string name="enter_current_password">Introduza a palavra-passe atual</string>
+    <string name="new_password">Nova palavra-passe</string>
+    <string name="reenter_new_password">Introduza novamente a nova palavra-passe</string>
+    <string name="current_password_incorrect">Palavra-passe atual incorreta</string>
+    <string name="forgot_password">Esqueceu-se da palavra-passe?</string>
+    <string name="reset_password">Repor palavra-passe</string>
+    <string name="reset_password_description">Introduza o seu e-mail registado. Enviaremos um link para repor a sua palavra-passe.</string>
+    <string name="password_reset_email_sent">E-mail de reposição de palavra-passe enviado.</string>
+    <string name="failed_reset_password">Falhou: %1$s</string>
+    <string name="wait_sec">Aguarde %1$d seg</string>
+    <string name="send_reset_email">Enviar e-mail de reposição</string>
+    <string name="default_alarm_tooltip">Este é o som predefinido para os alarmes de tarefas se não tiver escolhido um personalizado.</string>
+    <string name="default_session_tooltip">Este é o som predefinido reproduzido durante a sessão de concentração se não for selecionado um som personalizado. Pode ser removido.</string>
+    <string name="your_journey">A tua jornada</string>
+    <string name="achievements">Conquistas</string>
+    <string name="badge_icon">Ícone de medalha</string>
+    <string name="menu">Menu</string>
+    <string name="mark_as_done">Marcar como concluída</string>
+    <string name="task_done">Tarefa marcada como concluída.</string>
+    <string name="task_already_done">Esta tarefa já está marcada como concluída.</string>
+    <string name="session_stats_chart_stack_completed">Sessão concluída</string>
+    <string name="session_stats_chart_stack_incomplete">Sessão incompleta</string>
+    <string name="complete_a_session">Concluir uma sessão</string>
+    <string name="badge_icon_description">Ícone de medalha</string>
+    <string name="status_unlocked_on">Estado: Desbloqueado em + %1$s</string>
+    <string name="status_locked">Estado: Bloqueado</string>
+    <string name="status_unlocked">Estado: Desbloqueado</string>
+    <string name="string_language">Idioma</string>
+    <string name="choose_language">Escolher idioma</string>
+    <string name="please_select_language">Selecione um idioma</string>
+    <string name="spanish" translatable="false">Spanish</string>
+    <string name="spanish_es" translatable="false">Spanish (ES)</string>
+    <string name="portuguese_br" translatable="false">Portuguese (BR)</string>
+    <string name="portuguese_pt" translatable="false">Portuguese (PT)</string>
+    <string name="arabic_ae" translatable="false">Arabic (AE)</string>
+    <string name="arabic_eg" translatable="false">Arabic (EG)</string>
+    <string name="arabic_sa" translatable="false">Arabic (SA)</string>
+    <string name="arabic" translatable="false">Arabic</string>
+    <string name="english" translatable="false">English</string>
+    <string name="english_uk" translatable="false">English (UK)</string>
+    <string name="english_us" translatable="false">English (US)</string>
+    <string name="english_in" translatable="false">English (IN)</string>
+    <string name="portuguese" translatable="false">Portuguese</string>
+    <string name="portuguese_ch" translatable="false">Portuguese (CH)</string>
+    <string name="spanish_us" translatable="false">Spanish (US)</string>
+    <string name="spanish_br" translatable="false">Spanish (BR)</string>
+    <string name="american" translatable="false">American</string>
+    <string name="british" translatable="false">British</string>
+    <string name="indian" translatable="false">Indian</string>
+    <string name="eu" translatable="false">EU</string>
+    <string name="brazin" translatable="false">Brazin</string>
+    <string name="portugues" translatable="false">Português</string>
+    <string name="espanol" translatable="false">Español</string>
+    <string name="mexico" translatable="false">Mexico</string>
+    <string name="french" translatable="false">French</string>
+    <string name="hindi">Híndi</string>
+    <string name="france">França</string>
+    <string name="german">Alemão</string>
+    <string name="indonesian">Indonésio</string>
+    <string name="loading">A carregar</string>
+    <string name="please_wait">Por favor, aguarde...</string>
+    <string name="translating">A traduzir...</string>
+</resources>

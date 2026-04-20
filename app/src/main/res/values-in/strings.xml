@@ -1,0 +1,221 @@
+<resources>
+    <string name="app_name">Just Concentration</string>
+    <string name="note_your_task_here">Catat tugasmu di sini</string>
+    <string name="main_title">Halaman utama</string>
+    <string name="task_title">Halaman tugas</string>
+    <string name="enter_task_name">Masukkan nama tugas</string>
+    <string name="title_activity_welcome">WelcomeActivity</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Kata sandi</string>
+    <string name="action_sign_in">Masuk atau daftar</string>
+    <string name="action_sign_in_short">Masuk</string>
+    <string name="welcome">"Selamat datang!"</string>
+    <string name="invalid_password">Kata sandi harus lebih dari 5 karakter</string>
+    <string name="app_slogan">Tetap Teratur, Tetap Produktif!</string>
+    <string name="create_an_account">Buat akun</string>
+    <string name="default_web_client_id">662460448010-d8ckf1eef8c2di5olp9kbbco8j51997s.apps.googleusercontent.com</string>
+    <string name="sign_in_successful">Berhasil masuk!</string>
+    <string name="authentication_failed">Autentikasi gagal</string>
+    <string name="slogan_description">Kelola tugasmu dengan mudah menggunakan aplikasi to-do pintar kami.</string>
+    <string name="subscription">Langganan</string>
+    <string name="about">Tentang</string>
+    <string name="logout">Keluar</string>
+    <string name="alarm_triggered">⏰ Alarm berbunyi!</string>
+    <string name="please_enter_task_title">Silakan masukkan judul tugas</string>
+    <string name="task_created_with_alarm">Tugas yang dibuat/diperbarui akan memicu alarm pada %1$s</string>
+    <string name="task_without_alarm">Tugas dibuat/diperbarui tanpa alarm</string>
+    <string name="task_created_success">Tugas berhasil dibuat!</string>
+    <string name="time_choosen_has_passed">Tanggal dan waktu yang dipilih sudah lewat.</string>
+    <string name="unexpected_error">Kesalahan tak terduga</string>
+    <string name="sign_up">Daftar</string>
+    <string name="password_min_6_characters">Kata sandi (min 6 karakter)</string>
+    <string name="reenter_password">Masukkan ulang kata sandi</string>
+    <string name="create_account">Buat Akun</string>
+    <string name="empty_name">Nama tidak boleh kosong.</string>
+    <string name="empty_password">Kata sandi tidak boleh kosong.</string>
+    <string name="wrong_format_email">Email kamu tidak valid.</string>
+    <string name="password_min_6_characters_error">Kata sandi harus minimal 6 karakter.</string>
+    <string name="confirm_password_mismatch">Konfirmasi kata sandi tidak cocok</string>
+    <string name="signup_failed">Pendaftaran gagal: %1$s</string>
+    <string name="signup_successful">Pendaftaran berhasil!</string>
+    <string name="already_have_an_account">Sudah punya akun? Masuk</string>
+    <string name="skip">Lewati untuk menggunakan versi offline</string>
+    <string name="welcome_back">Senang melihatmu kembali!</string>
+    <string name="password">Kata sandi</string>
+    <string name="login">Masuk</string>
+    <string name="or">Atau</string>
+    <string name="login_success">Selamat datang kembali!</string>
+    <string name="login_failed">Masuk gagal: %1$s</string>
+    <string name="app_email">%1$s@justconcentration.com</string>
+    <string name="back">Kembali</string>
+    <string name="no_internet_connection">Tidak ada koneksi internet.</string>
+    <string name="logged_out">Berhasil keluar.</string>
+    <string name="unknown_exception">Exception tidak diketahui</string>
+    <string name="pick_date_amp_time"><![CDATA[Pilih Tanggal & Waktu]]></string>
+    <string name="no_date_selected">Belum ada tanggal dipilih</string>
+    <string name="choose_alarm_sound">Pilih suara alarm</string>
+    <string name="default_alarm_sound">Suara alarm default</string>
+    <string name="default_session_sound">Suara sesi fokus default</string>
+    <string name="cancel">Batal</string>
+    <string name="save_task">Simpan Tugas</string>
+    <string name="alarm_dismissed">Alarm dihentikan.</string>
+    <string name="task_snoozed_for_minutes">Tugas ditunda selama %1$d menit.</string>
+    <string name="task_not_created">Tugas tidak dibuat karena %1$s.</string>
+    <string name="task_updated_success">Tugas berhasil diperbarui!</string>
+    <string name="task_not_updated">Tugas tidak diperbarui karena %1$s.</string>
+    <string name="alarm_updated_success">Alarm berhasil diperbarui!</string>
+    <string name="alarm_not_updated">Alarm tidak diperbarui karena %1$s.</string>
+    <string name="task_deleted">Tugas dihapus.</string>
+    <string name="task_description">Ini adalah catatan yang menunjukkan apa yang harus dilakukan\n</string>
+    <string name="restore">Pulihkan</string>
+    <string name="delete">Hapus</string>
+    <string name="task_restored">Tugas dipulihkan.</string>
+    <string name="add_task">Tambah Tugas</string>
+    <string name="search">Cari</string>
+    <string name="deleted_tasks">Tugas terhapus</string>
+    <string name="main_fab">FAB Utama</string>
+    <string name="there_are_no_tasks">Tidak ada tugas.</string>
+    <string name="there_are_no_deleted_tasks">Tidak ada tugas yang dihapus.</string>
+    <string name="reset">Atur ulang</string>
+    <string name="no_tasks_found">Tidak ada tugas ditemukan.</string>
+    <string name="my_tasks">Tugas Saya</string>
+    <string name="edit_task_title">Edit Tugas</string>
+    <string name="new_task_title">Tugas Baru</string>
+    <string name="stats_title">Statistik</string>
+    <string name="i_accept_the_privacy_policy">Saya menerima Kebijakan Privasi</string>
+    <string name="view_privacy_policy">Lihat Kebijakan Privasi</string>
+    <string name="continue_button">Lanjutkan</string>
+    <string name="privacy_policy">Kebijakan Privasi</string>
+    <string name="please_read_and_accept_our_privacy_policy_to_continue_using_the_app">Silakan baca dan terima Kebijakan Privasi kami untuk melanjutkan menggunakan aplikasi.</string>
+    <string name="enter_your_name">Masukkan namamu</string>
+    <string name="enter_email">Masukkan email</string>
+    <string name="empty_email">Email tidak boleh kosong.</string>
+    <string name="app_version">Versi 1.0.0</string>
+    <string name="view_open_source_licenses">Lihat Lisensi Open Source</string>
+    <string name="rate_on_play_store">Beri nilai di Play Store</string>
+    <string name="my_store_name">Mobi Chill</string>
+    <string name="creator">Pembuat:</string>
+    <string name="my_email">Kontak: tvndbhk@gmail.com</string>
+    <string name="about_title">Tentang</string>
+    <string name="about_content">Just Concentration adalah pengelola tugas pribadi pintar untukmu. Rencanakan harimu, atur alarm, dan tingkatkan produktivitas dengan mudah.</string>
+    <string name="greeting">Hai, %1$s</string>
+    <string name="concentrate_title">Fokus</string>
+    <string name="select_duration">Pilih Durasi</string>
+    <string name="select_apps_to_block">Pilih Aplikasi untuk Diblokir</string>
+    <string name="go_concentrate_mode">Mulai Mode Fokus!</string>
+    <string name="concentrate_mode_setup_title">Pengaturan Mode Fokus</string>
+    <string name="duration">Durasi dalam menit</string>
+    <string name="duration_input_hint">Masukkan jumlah menit, misalnya 60</string>
+    <string name="enter_your_focus_goal">Masukkan tujuan fokusmu</string>
+    <string name="do_you_have_any_goal">Apakah kamu punya tujuan?</string>
+    <string name="select_sound">Pilih Suara</string>
+    <string name="silence">Silence.mp5</string>
+    <string name="really">Yakin?</string>
+    <string name="you_haven_t_determined_duration">Kamu belum menentukan durasi.</string>
+    <string name="focus_session_already_running">Sesi fokus sudah berjalan!</string>
+    <string name="invalid_audio">File audio tidak valid. Silakan pilih yang lain!</string>
+    <string name="enter_custom_time">Masukkan waktu kustom</string>
+    <string name="custom">Kustom…</string>
+    <string name="_5_minutes">5 menit</string>
+    <string name="_10_minutes">10 menit</string>
+    <string name="_30_minutes">30 menit</string>
+    <string name="_60_minutes">60 menit</string>
+    <string name="focus_session_canceled">Sesi fokus dibatalkan</string>
+    <string name="focus_session_completed">Sesi fokus selesai 🎉</string>
+    <string name="you_must_log_in_first">Kamu harus masuk terlebih dahulu.</string>
+    <string name="yes">Ya</string>
+    <string name="discard_changes">Buang perubahan?</string>
+    <string name="unsaved_changes_message">Ada perubahan yang belum disimpan. Apakah ingin membuangnya?</string>
+    <string name="delete_confirm">Konfirmasi hapus</string>
+    <string name="done_confirm">Konfirmasi tandai selesai</string>
+    <string name="delete_confirm_message">Apakah kamu yakin ingin menghapus tugas ini?</string>
+    <string name="done_confirm_message">Apakah kamu yakin ingin menandai tugas ini selesai dan membatalkan alarm?</string>
+    <string name="session_stats_title">Statistik Sesi Fokus</string>
+    <string name="select_time_range">Pilih Rentang Waktu</string>
+    <string name="no_alarm_set">Tidak ada alarm disetel</string>
+    <string name="alarm">Alarm: %1$s</string>
+    <string name="created_at">Dibuat pada: %1$s</string>
+    <string name="unknown_audio_file">File_Audio_Tidak_Dikenal</string>
+    <string name="sessions_completed">Sesi Selesai: %1$d</string>
+    <string name="current_streak_day">Streak Saat Ini: %1$d hari%2$s</string>
+    <string name="session_stats_chart_label">Durasi Fokus</string>
+    <string name="share_progress">Bagikan Progres</string>
+    <string name="total_focus_time">Total Waktu Fokus: %1$s</string>
+    <string name="dark_mode_text">Mode gelap (segera hadir)</string>
+    <string name="setting_title">Judul Pengaturan</string>
+    <string name="toggle_setting">Alihkan Pengaturan</string>
+    <string name="vibration">Getaran alarm</string>
+    <string name="default_alarm_time">Waktu alarm default</string>
+    <string name="sync_with_cloud">Sinkronkan dengan Cloud</string>
+    <string name="change_password">Ubah kata sandi</string>
+    <string name="setting_general">Umum</string>
+    <string name="setting_account">Akun</string>
+    <string name="setting_feature">Fitur</string>
+    <string name="settings">Pengaturan</string>
+    <string name="google_signed_password_change_not_available">Kamu masuk dengan Google. Perubahan kata sandi tidak tersedia di sini.</string>
+    <string name="password_changed">Kata sandi diubah.</string>
+    <string name="password_change_failed">Gagal mengubah kata sandi.</string>
+    <string name="confirm">Konfirmasi</string>
+    <string name="enter_current_password">Masukkan kata sandi saat ini</string>
+    <string name="new_password">Kata sandi baru</string>
+    <string name="reenter_new_password">Masukkan ulang kata sandi baru</string>
+    <string name="current_password_incorrect">Kata sandi saat ini salah</string>
+    <string name="forgot_password">Lupa kata sandi?</string>
+    <string name="reset_password">Atur ulang kata sandi</string>
+    <string name="reset_password_description">Masukkan email terdaftarmu. Kami akan mengirim tautan untuk mengatur ulang kata sandimu.</string>
+    <string name="password_reset_email_sent">Email reset kata sandi terkirim.</string>
+    <string name="failed_reset_password">Gagal: %1$s</string>
+    <string name="wait_sec">Tunggu %1$d dtk</string>
+    <string name="send_reset_email">Kirim Email Reset</string>
+    <string name="default_alarm_tooltip">Ini adalah suara default untuk alarm tugasmu jika kamu belum memilih suara kustom.</string>
+    <string name="default_session_tooltip">Ini adalah suara default yang diputar selama sesi fokus jika tidak ada suara kustom yang dipilih. Bisa dihapus.</string>
+    <string name="your_journey">Perjalananmu</string>
+    <string name="achievements">Pencapaian</string>
+    <string name="badge_icon">Ikon Lencana</string>
+    <string name="menu">Menu</string>
+    <string name="mark_as_done">Tandai selesai</string>
+    <string name="task_done">Tugas ditandai selesai.</string>
+    <string name="task_already_done">Tugas ini sudah ditandai selesai.</string>
+    <string name="session_stats_chart_stack_completed">Sesi selesai</string>
+    <string name="session_stats_chart_stack_incomplete">Sesi belum selesai</string>
+    <string name="complete_a_session">Selesaikan satu sesi</string>
+    <string name="badge_icon_description">Ikon lencana</string>
+    <string name="status_unlocked_on">Status: Terbuka pada + %1$s</string>
+    <string name="status_locked">Status: Terkunci</string>
+    <string name="status_unlocked">Status: Terbuka</string>
+    <string name="string_language">Bahasa</string>
+    <string name="choose_language">Pilih Bahasa</string>
+    <string name="please_select_language">Silakan pilih bahasa</string>
+    <string name="spanish" translatable="false">Spanish</string>
+    <string name="spanish_es" translatable="false">Spanish (ES)</string>
+    <string name="portuguese_br" translatable="false">Portuguese (BR)</string>
+    <string name="portuguese_pt" translatable="false">Portuguese (PT)</string>
+    <string name="arabic_ae" translatable="false">Arabic (AE)</string>
+    <string name="arabic_eg" translatable="false">Arabic (EG)</string>
+    <string name="arabic_sa" translatable="false">Arabic (SA)</string>
+    <string name="arabic" translatable="false">Arabic</string>
+    <string name="english" translatable="false">English</string>
+    <string name="english_uk" translatable="false">English (UK)</string>
+    <string name="english_us" translatable="false">English (US)</string>
+    <string name="english_in" translatable="false">English (IN)</string>
+    <string name="portuguese" translatable="false">Portuguese</string>
+    <string name="portuguese_ch" translatable="false">Portuguese (CH)</string>
+    <string name="spanish_us" translatable="false">Spanish (US)</string>
+    <string name="spanish_br" translatable="false">Spanish (BR)</string>
+    <string name="american" translatable="false">American</string>
+    <string name="british" translatable="false">British</string>
+    <string name="indian" translatable="false">Indian</string>
+    <string name="eu" translatable="false">EU</string>
+    <string name="brazin" translatable="false">Brazin</string>
+    <string name="portugues" translatable="false">Português</string>
+    <string name="espanol" translatable="false">Español</string>
+    <string name="mexico" translatable="false">Mexico</string>
+    <string name="french" translatable="false">French</string>
+    <string name="hindi">Hindi</string>
+    <string name="france">Prancis</string>
+    <string name="german">Jerman</string>
+    <string name="indonesian">Indonesia</string>
+    <string name="loading">Memuat</string>
+    <string name="please_wait">Harap tunggu...</string>
+    <string name="translating">Menerjemahkan...</string>
+</resources>

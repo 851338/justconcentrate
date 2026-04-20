@@ -1,0 +1,221 @@
+<resources>
+    <string name="app_name">Just Concentration</string>
+    <string name="note_your_task_here">Notiere deine Aufgabe hier</string>
+    <string name="main_title">Hauptseite</string>
+    <string name="task_title">Aufgabenseite</string>
+    <string name="enter_task_name">Aufgabennamen eingeben</string>
+    <string name="title_activity_welcome">WelcomeActivity</string>
+    <string name="prompt_email">E-Mail</string>
+    <string name="prompt_password">Passwort</string>
+    <string name="action_sign_in">Anmelden oder registrieren</string>
+    <string name="action_sign_in_short">Anmelden</string>
+    <string name="welcome">"Willkommen!"</string>
+    <string name="invalid_password">Das Passwort muss mehr als 5 Zeichen haben</string>
+    <string name="app_slogan">Bleib organisiert, bleib produktiv!</string>
+    <string name="create_an_account">Konto erstellen</string>
+    <string name="default_web_client_id">662460448010-d8ckf1eef8c2di5olp9kbbco8j51997s.apps.googleusercontent.com</string>
+    <string name="sign_in_successful">Anmeldung erfolgreich!</string>
+    <string name="authentication_failed">Authentifizierung fehlgeschlagen</string>
+    <string name="slogan_description">Verwalte deine Aufgaben muhelos mit unserer smarten To-do-App.</string>
+    <string name="subscription">Abonnement</string>
+    <string name="about">Uber</string>
+    <string name="logout">Abmelden</string>
+    <string name="alarm_triggered">⏰ Alarm ausgelost!</string>
+    <string name="please_enter_task_title">Bitte Aufgabentitel eingeben</string>
+    <string name="task_created_with_alarm">Die erstellte/aktualisierte Aufgabe lost um %1$s einen Alarm aus</string>
+    <string name="task_without_alarm">Aufgabe ohne Alarm erstellt/aktualisiert</string>
+    <string name="task_created_success">Aufgabe erfolgreich erstellt!</string>
+    <string name="time_choosen_has_passed">Das ausgewahlte Datum und die Uhrzeit liegen bereits in der Vergangenheit.</string>
+    <string name="unexpected_error">Unerwarteter Fehler</string>
+    <string name="sign_up">Registrieren</string>
+    <string name="password_min_6_characters">Passwort (mind. 6 Zeichen)</string>
+    <string name="reenter_password">Passwort erneut eingeben</string>
+    <string name="create_account">Konto erstellen</string>
+    <string name="empty_name">Name darf nicht leer sein.</string>
+    <string name="empty_password">Passwort darf nicht leer sein.</string>
+    <string name="wrong_format_email">Deine E-Mail ist ungultig.</string>
+    <string name="password_min_6_characters_error">Passwort muss mindestens 6 Zeichen lang sein.</string>
+    <string name="confirm_password_mismatch">Passwortbestatigung stimmt nicht uberein</string>
+    <string name="signup_failed">Registrierung fehlgeschlagen: %1$s</string>
+    <string name="signup_successful">Registrierung erfolgreich!</string>
+    <string name="already_have_an_account">Du hast bereits ein Konto? Einloggen</string>
+    <string name="skip">Uberspringen und Offline-Version nutzen</string>
+    <string name="welcome_back">Schon, dich wiederzusehen!</string>
+    <string name="password">Passwort</string>
+    <string name="login">Einloggen</string>
+    <string name="or">Oder</string>
+    <string name="login_success">Willkommen zuruck!</string>
+    <string name="login_failed">Anmeldung fehlgeschlagen: %1$s</string>
+    <string name="app_email">%1$s@justconcentration.com</string>
+    <string name="back">Zuruck</string>
+    <string name="no_internet_connection">Keine Internetverbindung.</string>
+    <string name="logged_out">Abgemeldet.</string>
+    <string name="unknown_exception">Unbekannte Ausnahme</string>
+    <string name="pick_date_amp_time"><![CDATA[Datum & Uhrzeit auswahlen]]></string>
+    <string name="no_date_selected">Kein Datum ausgewahlt</string>
+    <string name="choose_alarm_sound">Alarmton auswahlen</string>
+    <string name="default_alarm_sound">Standard-Alarmton</string>
+    <string name="default_session_sound">Standardton fur Konzentrationssitzung</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="save_task">Aufgabe speichern</string>
+    <string name="alarm_dismissed">Alarm beendet.</string>
+    <string name="task_snoozed_for_minutes">Aufgabe fur %1$d Minuten verschoben.</string>
+    <string name="task_not_created">Aufgabe wurde aufgrund von %1$s nicht erstellt.</string>
+    <string name="task_updated_success">Aufgabe erfolgreich aktualisiert!</string>
+    <string name="task_not_updated">Aufgabe wurde aufgrund von %1$s nicht aktualisiert.</string>
+    <string name="alarm_updated_success">Alarm erfolgreich aktualisiert!</string>
+    <string name="alarm_not_updated">Alarm wurde aufgrund von %1$s nicht aktualisiert.</string>
+    <string name="task_deleted">Aufgabe geloscht.</string>
+    <string name="task_description">Diese Notiz zeigt, was zu tun ist\n</string>
+    <string name="restore">Wiederherstellen</string>
+    <string name="delete">Loschen</string>
+    <string name="task_restored">Aufgabe wiederhergestellt.</string>
+    <string name="add_task">Aufgabe hinzufugen</string>
+    <string name="search">Suchen</string>
+    <string name="deleted_tasks">Geloschte Aufgaben</string>
+    <string name="main_fab">Haupt-FAB</string>
+    <string name="there_are_no_tasks">Es gibt keine Aufgaben.</string>
+    <string name="there_are_no_deleted_tasks">Es gibt keine geloschten Aufgaben.</string>
+    <string name="reset">Zurucksetzen</string>
+    <string name="no_tasks_found">Keine Aufgaben gefunden.</string>
+    <string name="my_tasks">Meine Aufgaben</string>
+    <string name="edit_task_title">Aufgabe bearbeiten</string>
+    <string name="new_task_title">Neue Aufgabe</string>
+    <string name="stats_title">Statistiken</string>
+    <string name="i_accept_the_privacy_policy">Ich akzeptiere die Datenschutzerklarung</string>
+    <string name="view_privacy_policy">Datenschutzerklarung anzeigen</string>
+    <string name="continue_button">Weiter</string>
+    <string name="privacy_policy">Datenschutzerklarung</string>
+    <string name="please_read_and_accept_our_privacy_policy_to_continue_using_the_app">Bitte lies und akzeptiere unsere Datenschutzerklarung, um die App weiter zu nutzen.</string>
+    <string name="enter_your_name">Deinen Namen eingeben</string>
+    <string name="enter_email">E-Mail eingeben</string>
+    <string name="empty_email">E-Mail darf nicht leer sein.</string>
+    <string name="app_version">Version 1.0.0</string>
+    <string name="view_open_source_licenses">Open-Source-Lizenzen anzeigen</string>
+    <string name="rate_on_play_store">Im Play Store bewerten</string>
+    <string name="my_store_name">Mobi Chill</string>
+    <string name="creator">Ersteller:</string>
+    <string name="my_email">Kontakt: tvndbhk@gmail.com</string>
+    <string name="about_title">Uber</string>
+    <string name="about_content">Just Concentration ist dein smarter personlicher Aufgabenmanager. Plane deinen Tag, stelle Alarme und steigere deine Produktivitat ganz einfach.</string>
+    <string name="greeting">Hi, %1$s</string>
+    <string name="concentrate_title">Konzentrieren</string>
+    <string name="select_duration">Dauer auswahlen</string>
+    <string name="select_apps_to_block">Apps zum Blockieren auswahlen</string>
+    <string name="go_concentrate_mode">In den Konzentrationsmodus!</string>
+    <string name="concentrate_mode_setup_title">Einrichtung des Konzentrationsmodus</string>
+    <string name="duration">Dauer in Minuten</string>
+    <string name="duration_input_hint">Anzahl der Minuten eingeben, z. B. 60</string>
+    <string name="enter_your_focus_goal">Dein Fokusziel eingeben</string>
+    <string name="do_you_have_any_goal">Hast du ein Ziel?</string>
+    <string name="select_sound">Ton auswahlen</string>
+    <string name="silence">Stille.mp5</string>
+    <string name="really">Wirklich?</string>
+    <string name="you_haven_t_determined_duration">Du hast keine Dauer festgelegt.</string>
+    <string name="focus_session_already_running">Eine Fokussitzung lauft bereits!</string>
+    <string name="invalid_audio">Ungultige Audiodatei. Bitte wahle eine andere!</string>
+    <string name="enter_custom_time">Benutzerdefinierte Zeit eingeben</string>
+    <string name="custom">Benutzerdefiniert…</string>
+    <string name="_5_minutes">5 Minuten</string>
+    <string name="_10_minutes">10 Minuten</string>
+    <string name="_30_minutes">30 Minuten</string>
+    <string name="_60_minutes">60 Minuten</string>
+    <string name="focus_session_canceled">Fokussitzung abgebrochen</string>
+    <string name="focus_session_completed">Fokussitzung abgeschlossen 🎉</string>
+    <string name="you_must_log_in_first">Du musst dich zuerst anmelden.</string>
+    <string name="yes">Ja</string>
+    <string name="discard_changes">Anderungen verwerfen?</string>
+    <string name="unsaved_changes_message">Du hast ungespeicherte Anderungen. Mochtest du sie verwerfen?</string>
+    <string name="delete_confirm">Loschen bestatigen</string>
+    <string name="done_confirm">Als erledigt markieren bestatigen</string>
+    <string name="delete_confirm_message">Mochtest du diese Aufgabe wirklich loschen?</string>
+    <string name="done_confirm_message">Mochtest du diese Aufgabe wirklich als erledigt markieren und den Alarm abbrechen?</string>
+    <string name="session_stats_title">Statistik der Konzentrationssitzung</string>
+    <string name="select_time_range">Zeitraum auswahlen</string>
+    <string name="no_alarm_set">Kein Alarm gesetzt</string>
+    <string name="alarm">Alarm: %1$s</string>
+    <string name="created_at">Erstellt am: %1$s</string>
+    <string name="unknown_audio_file">Unbekannte_Audiodatei</string>
+    <string name="sessions_completed">Abgeschlossene Sitzungen: %1$d</string>
+    <string name="current_streak_day">Aktuelle Serie: %1$d Tag%2$s</string>
+    <string name="session_stats_chart_label">Fokusdauer</string>
+    <string name="share_progress">Fortschritt teilen</string>
+    <string name="total_focus_time">Gesamte Konzentrationszeit: %1$s</string>
+    <string name="dark_mode_text">Dunkelmodus (kommt bald)</string>
+    <string name="setting_title">Einstellungen</string>
+    <string name="toggle_setting">Einstellung umschalten</string>
+    <string name="vibration">Alarmvibration</string>
+    <string name="default_alarm_time">Standard-Alarmzeit</string>
+    <string name="sync_with_cloud">Mit Cloud synchronisieren</string>
+    <string name="change_password">Passwort andern</string>
+    <string name="setting_general">Allgemein</string>
+    <string name="setting_account">Konto</string>
+    <string name="setting_feature">Funktion</string>
+    <string name="settings">Einstellungen</string>
+    <string name="google_signed_password_change_not_available">Du hast dich mit Google angemeldet. Passwortanderungen sind hier nicht verfugbar.</string>
+    <string name="password_changed">Passwort geandert.</string>
+    <string name="password_change_failed">Passwortanderung fehlgeschlagen.</string>
+    <string name="confirm">Bestatigen</string>
+    <string name="enter_current_password">Aktuelles Passwort eingeben</string>
+    <string name="new_password">Neues Passwort</string>
+    <string name="reenter_new_password">Neues Passwort erneut eingeben</string>
+    <string name="current_password_incorrect">Aktuelles Passwort ist falsch</string>
+    <string name="forgot_password">Passwort vergessen?</string>
+    <string name="reset_password">Passwort zurucksetzen</string>
+    <string name="reset_password_description">Gib deine registrierte E-Mail ein. Wir senden dir einen Link zum Zurucksetzen deines Passworts.</string>
+    <string name="password_reset_email_sent">E-Mail zum Zurucksetzen des Passworts gesendet.</string>
+    <string name="failed_reset_password">Fehlgeschlagen: %1$s</string>
+    <string name="wait_sec">Warte %1$d Sek.</string>
+    <string name="send_reset_email">E-Mail zum Zurucksetzen senden</string>
+    <string name="default_alarm_tooltip">Dies ist der Standardton fur Aufgabenalarme, wenn du keinen benutzerdefinierten ausgewahlt hast.</string>
+    <string name="default_session_tooltip">Dies ist der Standardton wahrend deiner Konzentrationssitzung, wenn kein benutzerdefinierter Ton gewahlt wurde. Kann entfernt werden.</string>
+    <string name="your_journey">Deine Reise</string>
+    <string name="achievements">Erfolge</string>
+    <string name="badge_icon">Abzeichen-Symbol</string>
+    <string name="menu">Menu</string>
+    <string name="mark_as_done">Als erledigt markieren</string>
+    <string name="task_done">Aufgabe als erledigt markiert.</string>
+    <string name="task_already_done">Diese Aufgabe ist bereits als erledigt markiert.</string>
+    <string name="session_stats_chart_stack_completed">Abgeschlossene Sitzung</string>
+    <string name="session_stats_chart_stack_incomplete">Unvollstandige Sitzung</string>
+    <string name="complete_a_session">Eine Sitzung abschlieBen</string>
+    <string name="badge_icon_description">Abzeichen-Symbol</string>
+    <string name="status_unlocked_on">Status: Freigeschaltet am + %1$s</string>
+    <string name="status_locked">Status: Gesperrt</string>
+    <string name="status_unlocked">Status: Freigeschaltet</string>
+    <string name="string_language">Sprache</string>
+    <string name="choose_language">Sprache auswahlen</string>
+    <string name="please_select_language">Bitte Sprache auswahlen</string>
+    <string name="spanish" translatable="false">Spanish</string>
+    <string name="spanish_es" translatable="false">Spanish (ES)</string>
+    <string name="portuguese_br" translatable="false">Portuguese (BR)</string>
+    <string name="portuguese_pt" translatable="false">Portuguese (PT)</string>
+    <string name="arabic_ae" translatable="false">Arabic (AE)</string>
+    <string name="arabic_eg" translatable="false">Arabic (EG)</string>
+    <string name="arabic_sa" translatable="false">Arabic (SA)</string>
+    <string name="arabic" translatable="false">Arabic</string>
+    <string name="english" translatable="false">English</string>
+    <string name="english_uk" translatable="false">English (UK)</string>
+    <string name="english_us" translatable="false">English (US)</string>
+    <string name="english_in" translatable="false">English (IN)</string>
+    <string name="portuguese" translatable="false">Portuguese</string>
+    <string name="portuguese_ch" translatable="false">Portuguese (CH)</string>
+    <string name="spanish_us" translatable="false">Spanish (US)</string>
+    <string name="spanish_br" translatable="false">Spanish (BR)</string>
+    <string name="american" translatable="false">American</string>
+    <string name="british" translatable="false">British</string>
+    <string name="indian" translatable="false">Indian</string>
+    <string name="eu" translatable="false">EU</string>
+    <string name="brazin" translatable="false">Brazin</string>
+    <string name="portugues" translatable="false">Português</string>
+    <string name="espanol" translatable="false">Español</string>
+    <string name="mexico" translatable="false">Mexico</string>
+    <string name="french" translatable="false">French</string>
+    <string name="hindi">Hindi</string>
+    <string name="france">Frankreich</string>
+    <string name="german">Deutsch</string>
+    <string name="indonesian">Indonesisch</string>
+    <string name="loading">Wird geladen</string>
+    <string name="please_wait">Bitte warten...</string>
+    <string name="translating">Wird ubersetzt...</string>
+</resources>

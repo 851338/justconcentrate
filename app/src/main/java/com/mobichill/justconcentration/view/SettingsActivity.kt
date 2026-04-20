@@ -21,11 +21,13 @@ import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.FirebaseAuth
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
+import com.mobichill.justconcentration.constants.Constants
 import com.mobichill.justconcentration.databinding.ActivitySettingsBinding
 import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.utils.AudioUtils
 import com.mobichill.justconcentration.utils.SharedPreferencesUtils
 import com.mobichill.justconcentration.utils.Utils
+import com.mobichill.justconcentration.view.language.LanguageActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -176,6 +178,16 @@ class SettingsActivity : BaseViewBindingActivity<ActivitySettingsBinding>() {
                 }
             }
         )
+
+        // Language
+        itemLanguage.settingTitle.text = getString(R.string.string_language)
+        itemLanguage.root.setOnClickListener(object : OnSingleClickListener() {
+            override fun onSingleClick(view: View) {
+                val intent = Intent(this@SettingsActivity, LanguageActivity::class.java)
+                intent.putExtra(Constants.IS_SETTING, true)
+                startActivity(intent)
+            }
+        })
 
         // Dark mode
         itemDarkMode.settingToggleTitle.text = getString(R.string.dark_mode_text)

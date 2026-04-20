@@ -1,0 +1,222 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Just Concentration</string>
+    <string name="note_your_task_here">अपना कार्य यहां लिखें</string>
+    <string name="main_title">मुख्य पेज</string>
+    <string name="task_title">कार्य पेज</string>
+    <string name="enter_task_name">कार्य का नाम दर्ज करें</string>
+    <string name="title_activity_welcome">WelcomeActivity</string>
+    <string name="prompt_email">ईमेल</string>
+    <string name="prompt_password">पासवर्ड</string>
+    <string name="action_sign_in">साइन इन या रजिस्टर करें</string>
+    <string name="action_sign_in_short">साइन इन</string>
+    <string name="welcome">"स्वागत है!"</string>
+    <string name="invalid_password">पासवर्ड 5 अक्षरों से अधिक होना चाहिए</string>
+    <string name="app_slogan">व्यवस्थित रहें, उत्पादक रहें!</string>
+    <string name="create_an_account">खाता बनाएं</string>
+    <string name="default_web_client_id">662460448010-d8ckf1eef8c2di5olp9kbbco8j51997s.apps.googleusercontent.com</string>
+    <string name="sign_in_successful">साइन-इन सफल!</string>
+    <string name="authentication_failed">प्रमाणीकरण विफल</string>
+    <string name="slogan_description">हमारे स्मार्ट टू-डू ऐप के साथ अपने कार्य आसानी से प्रबंधित करें।</string>
+    <string name="subscription">सदस्यता</string>
+    <string name="about">परिचय</string>
+    <string name="logout">लॉगआउट</string>
+    <string name="alarm_triggered">⏰ अलार्म ट्रिगर हुआ!</string>
+    <string name="please_enter_task_title">कृपया कार्य शीर्षक दर्ज करें</string>
+    <string name="task_created_with_alarm">बनाया/अपडेट किया गया कार्य %1$s पर अलार्म ट्रिगर करेगा</string>
+    <string name="task_without_alarm">कार्य बिना अलार्म बनाया/अपडेट किया गया</string>
+    <string name="task_created_success">कार्य सफलतापूर्वक बनाया गया!</string>
+    <string name="time_choosen_has_passed">चुनी गई तिथि और समय पहले ही बीत चुके हैं।</string>
+    <string name="unexpected_error">अनपेक्षित त्रुटि</string>
+    <string name="sign_up">साइन अप</string>
+    <string name="password_min_6_characters">पासवर्ड (न्यूनतम 6 अक्षर)</string>
+    <string name="reenter_password">पासवर्ड फिर से दर्ज करें</string>
+    <string name="create_account">खाता बनाएं</string>
+    <string name="empty_name">नाम खाली नहीं हो सकता।</string>
+    <string name="empty_password">पासवर्ड खाली नहीं हो सकता।</string>
+    <string name="wrong_format_email">आपका ईमेल अमान्य है।</string>
+    <string name="password_min_6_characters_error">पासवर्ड कम से कम 6 अक्षरों का होना चाहिए।</string>
+    <string name="confirm_password_mismatch">पासवर्ड पुष्टि मेल नहीं खाती</string>
+    <string name="signup_failed">साइनअप विफल: %1$s</string>
+    <string name="signup_successful">साइनअप सफल!</string>
+    <string name="already_have_an_account">पहले से खाता है? लॉग इन करें</string>
+    <string name="skip">ऑफलाइन संस्करण उपयोग करने के लिए छोड़ें</string>
+    <string name="welcome_back">आपको फिर से देखकर खुशी हुई!</string>
+    <string name="password">पासवर्ड</string>
+    <string name="login">लॉग इन</string>
+    <string name="or">या</string>
+    <string name="login_success">वापसी पर स्वागत है!</string>
+    <string name="login_failed">लॉगिन विफल: %1$s</string>
+    <string name="app_email">%1$s@justconcentration.com</string>
+    <string name="back">वापस</string>
+    <string name="no_internet_connection">कोई इंटरनेट कनेक्शन नहीं।</string>
+    <string name="logged_out">लॉगआउट हो गया।</string>
+    <string name="unknown_exception">अज्ञात अपवाद</string>
+    <string name="pick_date_amp_time">तिथि और समय चुनें</string>
+    <string name="no_date_selected">कोई तिथि चयनित नहीं</string>
+    <string name="choose_alarm_sound">अलार्म ध्वनि चुनें</string>
+    <string name="default_alarm_sound">डिफॉल्ट अलार्म ध्वनि</string>
+    <string name="default_session_sound">डिफॉल्ट एकाग्रता सत्र ध्वनि</string>
+    <string name="cancel">रद्द करें</string>
+    <string name="save_task">कार्य सहेजें</string>
+    <string name="alarm_dismissed">अलार्म बंद किया गया।</string>
+    <string name="task_snoozed_for_minutes">कार्य %1$d मिनट के लिए स्थगित किया गया।</string>
+    <string name="task_not_created">%1$s के कारण कार्य नहीं बनाया गया।</string>
+    <string name="task_updated_success">कार्य सफलतापूर्वक अपडेट किया गया!</string>
+    <string name="task_not_updated">%1$s के कारण कार्य अपडेट नहीं हुआ।</string>
+    <string name="alarm_updated_success">अलार्म सफलतापूर्वक अपडेट हुआ!</string>
+    <string name="alarm_not_updated">%1$s के कारण अलार्म अपडेट नहीं हुआ।</string>
+    <string name="task_deleted">कार्य हटाया गया।</string>
+    <string name="task_description">यह नोट दिखाता है कि क्या करना है\n</string>
+    <string name="restore">पुनर्स्थापित करें</string>
+    <string name="delete">हटाएं</string>
+    <string name="task_restored">कार्य पुनर्स्थापित किया गया।</string>
+    <string name="add_task">कार्य जोड़ें</string>
+    <string name="search">खोजें</string>
+    <string name="deleted_tasks">हटाए गए कार्य</string>
+    <string name="main_fab">मुख्य FAB</string>
+    <string name="there_are_no_tasks">कोई कार्य नहीं है।</string>
+    <string name="there_are_no_deleted_tasks">कोई हटाया गया कार्य नहीं है।</string>
+    <string name="reset">रीसेट</string>
+    <string name="no_tasks_found">कोई कार्य नहीं मिला।</string>
+    <string name="my_tasks">मेरे कार्य</string>
+    <string name="edit_task_title">कार्य संपादित करें</string>
+    <string name="new_task_title">नया कार्य</string>
+    <string name="stats_title">आंकड़े</string>
+    <string name="i_accept_the_privacy_policy">मैं गोपनीयता नीति स्वीकार करता/करती हूं</string>
+    <string name="view_privacy_policy">गोपनीयता नीति देखें</string>
+    <string name="continue_button">जारी रखें</string>
+    <string name="privacy_policy">गोपनीयता नीति</string>
+    <string name="please_read_and_accept_our_privacy_policy_to_continue_using_the_app">ऐप का उपयोग जारी रखने के लिए कृपया हमारी गोपनीयता नीति पढ़ें और स्वीकार करें।</string>
+    <string name="enter_your_name">अपना नाम दर्ज करें</string>
+    <string name="enter_email">ईमेल दर्ज करें</string>
+    <string name="empty_email">ईमेल खाली नहीं हो सकता।</string>
+    <string name="app_version">संस्करण 1.0.0</string>
+    <string name="view_open_source_licenses">ओपन सोर्स लाइसेंस देखें</string>
+    <string name="rate_on_play_store">Play Store पर रेट करें</string>
+    <string name="my_store_name">Mobi Chill</string>
+    <string name="creator">निर्माता:</string>
+    <string name="my_email">संपर्क: tvndbhk@gmail.com</string>
+    <string name="about_title">परिचय</string>
+    <string name="about_content">Just Concentration आपका स्मार्ट व्यक्तिगत कार्य प्रबंधक है। अपना दिन योजनाबद्ध करें, अलार्म सेट करें और आसानी से उत्पादकता बढ़ाएं।</string>
+    <string name="greeting">हाय, %1$s</string>
+    <string name="concentrate_title">एकाग्रता</string>
+    <string name="select_duration">अवधि चुनें</string>
+    <string name="select_apps_to_block">ब्लॉक करने के लिए ऐप चुनें</string>
+    <string name="go_concentrate_mode">एकाग्रता मोड शुरू करें!</string>
+    <string name="concentrate_mode_setup_title">एकाग्रता मोड सेटअप</string>
+    <string name="duration">मिनट में अवधि</string>
+    <string name="duration_input_hint">मिनट की संख्या दर्ज करें, जैसे 60</string>
+    <string name="enter_your_focus_goal">अपना फोकस लक्ष्य दर्ज करें</string>
+    <string name="do_you_have_any_goal">क्या आपका कोई लक्ष्य है?</string>
+    <string name="select_sound">ध्वनि चुनें</string>
+    <string name="silence">Silence.mp5</string>
+    <string name="really">सच में?</string>
+    <string name="you_haven_t_determined_duration">आपने अवधि निर्धारित नहीं की है।</string>
+    <string name="focus_session_already_running">एक फोकस सत्र पहले से चल रहा है!</string>
+    <string name="invalid_audio">अमान्य ऑडियो फ़ाइल। कृपया दूसरी चुनें!</string>
+    <string name="enter_custom_time">कस्टम समय दर्ज करें</string>
+    <string name="custom">कस्टम…</string>
+    <string name="_5_minutes">5 मिनट</string>
+    <string name="_10_minutes">10 मिनट</string>
+    <string name="_30_minutes">30 मिनट</string>
+    <string name="_60_minutes">60 मिनट</string>
+    <string name="focus_session_canceled">फोकस सत्र रद्द किया गया</string>
+    <string name="focus_session_completed">फोकस सत्र पूरा हुआ 🎉</string>
+    <string name="you_must_log_in_first">आपको पहले लॉग इन करना होगा।</string>
+    <string name="yes">हां</string>
+    <string name="discard_changes">परिवर्तन त्यागें?</string>
+    <string name="unsaved_changes_message">आपके पास बिना सहेजे परिवर्तन हैं। क्या आप उन्हें त्यागना चाहते हैं?</string>
+    <string name="delete_confirm">हटाने की पुष्टि</string>
+    <string name="done_confirm">पूर्ण के रूप में चिह्नित करने की पुष्टि</string>
+    <string name="delete_confirm_message">क्या आप वाकई इस कार्य को हटाना चाहते हैं?</string>
+    <string name="done_confirm_message">क्या आप वाकई इस कार्य को पूर्ण चिह्नित कर अलार्म रद्द करना चाहते हैं?</string>
+    <string name="session_stats_title">एकाग्रता सत्र आंकड़े</string>
+    <string name="select_time_range">समय सीमा चुनें</string>
+    <string name="no_alarm_set">कोई अलार्म सेट नहीं</string>
+    <string name="alarm">अलार्म: %1$s</string>
+    <string name="created_at">बनाया गया: %1$s</string>
+    <string name="unknown_audio_file">अज्ञात_ऑडियो_फ़ाइल</string>
+    <string name="sessions_completed">पूर्ण सत्र: %1$d</string>
+    <string name="current_streak_day">वर्तमान स्ट्रीक: %1$d दिन%2$s</string>
+    <string name="session_stats_chart_label">फोकस अवधि</string>
+    <string name="share_progress">प्रगति साझा करें</string>
+    <string name="total_focus_time">कुल एकाग्र समय: %1$s</string>
+    <string name="dark_mode_text">डार्क मोड (जल्द आ रहा है)</string>
+    <string name="setting_title">सेटिंग शीर्षक</string>
+    <string name="toggle_setting">सेटिंग टॉगल करें</string>
+    <string name="vibration">अलार्म वाइब्रेशन</string>
+    <string name="default_alarm_time">डिफॉल्ट अलार्म समय</string>
+    <string name="sync_with_cloud">क्लाउड से सिंक करें</string>
+    <string name="change_password">पासवर्ड बदलें</string>
+    <string name="setting_general">सामान्य</string>
+    <string name="setting_account">खाता</string>
+    <string name="setting_feature">विशेषता</string>
+    <string name="settings">सेटिंग्स</string>
+    <string name="google_signed_password_change_not_available">आपने Google से साइन इन किया है। यहां पासवर्ड बदलना उपलब्ध नहीं है।</string>
+    <string name="password_changed">पासवर्ड बदल गया।</string>
+    <string name="password_change_failed">पासवर्ड बदलना विफल रहा।</string>
+    <string name="confirm">पुष्टि करें</string>
+    <string name="enter_current_password">वर्तमान पासवर्ड दर्ज करें</string>
+    <string name="new_password">नया पासवर्ड</string>
+    <string name="reenter_new_password">नया पासवर्ड फिर से दर्ज करें</string>
+    <string name="current_password_incorrect">वर्तमान पासवर्ड गलत है</string>
+    <string name="forgot_password">पासवर्ड भूल गए?</string>
+    <string name="reset_password">पासवर्ड रीसेट करें</string>
+    <string name="reset_password_description">अपना पंजीकृत ईमेल दर्ज करें। हम आपको पासवर्ड रीसेट करने का लिंक भेजेंगे।</string>
+    <string name="password_reset_email_sent">पासवर्ड रीसेट ईमेल भेजा गया।</string>
+    <string name="failed_reset_password">विफल: %1$s</string>
+    <string name="wait_sec">%1$d सेक प्रतीक्षा करें</string>
+    <string name="send_reset_email">रीसेट ईमेल भेजें</string>
+    <string name="default_alarm_tooltip">यदि आपने कस्टम ध्वनि नहीं चुनी है, तो यह आपकी कार्य अलार्म के लिए डिफॉल्ट ध्वनि है।</string>
+    <string name="default_session_tooltip">यदि कोई कस्टम ध्वनि चयनित नहीं है, तो यह आपकी एकाग्रता सत्र के दौरान चलने वाली डिफॉल्ट ध्वनि है। इसे हटाया जा सकता है।</string>
+    <string name="your_journey">आपकी यात्रा</string>
+    <string name="achievements">उपलब्धियां</string>
+    <string name="badge_icon">बैज आइकन</string>
+    <string name="menu">मेन्यू</string>
+    <string name="mark_as_done">पूर्ण के रूप में चिह्नित करें</string>
+    <string name="task_done">कार्य पूर्ण के रूप में चिह्नित किया गया।</string>
+    <string name="task_already_done">यह कार्य पहले से पूर्ण चिह्नित है।</string>
+    <string name="session_stats_chart_stack_completed">पूर्ण सत्र</string>
+    <string name="session_stats_chart_stack_incomplete">अपूर्ण सत्र</string>
+    <string name="complete_a_session">एक सत्र पूरा करें</string>
+    <string name="badge_icon_description">बैज आइकन</string>
+    <string name="status_unlocked_on">स्थिति: %1$s को अनलॉक</string>
+    <string name="status_locked">स्थिति: लॉक</string>
+    <string name="status_unlocked">स्थिति: अनलॉक</string>
+    <string name="string_language">भाषा</string>
+    <string name="choose_language">भाषा चुनें</string>
+    <string name="please_select_language">कृपया भाषा चुनें</string>
+    <string name="spanish" translatable="false">Spanish</string>
+    <string name="spanish_es" translatable="false">Spanish (ES)</string>
+    <string name="portuguese_br" translatable="false">Portuguese (BR)</string>
+    <string name="portuguese_pt" translatable="false">Portuguese (PT)</string>
+    <string name="arabic_ae" translatable="false">Arabic (AE)</string>
+    <string name="arabic_eg" translatable="false">Arabic (EG)</string>
+    <string name="arabic_sa" translatable="false">Arabic (SA)</string>
+    <string name="arabic" translatable="false">Arabic</string>
+    <string name="english" translatable="false">English</string>
+    <string name="english_uk" translatable="false">English (UK)</string>
+    <string name="english_us" translatable="false">English (US)</string>
+    <string name="english_in" translatable="false">English (IN)</string>
+    <string name="portuguese" translatable="false">Portuguese</string>
+    <string name="portuguese_ch" translatable="false">Portuguese (CH)</string>
+    <string name="spanish_us" translatable="false">Spanish (US)</string>
+    <string name="spanish_br" translatable="false">Spanish (BR)</string>
+    <string name="american" translatable="false">American</string>
+    <string name="british" translatable="false">British</string>
+    <string name="indian" translatable="false">Indian</string>
+    <string name="eu" translatable="false">EU</string>
+    <string name="brazin" translatable="false">Brazin</string>
+    <string name="portugues" translatable="false">Português</string>
+    <string name="espanol" translatable="false">Español</string>
+    <string name="mexico" translatable="false">Mexico</string>
+    <string name="french" translatable="false">French</string>
+    <string name="hindi">हिंदी</string>
+    <string name="france">फ्रांस</string>
+    <string name="german">जर्मन</string>
+    <string name="indonesian">इंडोनेशियाई</string>
+    <string name="loading">लोड हो रहा है</string>
+    <string name="please_wait">कृपया प्रतीक्षा करें...</string>
+    <string name="translating">अनुवाद हो रहा है...</string>
+</resources>

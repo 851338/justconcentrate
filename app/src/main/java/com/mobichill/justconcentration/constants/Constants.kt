@@ -84,6 +84,25 @@ object Constants {
         const val KEY_LOGIN_STREAK = "user_login_streak"
         const val KEY_LAST_SYNC_TIMESTAMP_SECONDS = "last_sync_timestamp_seconds"
         const val KEY_LAST_SYNC_TIMESTAMP_NANOS = "last_sync_timestamp_nanos"
+        const val KEY_NAME_PREFERENCE = "key_name_preference"
+        const val KEY_APP_LANGUAGE = "key_app_language"
+        const val KEY_APP_NAME = "key_app_name"
+        const val KEY_APP_VERSION = "key_app_version"
+        const val KEY_LANGUAGE_ALREADY_SET = "key_language_already_set"
+        const val KEY_AUTHORIZATION_MOVIE = "key_authorization_movie"
+        const val KEY_APP_LANGUAGE_TYPE = "app_language_type"
     }
 
+    const val IS_SETTING = "is_setting"
+    const val ISO_LANGUAGE_EN = "en"
+    const val ISO_LANGUAGE_ES = "es"
+    const val ISO_LANGUAGE_PT = "pt"
+    const val ISO_LANGUAGE_HI = "hi"
+    const val ISO_LANGUAGE_FR = "fr"
+    const val ISO_LANGUAGE_DE = "de"
+    const val ISO_LANGUAGE_IN = "in"
+    const val TYPE_ENGLISH = 1
+    const val TYPE_SPANISH = 2
+    const val TYPE_PORTUGUESE = 3
+    const val TYPE_OTHER = 4
 }

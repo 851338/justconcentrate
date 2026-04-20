@@ -183,4 +183,39 @@
     <string name="status_unlocked_on">Status: Unlocked on + %1$s</string>
     <string name="status_locked">Status: Locked</string>
     <string name="status_unlocked">Status: Unlocked</string>
+    <string name="string_language">Language</string>
+    <string name="choose_language">Choose Language</string>
+    <string name="please_select_language">Please select language</string>
+    <string name="spanish" translatable="false">Spanish</string>
+    <string name="spanish_es" translatable="false">Spanish (ES)</string>
+    <string name="portuguese_br" translatable="false">Portuguese (BR)</string>
+    <string name="portuguese_pt" translatable="false">Portuguese (PT)</string>
+    <string name="arabic_ae" translatable="false">Arabic (AE)</string>
+    <string name="arabic_eg" translatable="false">Arabic (EG)</string>
+    <string name="arabic_sa" translatable="false">Arabic (SA)</string>
+    <string name="arabic" translatable="false">Arabic</string>
+    <string name="english" translatable="false">English</string>
+    <string name="english_uk" translatable="false">English (UK)</string>
+    <string name="english_us" translatable="false">English (US)</string>
+    <string name="english_in" translatable="false">English (IN)</string>
+    <string name="portuguese" translatable="false">Portuguese</string>
+    <string name="portuguese_ch" translatable="false">Portuguese (CH)</string>
+    <string name="spanish_us" translatable="false">Spanish (US)</string>
+    <string name="spanish_br" translatable="false">Spanish (BR)</string>
+    <string name="american" translatable="false">American</string>
+    <string name="british" translatable="false">British</string>
+    <string name="indian" translatable="false">Indian</string>
+    <string name="eu" translatable="false">EU</string>
+    <string name="brazin" translatable="false">Brazin</string>
+    <string name="portugues" translatable="false">Português</string>
+    <string name="espanol" translatable="false">Español</string>
+    <string name="mexico" translatable="false">Mexico</string>
+    <string name="french" translatable="false">French</string>
+    <string name="hindi">Hindi</string>
+    <string name="france">France</string>
+    <string name="german">German</string>
+    <string name="indonesian">Indonesian</string>
+    <string name="loading">Loading</string>
+    <string name="please_wait">Please wait...</string>
+    <string name="translating">Translating...</string>
 </resources>

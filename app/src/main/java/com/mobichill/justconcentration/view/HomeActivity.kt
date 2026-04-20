@@ -71,9 +71,6 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
         SyncHelper.enqueueOneTimeSync(this)
     }
 
-    override fun attachBaseContext(newBase: Context?) {
-        super.attachBaseContext(MyContextWrapper.wrap(newBase, "en"))
-    }
 
     override fun initViewBinding(): ActivityHomeBinding =
         ActivityHomeBinding.inflate(layoutInflater)

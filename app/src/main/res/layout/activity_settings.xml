@@ -139,6 +139,11 @@
                 android:textStyle="bold" />
 
             <include
+                android:id="@+id/itemLanguage"
+                layout="@layout/item_setting_clickable"
+                android:tag="Language" />
+
+            <include
                 android:id="@+id/itemDarkMode"
                 layout="@layout/item_setting_toggle"
                 android:tag="Dark mode" />

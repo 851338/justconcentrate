@@ -22,4 +22,8 @@
     <style name="Theme.JustConcentration" parent="Base.Theme.JustConcentration">
         <!--        <item name="android:windowBackground">@drawable/app_bg</item>-->
     </style>
+    <style name="full_screen_dialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowSoftInputMode">adjustPan</item>
+    </style>
 </resources>

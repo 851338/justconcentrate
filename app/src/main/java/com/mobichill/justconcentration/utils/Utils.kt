@@ -43,6 +43,9 @@ object Utils {
         return nextRequestCode
     }
 
+    fun dpToPx(sizeInDp: Int, context: Context): Int =
+        (sizeInDp * context.resources.displayMetrics.density + 0.5f).toInt()
+
     fun showToast(context: Context, message: String) {
         val binding = LayoutCustomToastBinding.inflate(LayoutInflater.from(context))
         binding.toastText.text = message
@@ -191,5 +194,15 @@ object Utils {
             calendar.get(Calendar.DAY_OF_MONTH)
         )
         datePicker.show()
+    }
+
+    fun getLanguageDisplayName(iso: String): String {
+        return when (iso) {
+            "en" -> "English"
+            "es" -> "Spanish"
+            "pt" -> "Portuguese"
+            "ar" -> "Arabic"
+            else -> "Other"
+        }
     }
 }

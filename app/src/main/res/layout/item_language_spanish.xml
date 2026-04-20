@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="@dimen/_2sdp"
+    android:layout_marginTop="@dimen/_2sdp"
+    android:layout_marginBottom="@dimen/_8sdp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:background="@drawable/bg_conner_15_v1"
+        android:paddingVertical="@dimen/_8sdp"
+        android:paddingStart="@dimen/_15sdp"
+        android:paddingEnd="@dimen/_8sdp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/img_language"
+            android:layout_width="@dimen/_32dp"
+            android:layout_height="@dimen/_32dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/app_ic_spanish"
+            app:civ_border_color="@android:color/transparent"
+            app:civ_border_width="1dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_title_language"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/_6sdp"
+            android:fontFamily="@font/figtree_semi_bold"
+            android:paddingLeft="6dp"
+            android:paddingRight="6dp"
+            android:text="@string/spanish"
+            android:textColor="@color/black"
+            android:textSize="@dimen/txt_16sp"
+            app:layout_constraintBottom_toTopOf="@id/tv_title_second"
+            app:layout_constraintEnd_toStartOf="@+id/btn_drop"
+            app:layout_constraintStart_toEndOf="@+id/img_language"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_title_second"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/_6sdp"
+            android:fontFamily="@font/figtree_semi_bold"
+            android:paddingLeft="6dp"
+            android:paddingRight="6dp"
+            android:text="@string/portuguese"
+            android:textColor="@color/grey_language_text"
+            android:textSize="@dimen/_12ssp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/btn_drop"
+            app:layout_constraintStart_toEndOf="@+id/img_language"
+            app:layout_constraintTop_toBottomOf="@id/tv_title_language" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/btn_drop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/_8sdp"
+            android:src="@drawable/ic_language_dropdown"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/img_flag_mexico"
+            android:layout_width="@dimen/size_24dp"
+            android:layout_height="@dimen/size_24dp"
+            android:layout_marginEnd="@dimen/_minus9sdp"
+            android:src="@drawable/ic_app_mexico"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/img_flag_spanish"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/img_flag_spanish"
+            android:layout_width="@dimen/size_24dp"
+            android:layout_height="@dimen/size_24dp"
+            android:src="@drawable/app_ic_spanish"
+            android:layout_marginEnd="@dimen/_6sdp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btn_drop"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- NEW: The custom view for drawing lines -->
+    <com.mobichill.justconcentration.view.language.LineDrawingView
+        android:id="@+id/line_drawing_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/container" />
+
+    <androidx.constraintlayout.helper.widget.Flow
+        android:id="@+id/flow_eng_options"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_8sdp"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/_38sdp"
+        android:paddingBottom="@dimen/_2sdp"
+        app:constraint_referenced_ids="btn_us, btn_es"
+        app:flow_maxElementsWrap="1"
+        app:flow_verticalGap="@dimen/_8sdp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/container" />
+
+    <RelativeLayout
+        android:id="@+id/btn_us"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/_48dp"
+        android:background="@drawable/bg_conner_15_v1"
+        app:cardCornerRadius="@dimen/_10sdp">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_gravity="center_vertical"
+            android:layout_marginHorizontal="@dimen/_12sdp"
+            android:fontFamily="@font/figtree_semi_bold"
+            android:text="@string/spanish"
+            android:textColor="@color/black"
+            android:textSize="@dimen/txt_16sp"
+            tools:ignore="RelativeOverlap" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="@dimen/size_24dp"
+            android:layout_height="@dimen/size_24dp"
+            android:layout_centerVertical="true"
+            android:layout_gravity="end|center_vertical"
+            android:layout_marginEnd="@dimen/_8sdp"
+            android:layout_toStartOf="@id/checkbox_language_us"
+            android:src="@drawable/app_ic_spanish" />
+
+        <RadioButton
+            android:id="@+id/checkbox_language_us"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:checked="false"
+            android:buttonTint="@color/white"
+            android:textColor="@color/white"
+            android:layout_marginEnd="@dimen/_8sdp"
+            android:theme="@style/RadioButtonMain" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/btn_es"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/_48dp"
+        android:background="@drawable/bg_conner_15_v1"
+        app:cardCornerRadius="@dimen/_10sdp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_gravity="center_vertical"
+            android:layout_marginHorizontal="@dimen/_12sdp"
+            android:fontFamily="@font/figtree_semi_bold"
+            android:text="@string/mexico"
+            android:textColor="@color/black"
+            android:textSize="@dimen/txt_16sp"
+            tools:ignore="RelativeOverlap" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="@dimen/size_24dp"
+            android:layout_height="@dimen/size_24dp"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="@dimen/_8sdp"
+            android:layout_toStartOf="@id/checkbox_language_es"
+            android:src="@drawable/ic_app_mexico" />
+
+        <RadioButton
+            android:id="@+id/checkbox_language_es"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:checked="false"
+            android:buttonTint="@color/white"
+            android:textColor="@color/white"
+            android:layout_marginEnd="@dimen/_8sdp"
+            android:theme="@style/RadioButtonMain" />
+    </RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

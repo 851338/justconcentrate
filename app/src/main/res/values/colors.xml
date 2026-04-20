@@ -14,4 +14,8 @@
     <color name="teal_200">#bcf5f5</color>
     <color name="teal_700">#00796B</color>
     <color name="red">#FF4433</color>
+    <color name="grey_line_color">#FFE6E6E6</color>
+    <color name="grey_language_text">#FFB2B2B2</color>
+    <color name="dialog_track_color">#FFD9D9D9</color>
+
 </resources>

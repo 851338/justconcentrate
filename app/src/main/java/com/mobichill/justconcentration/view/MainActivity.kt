@@ -9,6 +9,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.mobichill.justconcentration.R
+import com.mobichill.justconcentration.manager.InterstitialAdManager
 import com.mobichill.justconcentration.utils.SharedPreferencesUtils
 import com.mobichill.justconcentration.view.language.LanguageActivity
 
@@ -39,20 +40,24 @@ class MainActivity : AppCompatActivity() {
         val skippedLogin = sfUtils.isSkippedLogin()
         
         if (!hasSetLanguage) {
-            startActivity(Intent(this, LanguageActivity::class.java))
+            InterstitialAdManager.showIfAvailable(this) {
+                startActivity(Intent(this, LanguageActivity::class.java))
+                finish()
+            }
         } else if (!hasAccepted) {
             startActivity(Intent(this, PrivacyConsentActivity::class.java))
+            finish()
         } else {
             // Check login state  User skipped login
             // Directly go to home page
             if (skippedLogin || SharedPreferencesUtils(applicationContext).isUserLoggedIn()) {
                 startActivity(Intent(this, HomeActivity::class.java))
+                finish()
             } else {
                 // User is not logged in  user has not skipped login, go to welcome page
                 startActivity(Intent(this, WelcomeActivity::class.java))
+                finish()
             }
         }
-        // Close SplashActivity to prevent going back to it
-        finish()
     }
 }

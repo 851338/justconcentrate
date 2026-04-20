@@ -6,6 +6,7 @@ import androidx.work.Configuration
 import com.mobichill.justconcentration.base.database.MyRoomDatabase
 import com.mobichill.justconcentration.factory.SyncWorkerFactory
 import com.mobichill.justconcentration.manager.BadgeProgressManager
+import com.mobichill.justconcentration.manager.InterstitialAdManager
 import com.mobichill.justconcentration.repository.BadgeRepository
 import com.mobichill.justconcentration.repository.ConcentrateSessionRepository
 import com.mobichill.justconcentration.repository.TaskRepository
@@ -56,6 +57,7 @@ class MyApp : Application(), Configuration.Provider {
 
         syncWorkerFactory =
             SyncWorkerFactory(taskRepository, concentrateSessionRepository, badgeRepository, db)
+        InterstitialAdManager.initialize(this)
         Log.i("MyApp", "MyApp.onCreate - SyncWorkerFactory CREATED")
         Log.i("MyApp", "MyApp.onCreate - END")
     }

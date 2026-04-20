@@ -1,21 +1,22 @@
 package com.mobichill.justconcentration.view
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.lifecycle.lifecycleScope
-import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.nativead.NativeAd
+import com.google.android.gms.ads.nativead.NativeAdView
 import com.mobichill.justconcentration.BuildConfig
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.base.application.MyApp
-import com.mobichill.justconcentration.constants.MyContextWrapper
 import com.mobichill.justconcentration.databinding.ActivityHomeBinding
 import com.mobichill.justconcentration.helper.SyncHelper
 import com.mobichill.justconcentration.listener.OnSingleClickListener
 import com.mobichill.justconcentration.manager.BadgeProgressManager
+import com.mobichill.justconcentration.manager.InterstitialAdManager
+import com.mobichill.justconcentration.manager.NativeAdManager
 import com.mobichill.justconcentration.utils.ConvertUtils.px
 import com.mobichill.justconcentration.utils.SharedPreferencesUtils
 import com.mobichill.justconcentration.utils.Utils
@@ -35,6 +36,8 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
     private val badgeProgressManager: BadgeProgressManager by lazy {
         BadgeProgressManager()
     }
+
+    private var loadedNativeAd: NativeAd? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -111,9 +114,23 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
             }
         )
 
-        //run ads
-        val adRequest = AdRequest.Builder().build()
-        adView.loadAd(adRequest)
+        loadHomeNativeAd()
+    }
+
+    private fun loadHomeNativeAd() {
+        val nativeAdView = binding.root.findViewById<NativeAdView>(R.id.native_ad_view) ?: return
+        NativeAdManager.loadNativeAd(
+            context = this,
+            nativeAdView = nativeAdView,
+            onLoaded = { nativeAd ->
+                loadedNativeAd?.destroy()
+                loadedNativeAd = nativeAd
+            },
+            onFailed = {
+                loadedNativeAd?.destroy()
+                loadedNativeAd = null
+            }
+        )
     }
 
     private fun showUserPopup(view: View) {
@@ -122,23 +139,33 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
     }
 
     private fun openConcentrateSetupActivity() {
-        startActivity(Intent(this, ConcentrateSetupActivity::class.java))
+        navigateWithInterstitial(Intent(this, ConcentrateSetupActivity::class.java))
     }
 
     private fun openTaskActivity() {
-        startActivity(Intent(this, TaskActivity::class.java))
+        navigateWithInterstitial(Intent(this, TaskActivity::class.java))
     }
 
     fun openSettingsActivity() {
         startActivity(Intent(this, SettingsActivity::class.java))
     }
 
+    fun openWelcomeActivity() {
+        navigateWithInterstitial(Intent(this, WelcomeActivity::class.java))
+    }
+
     private fun openStatsActivity() {
-        startActivity(Intent(this, ViewStatsActivity::class.java))
+        navigateWithInterstitial(Intent(this, ViewStatsActivity::class.java))
     }
 
     private fun openAchievementsActivity() {
-        startActivity(Intent(this, AchievementsActivity::class.java))
+        navigateWithInterstitial(Intent(this, AchievementsActivity::class.java))
+    }
+
+    private fun navigateWithInterstitial(intent: Intent) {
+        InterstitialAdManager.showIfAvailable(this) {
+            startActivity(intent)
+        }
     }
 
     fun setUIAfterLogout() {
@@ -218,6 +245,12 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
         sfUtils.setLastActiveDate(today)
         sfUtils.setCurrentLoginStreak(calculatedStreak)
         return calculatedStreak
+    }
+
+    override fun onDestroy() {
+        loadedNativeAd?.destroy()
+        loadedNativeAd = null
+        super.onDestroy()
     }
 
 }

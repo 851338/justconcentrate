@@ -2,10 +2,6 @@ package com.mobichill.justconcentration.view
 
 import android.animation.ObjectAnimator
 import android.content.Intent
-import android.media.RingtoneManager
-import android.net.Uri
-import android.os.Build
-import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -20,10 +16,12 @@ import com.google.firebase.auth.FirebaseAuth
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.base.application.MyApp
+import com.mobichill.justconcentration.constants.Constants.INTENT_EXTRA.TASK_KEY
 import com.mobichill.justconcentration.databinding.ActivityTaskBinding
 import com.mobichill.justconcentration.factory.TaskViewModelFactory
 import com.mobichill.justconcentration.helper.AlarmHelper
 import com.mobichill.justconcentration.helper.TaskItemTouchHelper
+import com.mobichill.justconcentration.manager.BannerAdManager
 import com.mobichill.justconcentration.model.TaskModel
 import com.mobichill.justconcentration.repository.FireStoreRepository
 import com.mobichill.justconcentration.utils.SharedPreferencesUtils
@@ -74,15 +72,14 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
         fabAdd.setOnClickListener(object : OnSingleClickListener() {
             override fun onSingleClick(view: View) {
                 toggleFabMenu()
-                openNewOrEditTaskFragment(null)
+                openNewOrEditTaskActivity(null)
             }
         })
 
         fabSearch.setOnClickListener(object : OnSingleClickListener() {
             override fun onSingleClick(view: View) {
                 toggleFabMenu()
-                toggleSearch(true)
-                openSearchTasksFragment()
+                openSearchTasksActivity(edtSearch.text?.toString().orEmpty())
             }
         })
 
@@ -126,7 +123,7 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
 
         // Initialize the adapter once with an empty list
         taskAdapter = TaskAdapter(
-            { taskModel -> openNewOrEditTaskFragment(taskModel) },
+            { taskModel -> openNewOrEditTaskActivity(taskModel) },
             onItemDismissListener,
             onMenuActionListener
         )
@@ -156,6 +153,8 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
                 taskAdapter.updateItems(tasks) // Update the adapter with the new tasks
             }
         }
+
+        BannerAdManager.loadBanner(adView)
     }
 
     private fun toggleSearch(show: Boolean) = with(binding) {
@@ -197,31 +196,15 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
         isMenuOpen = !isMenuOpen
     }
 
-    private fun openSearchTasksFragment() {
-        supportFragmentManager.beginTransaction()
-            .setCustomAnimations(
-                R.anim.slide_in_right,
-                R.anim.slide_out_left
-            )
-            .replace(binding.fragmentContainer.id, SearchTasksFragment())
-            .addToBackStack(null)
-            .commit()
+    private fun openSearchTasksActivity(query: String) {
+        startActivity(SearchTasksActivity.newIntent(this, query))
     }
 
-    fun openNewOrEditTaskFragment(taskModel: TaskModel?) {
-        val newOrEditTaskFragment = NewOrEditTaskFragment().apply {
-            arguments = Bundle().apply {
-                putParcelable("task_key", taskModel) // Pass task to open editor
-            }
-        }
-        supportFragmentManager.beginTransaction()
-            .setCustomAnimations(
-                R.anim.slide_in_right,
-                R.anim.slide_out_left
-            )
-            .replace(binding.fragmentContainer.id, newOrEditTaskFragment)
-            .addToBackStack(null)
-            .commit()
+    fun openNewOrEditTaskActivity(taskModel: TaskModel?) {
+        startActivity(
+            Intent(this, NewOrEditTaskActivity::class.java)
+                .putExtra(TASK_KEY, taskModel)
+        )
     }
 
     private fun deleteTask(taskModel: TaskModel?) {
@@ -331,37 +314,4 @@ class TaskActivity : BaseViewBindingActivity<ActivityTaskBinding>() {
         }
     }
 
-    override fun onBackPressed() {
-        val current = supportFragmentManager.findFragmentById(R.id.fragment_container)
-        when (current) {
-            is NewOrEditTaskFragment ->
-                onBackPressedDispatcher.onBackPressed()
-
-            is SearchTasksFragment -> {
-                onBackPressedDispatcher.onBackPressed()
-                toggleSearch(false)
-            }
-
-            else ->
-                super.onBackPressed()
-        }
-    }
-
-
-    // Case choose ringtone of NewOrEditTaskFragment
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode != RESULT_OK || data == null) return
-        val uri: Uri? =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-                data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI, Uri::class.java)
-            else
-                @Suppress("DEPRECATION")
-                data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI) ?: return
-        if (uri == null)
-            return
-        val current = supportFragmentManager.findFragmentById(R.id.fragment_container)
-        if (current !is NewOrEditTaskFragment) return
-        current.checkAndSaveAudioFile(uri)
-    }
 }

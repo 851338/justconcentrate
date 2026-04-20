@@ -13,7 +13,6 @@ import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.formatter.ValueFormatter
-import com.google.android.gms.ads.AdRequest
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
@@ -23,6 +22,7 @@ import com.mobichill.justconcentration.constants.TimeRangeOption
 import com.mobichill.justconcentration.databinding.ActivityViewStatsBinding
 import com.mobichill.justconcentration.factory.SessionViewModelFactory
 import com.mobichill.justconcentration.listener.OnSingleClickListener
+import com.mobichill.justconcentration.manager.BannerAdManager
 import com.mobichill.justconcentration.viewmodel.SessionViewModel
 import java.time.Instant
 import java.time.LocalDate
@@ -126,9 +126,7 @@ class ViewStatsActivity : BaseViewBindingActivity<ActivityViewStatsBinding>() {
             }
         )
 
-        //run ads
-        val adRequest = AdRequest.Builder().build()
-        binding.adView.loadAd(adRequest)
+        BannerAdManager.loadBanner(binding.adView)
     }
 
     private fun updateChart(

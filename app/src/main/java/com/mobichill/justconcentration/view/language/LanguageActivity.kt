@@ -7,10 +7,13 @@ import androidx.activity.viewModels
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.gms.ads.nativead.NativeAd
+import com.google.android.gms.ads.nativead.NativeAdView
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.constants.Constants
 import com.mobichill.justconcentration.databinding.ActivityLanguageBinding
+import com.mobichill.justconcentration.manager.NativeAdManager
 import com.mobichill.justconcentration.view.MainActivity
 import com.mobichill.justconcentration.view.WelcomeActivity
 import com.mobichill.justconcentration.view.popup.LoadingDialog
@@ -20,6 +23,7 @@ class LanguageActivity : BaseViewBindingActivity<ActivityLanguageBinding>() {
     private val viewModel: LanguageViewModel by viewModels { LanguageViewModelFactory(application, PreferenceRepository(this)) }
 
     private var languageAdapter: LanguageAdapter? = null
+    private var loadedNativeAd: NativeAd? = null
     private val translatingDialog by lazy { LoadingDialog(this, true) }
 
     override fun initViewBinding(): ActivityLanguageBinding = ActivityLanguageBinding.inflate(layoutInflater)
@@ -31,6 +35,7 @@ class LanguageActivity : BaseViewBindingActivity<ActivityLanguageBinding>() {
 
         setupToolBar()
         setupRecyclerView()
+        loadLanguageNativeAd()
         observableViewModel()
         setOnClickListener()
 
@@ -44,6 +49,22 @@ class LanguageActivity : BaseViewBindingActivity<ActivityLanguageBinding>() {
                 }
             }
         })
+    }
+
+    private fun loadLanguageNativeAd() {
+        val nativeAdView = binding.root.findViewById<NativeAdView>(R.id.native_ad_view) ?: return
+        NativeAdManager.loadNativeAd(
+            context = this,
+            nativeAdView = nativeAdView,
+            onLoaded = { nativeAd ->
+                loadedNativeAd?.destroy()
+                loadedNativeAd = nativeAd
+            },
+            onFailed = {
+                loadedNativeAd?.destroy()
+                loadedNativeAd = null
+            }
+        )
     }
 
     private fun setupToolBar() = with(binding) {
@@ -121,6 +142,8 @@ class LanguageActivity : BaseViewBindingActivity<ActivityLanguageBinding>() {
     }
 
     override fun onDestroy() {
+        loadedNativeAd?.destroy()
+        loadedNativeAd = null
         if (translatingDialog.isShowing) {
             translatingDialog.dismiss()
         }

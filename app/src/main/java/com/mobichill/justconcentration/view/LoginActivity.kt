@@ -9,6 +9,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.databinding.ActivityLoginBinding
+import com.mobichill.justconcentration.manager.BannerAdManager
 import com.mobichill.justconcentration.repository.FireStoreRepository
 import com.mobichill.justconcentration.constants.Constants.OTHERS.EMAIL_REGEX
 import com.mobichill.justconcentration.listener.OnSingleClickListener
@@ -56,6 +57,8 @@ class LoginActivity : BaseViewBindingActivity<ActivityLoginBinding>() {
                 onBackPressed()
             }
         })
+
+        BannerAdManager.loadBanner(adView)
 
         super.initView()
     }

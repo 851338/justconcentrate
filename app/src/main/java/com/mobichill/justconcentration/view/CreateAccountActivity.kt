@@ -1,33 +1,36 @@
 package com.mobichill.justconcentration.view
 
+import android.content.Intent
 import android.view.View
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.mobichill.justconcentration.R
-import com.mobichill.justconcentration.base.BaseViewBindingFragment
+import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.databinding.FragmentCreateAccountBinding
 import com.mobichill.justconcentration.repository.FireStoreRepository
 import com.mobichill.justconcentration.constants.Constants.OTHERS.EMAIL_REGEX
 import com.mobichill.justconcentration.listener.OnSingleClickListener
+import com.mobichill.justconcentration.manager.BannerAdManager
 import com.mobichill.justconcentration.utils.SharedPreferencesUtils
 import com.mobichill.justconcentration.utils.Utils
 
-class CreateAccountFragment : BaseViewBindingFragment<FragmentCreateAccountBinding>() {
+class CreateAccountActivity : BaseViewBindingActivity<FragmentCreateAccountBinding>() {
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
 
     override fun initViewBinding(): FragmentCreateAccountBinding =
         FragmentCreateAccountBinding.inflate(layoutInflater)
 
-    override fun initData() {
+    override fun initData(intent: Intent?, isNewIntent: Boolean) {
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
     }
 
     override fun initView() = with(binding) {
+        BannerAdManager.loadBanner(adView)
         binding.btnSignup.setOnClickListener(object : OnSingleClickListener() {
             override fun onSingleClick(view: View) {
-                if (Utils.isNetworkAvailable(requireContext())) {
+                if (Utils.isNetworkAvailable(this@CreateAccountActivity)) {
                     if (validateRegInfo())             //check and create
                         createAccount(
                             etEmail.text.toString(),
@@ -35,7 +38,7 @@ class CreateAccountFragment : BaseViewBindingFragment<FragmentCreateAccountBindi
                             etPassword.text.toString()
                         )
                 } else Utils.showToast(
-                    requireContext(),
+                    this@CreateAccountActivity,
                     getString(R.string.no_internet_connection)
                 )
             }
@@ -91,18 +94,19 @@ class CreateAccountFragment : BaseViewBindingFragment<FragmentCreateAccountBindi
                     //Save user data to FireStore and Room
                     if (uid != null) {
                         FireStoreRepository().addNewUserBySigningUp(
-                            requireContext(),
+                            this@CreateAccountActivity,
                             uid,
                             email,
                             name
                         )
                         //save shared preferences
-                        SharedPreferencesUtils(requireContext()).saveUserInfoToSF(uid)
+                        SharedPreferencesUtils(this@CreateAccountActivity).saveUserInfoToSF(uid)
                     }
                 } else {
-                    Utils.showToast(requireContext(), "Signup failed: ${task.exception?.message}")
+                    Utils.showToast(this@CreateAccountActivity, "Signup failed: ${task.exception?.message}")
                 }
             }
     }
 
 }
+

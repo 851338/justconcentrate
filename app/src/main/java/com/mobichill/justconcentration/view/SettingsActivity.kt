@@ -23,6 +23,7 @@ import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.databinding.ActivitySettingsBinding
 import com.mobichill.justconcentration.listener.OnSingleClickListener
+import com.mobichill.justconcentration.manager.BannerAdManager
 import com.mobichill.justconcentration.utils.AudioUtils
 import com.mobichill.justconcentration.utils.SharedPreferencesUtils
 import com.mobichill.justconcentration.utils.Utils
@@ -112,7 +113,7 @@ class SettingsActivity : BaseViewBindingActivity<ActivitySettingsBinding>() {
                             getString(R.string.google_signed_password_change_not_available)
                         )
                     } else {
-                        openChangePasswordFragment()
+                        openChangePasswordActivity()
                     }
                 }
             })
@@ -194,47 +195,28 @@ class SettingsActivity : BaseViewBindingActivity<ActivitySettingsBinding>() {
         itemAbout.settingTitle.text = getString(R.string.about)
         itemAbout.root.setOnClickListener(object : OnSingleClickListener() {
             override fun onSingleClick(view: View) {
-                openAboutFragment()
+                openAboutActivity()
             }
         })
+
+        BannerAdManager.loadBanner(adView)
     }
 
     fun setupToolbar(title: String) {
         binding.abTitle.text = title
     }
 
-    private fun openAboutFragment() {
-        supportFragmentManager.beginTransaction()
-            .setCustomAnimations(
-                R.anim.slide_in_right,
-                R.anim.slide_out_left
-            )
-            .replace(binding.fragmentContainer.id, AboutFragment())
-            .addToBackStack(null)
-            .commit()
+    private fun openAboutActivity() {
+        startActivity(Intent(this, AboutActivity::class.java))
     }
 
-    private fun openChangePasswordFragment() {
-        supportFragmentManager.beginTransaction()
-            .setCustomAnimations(
-                R.anim.slide_in_right,
-                R.anim.slide_out_left
-            )
-            .replace(binding.fragmentContainer.id, ChangePasswordFragment())
-            .addToBackStack(null)
-            .commit()
+    private fun openChangePasswordActivity() {
+        startActivity(Intent(this, ChangePasswordActivity::class.java))
     }
 
     override fun onBackPressed() {
         setupToolbar(getString(R.string.settings))
-        val current = supportFragmentManager.findFragmentById(R.id.fragment_container)
-        when (current) {
-            is AboutFragment, is ChangePasswordFragment ->
-                onBackPressedDispatcher.onBackPressed()
-
-            else ->
-                super.onBackPressed()
-        }
+        super.onBackPressed()
     }
 
     private fun checkAndSaveAudioFile(uri: Uri) {

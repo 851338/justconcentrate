@@ -4,13 +4,13 @@ import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.gms.ads.AdRequest
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.base.application.MyApp
 import com.mobichill.justconcentration.databinding.ActivityAchievementsBinding
 import com.mobichill.justconcentration.databinding.DialogBadgeDetailsBinding
 import com.mobichill.justconcentration.factory.BadgeViewModelFactory
+import com.mobichill.justconcentration.manager.BannerAdManager
 import com.mobichill.justconcentration.model.BadgeModel
 import com.mobichill.justconcentration.utils.ConvertUtils
 import com.mobichill.justconcentration.view.adapter.BadgeAdapter
@@ -47,9 +47,7 @@ class AchievementsActivity : BaseViewBindingActivity<ActivityAchievementsBinding
                 if (badgesList.isNullOrEmpty()) View.GONE else View.VISIBLE
         }
 
-        //run ads
-        val adRequest = AdRequest.Builder().build()
-        binding.adView.loadAd(adRequest)
+        BannerAdManager.loadBanner(binding.adView)
     }
 
     private fun showBadgeDetailsDialog(badge: BadgeModel) {

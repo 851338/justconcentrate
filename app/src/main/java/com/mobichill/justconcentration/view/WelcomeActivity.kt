@@ -16,6 +16,7 @@ import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.databinding.ActivityWelcomeBinding
 import com.mobichill.justconcentration.listener.OnSingleClickListener
+import com.mobichill.justconcentration.manager.BannerAdManager
 import com.mobichill.justconcentration.repository.FireStoreRepository
 import com.mobichill.justconcentration.utils.SharedPreferencesUtils
 import com.mobichill.justconcentration.utils.Utils
@@ -49,7 +50,7 @@ class WelcomeActivity : BaseViewBindingActivity<ActivityWelcomeBinding>() {
         })
         binding.btnCreateAccount.setOnClickListener(object : OnSingleClickListener() {
             override fun onSingleClick(view: View) {
-                gotoCreateAccountFragment()
+                gotoCreateAccountActivity()
             }
         })
         binding.txtAlreadyHaveAccount.setOnClickListener(object : OnSingleClickListener() {
@@ -63,6 +64,8 @@ class WelcomeActivity : BaseViewBindingActivity<ActivityWelcomeBinding>() {
                 goToHomeActivity()
             }
         })
+
+        BannerAdManager.loadBanner(binding.adView)
     }
 
     private fun gotoLoginActivity() {
@@ -74,17 +77,8 @@ class WelcomeActivity : BaseViewBindingActivity<ActivityWelcomeBinding>() {
         finish()
     }
 
-    private fun gotoCreateAccountFragment() {
-        val fragment = CreateAccountFragment().apply {
-        }
-        supportFragmentManager.beginTransaction()
-            .setCustomAnimations(
-                R.anim.slide_in_right,
-                R.anim.slide_out_left
-            )
-            .replace(binding.fragmentContainer.id, fragment)
-            .addToBackStack(null)
-            .commit()
+    private fun gotoCreateAccountActivity() {
+        startActivity(Intent(this, CreateAccountActivity::class.java))
     }
 
     private suspend fun signInWithGoogle() {

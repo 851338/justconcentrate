@@ -13,13 +13,13 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.lifecycle.lifecycleScope
-import com.google.android.gms.ads.AdRequest
 import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.constants.ConcentrationQuotes
 import com.mobichill.justconcentration.constants.Constants
 import com.mobichill.justconcentration.databinding.ActivityConcentrateSetupBinding
 import com.mobichill.justconcentration.listener.OnSingleClickListener
+import com.mobichill.justconcentration.manager.BannerAdManager
 import com.mobichill.justconcentration.service.FocusService
 import com.mobichill.justconcentration.utils.AudioUtils
 import com.mobichill.justconcentration.utils.SharedPreferencesUtils
@@ -97,9 +97,7 @@ class ConcentrateSetupActivity : BaseViewBindingActivity<ActivityConcentrateSetu
             }
         )
 
-        //run ads
-        val adRequest = AdRequest.Builder().build()
-        binding.adView.loadAd(adRequest)
+        BannerAdManager.loadBanner(binding.adView)
     }
 
     fun showCustomTimeDialog() {

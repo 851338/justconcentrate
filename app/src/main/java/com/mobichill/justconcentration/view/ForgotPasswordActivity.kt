@@ -7,6 +7,7 @@ import com.mobichill.justconcentration.R
 import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.databinding.ActivityForgotPasswordBinding
 import com.mobichill.justconcentration.listener.OnSingleClickListener
+import com.mobichill.justconcentration.manager.BannerAdManager
 import com.mobichill.justconcentration.constants.Constants.OTHERS.EMAIL_REGEX
 
 class ForgotPasswordActivity : BaseViewBindingActivity<ActivityForgotPasswordBinding>() {
@@ -18,6 +19,7 @@ class ForgotPasswordActivity : BaseViewBindingActivity<ActivityForgotPasswordBin
 
     override fun initView() = with(binding) {
         super.initView()
+        BannerAdManager.loadBanner(adView)
         btnConfirm.setOnClickListener(
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {

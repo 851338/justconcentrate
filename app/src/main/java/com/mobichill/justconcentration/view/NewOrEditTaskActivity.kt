@@ -1,7 +1,6 @@
 package com.mobichill.justconcentration.view
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.media.RingtoneManager
 import android.net.Uri
@@ -10,21 +9,23 @@ import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import android.view.View
-import androidx.activity.OnBackPressedCallback
+import androidx.activity.viewModels
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.net.toUri
-import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
-import com.google.android.gms.ads.AdRequest
 import com.mobichill.justconcentration.R
-import com.mobichill.justconcentration.base.BaseViewBindingFragment
+import com.mobichill.justconcentration.base.BaseViewBindingActivity
+import com.mobichill.justconcentration.base.application.MyApp
 import com.mobichill.justconcentration.constants.Constants.INTENT_EXTRA.TASK_KEY
 import com.mobichill.justconcentration.constants.Constants.OTHERS.TIME_FORMAT
 import com.mobichill.justconcentration.databinding.FragmentNewOrEditTaskBinding
+import com.mobichill.justconcentration.factory.TaskViewModelFactory
 import com.mobichill.justconcentration.helper.AlarmHelper
 import com.mobichill.justconcentration.listener.OnSingleClickListener
+import com.mobichill.justconcentration.manager.BannerAdManager
 import com.mobichill.justconcentration.model.TaskModel
+import com.mobichill.justconcentration.repository.FireStoreRepository
 import com.mobichill.justconcentration.utils.AudioUtils
 import com.mobichill.justconcentration.utils.ConvertUtils
 import com.mobichill.justconcentration.utils.SharedPreferencesUtils
@@ -37,16 +38,22 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
-class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBinding>() {
+class NewOrEditTaskActivity : BaseViewBindingActivity<FragmentNewOrEditTaskBinding>() {
     private var timeString: String = ""
     private var dateTime: Long = 0
     private var task: TaskModel? = null
     private var isEdit: Boolean = false
-    private val taskViewModel: TaskViewModel by activityViewModels {
-        (requireActivity() as TaskActivity).taskViewModelFactory
+    private val taskViewModelFactory by lazy {
+        TaskViewModelFactory(
+            FireStoreRepository(),
+            MyApp.instance.taskRepository
+        )
+    }
+    private val taskViewModel: TaskViewModel by viewModels {
+        taskViewModelFactory
     }
     private val sfUtils: SharedPreferencesUtils by lazy {
-        SharedPreferencesUtils(requireActivity())
+        SharedPreferencesUtils(this)
     }
 
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
@@ -56,10 +63,6 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
 
     override fun initViewBinding(): FragmentNewOrEditTaskBinding =
         FragmentNewOrEditTaskBinding.inflate(layoutInflater)
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) = with(binding) {
         super.onCreate(savedInstanceState)
@@ -71,7 +74,7 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
                 Log.d(TAG, "Notifications enabled!")
             } else {
                 Log.e(TAG, "User denied notifications.")
-                Utils.showCustomPermissionDialog(requireContext(), requestPermissionLauncher)
+                Utils.showCustomPermissionDialog(this@NewOrEditTaskActivity, requestPermissionLauncher)
             }
         }
         // Use one register for both ringtone and audio picker
@@ -98,59 +101,24 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
                         checkAndSaveAudioFile(audioUri)
                         selectedUri = audioUri
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                            AudioUtils.persistUriPermission(requireActivity(), audioUri)
+                            AudioUtils.persistUriPermission(this@NewOrEditTaskActivity, audioUri)
                         }
                     }
                 }
             }
 
-        //run ads
-        val adRequest = AdRequest.Builder().build()
-        adView.loadAd(adRequest)
+        BannerAdManager.loadBanner(adView)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        val callback = object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (hasUnsavedChanges()) {
-                    Utils.showConfirmDialog(
-                        requireActivity(),
-                        getString(R.string.discard_changes),
-                        getString(R.string.unsaved_changes_message),
-                        getString(R.string.yes),
-                        getString(R.string.cancel)
-                    ) {
-                        isEnabled = false
-                        requireActivity().onBackPressedDispatcher.onBackPressed()
-                    }
-                } else {
-                    // Let the system handle the back press
-                    isEnabled = false
-                    activity?.onBackPressedDispatcher?.onBackPressed()
-                }
-            }
-        }
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (activity is TaskActivity)
-            (activity as TaskActivity).setupToolbar(
-                if (isEdit) getString(R.string.edit_task_title)
-                else getString(R.string.new_task_title)
-            )
-    }
-
-    override fun initData() {
+    override fun initData(intent: Intent?, isNewIntent: Boolean) {
         task = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            arguments?.getParcelable(TASK_KEY, TaskModel::class.java) // API 33+
+            this.intent.getParcelableExtra(TASK_KEY, TaskModel::class.java) // API 33+
         } else {
             @Suppress("DEPRECATION")
-            arguments?.getParcelable(TASK_KEY) // API 24-32
+            this.intent.getParcelableExtra(TASK_KEY) // API 24-32
         }
         isEdit = task != null
+        title = if (isEdit) getString(R.string.edit_task_title) else getString(R.string.new_task_title)
         resetData()
     }
 
@@ -167,7 +135,7 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
                 // Check if user selected an already passed alarm
                 if (!isEdit && dateTime != 0L && dateTime <= System.currentTimeMillis())
                     Utils.showToast(
-                        requireContext(), getString(R.string.time_choosen_has_passed),
+                        this@NewOrEditTaskActivity, getString(R.string.time_choosen_has_passed),
                     )
                 else
                     if (isEdit) updateExistedTask(task!!)
@@ -177,12 +145,12 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
 
         btnChooseAlarm.setOnClickListener(object : OnSingleClickListener() {
             override fun onSingleClick(view: View) {
-                AudioUtils.showSoundChoiceDialog(requireActivity(), pickAudioLauncher)
+                AudioUtils.showSoundChoiceDialog(this@NewOrEditTaskActivity, pickAudioLauncher)
             }
         })
         btnPickDateTime.setOnClickListener(object : OnSingleClickListener() {
             override fun onSingleClick(view: View) {
-                Utils.showDateTimePicker(requireContext()) { calendar ->
+                Utils.showDateTimePicker(this@NewOrEditTaskActivity) { calendar ->
                     calendar.set(Calendar.SECOND, 0)
                     calendar.set(Calendar.MILLISECOND, 0)
                     val format = SimpleDateFormat(TIME_FORMAT, Locale.getDefault())
@@ -205,43 +173,43 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
         if (isEdit) {
             etTaskTitle.setText(task?.taskText)
             tvSelectedDateTime.text =
-                ConvertUtils.convertTimeMillisIntoText(requireContext(), task!!.alarmTimeMillis)
+                ConvertUtils.convertTimeMillisIntoText(this@NewOrEditTaskActivity, task!!.alarmTimeMillis)
 
             tvSelectedAlarmSound.text = if (task!!.alarmSoundUri.isNotEmpty()) {
                 selectedUri = task!!.alarmSoundUri.toUri()
                 AudioUtils.getAudioNameFromUri(
                     R.string.unknown_audio_file,
-                    requireContext(),
+                    this@NewOrEditTaskActivity,
                     task!!.alarmSoundUri.toUri()
                 )
             } else {
-                selectedUri = AudioUtils.defaultAlarmUri(requireContext())
-                AudioUtils.defaultAlarmName(requireContext())
+                selectedUri = AudioUtils.defaultAlarmUri(this@NewOrEditTaskActivity)
+                AudioUtils.defaultAlarmName(this@NewOrEditTaskActivity)
             }
         } else {
             etTaskTitle.setText("")
             tvSelectedDateTime.text = getString(R.string.no_date_selected)
-            tvSelectedAlarmSound.text = AudioUtils.defaultAlarmName(requireContext())
-            selectedUri = AudioUtils.defaultAlarmUri(requireContext())
+            tvSelectedAlarmSound.text = AudioUtils.defaultAlarmName(this@NewOrEditTaskActivity)
+            selectedUri = AudioUtils.defaultAlarmUri(this@NewOrEditTaskActivity)
         }
     }
 
     private fun createNewTask() = with(binding) {
         if (etTaskTitle.text.isNullOrEmpty()) {
-            etTaskTitle.error = requireContext().getString(R.string.please_enter_task_title)
+            etTaskTitle.error = this@NewOrEditTaskActivity.getString(R.string.please_enter_task_title)
             etTaskTitle.requestFocus()
             return
         }
         val newTask = TaskModel(
             taskText = etTaskTitle.text.toString(),
             alarmTimeMillis = dateTime,
-            requestCode = Utils.getNextRequestCode(requireContext()),
+            requestCode = Utils.getNextRequestCode(this@NewOrEditTaskActivity),
             alarmSoundUri = (if (::selectedUri.isInitialized) selectedUri.toString()
-            else AudioUtils.defaultAlarmUri(requireContext()).toString()),
+            else AudioUtils.defaultAlarmUri(this@NewOrEditTaskActivity).toString()),
             createdAt = System.currentTimeMillis()
         )
         var isSyncedSuccessfully = false
-        if (sfUtils.isUserLoggedIn() && Utils.isNetworkAvailable(requireContext())) {
+        if (sfUtils.isUserLoggedIn() && Utils.isNetworkAvailable(this@NewOrEditTaskActivity)) {
             try {
                 Log.d(TAG, "Attempting FireStore sync for session ${newTask.id}")
                 // Sync the potentially modified sessionToSave
@@ -265,14 +233,14 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
             Log.e(TAG, "Room save FAILED for session ${newTask.id}", e)
         }
 
-        requireActivity().supportFragmentManager.popBackStack()
+        finish()
     }
 
     private fun updateExistedTask(taskModel: TaskModel) = with(binding) {
         if (etTaskTitle.text.isNullOrEmpty()) {
             Utils.showToast(
-                requireContext(),
-                requireContext().getString(R.string.please_enter_task_title)
+                this@NewOrEditTaskActivity,
+                this@NewOrEditTaskActivity.getString(R.string.please_enter_task_title)
             )
             return
         }
@@ -282,10 +250,10 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
             alarmTimeMillis = dateTime,
             requestCode = taskModel.requestCode,
             alarmSoundUri = (if (::selectedUri.isInitialized) selectedUri.toString()
-            else AudioUtils.defaultAlarmUri(requireContext()).toString()),
+            else AudioUtils.defaultAlarmUri(this@NewOrEditTaskActivity).toString()),
         )
         var isSyncedSuccessfully = false
-        if (sfUtils.isUserLoggedIn() && Utils.isNetworkAvailable(requireContext())) {
+        if (sfUtils.isUserLoggedIn() && Utils.isNetworkAvailable(this@NewOrEditTaskActivity)) {
             try {
                 Log.d(TAG, "Attempting FireStore sync for session ${taskModel.id}")
                 // Sync the potentially modified sessionToSave
@@ -307,7 +275,7 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
                     isSynced = isSyncedSuccessfully)
             )
             if (task?.alarmTimeMillis != dateTime) {
-                AlarmHelper().cancelAlarm(requireContext(), taskModel.requestCode)
+                AlarmHelper().cancelAlarm(this@NewOrEditTaskActivity, taskModel.requestCode)
                 setAlarm(updatedTask.requestCode, updatedTask.alarmSoundUri)
             }
             Log.d(TAG, "Room save successful for task ${taskModel.id}")
@@ -315,31 +283,31 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
             Log.e(TAG, "Room save FAILED for session ${taskModel.id}", e)
         }
 
-        requireActivity().supportFragmentManager.popBackStack()
+        finish()
     }
 
     private fun setAlarm(requestCode: Int, alarmUri: String) {
         if (timeString.isNotEmpty() && timeString != getString(R.string.no_date_selected)) {
-            AlarmHelper().setAlarm(requireContext(), dateTime, requestCode, alarmUri)
+            AlarmHelper().setAlarm(this@NewOrEditTaskActivity, dateTime, requestCode, alarmUri)
             Utils.showToast(
-                requireContext(), getString(R.string.task_created_with_alarm, timeString)
+                this@NewOrEditTaskActivity, getString(R.string.task_created_with_alarm, timeString)
             )
         } else {
             Utils.showToast(
-                requireContext(), getString(R.string.task_without_alarm)
+                this@NewOrEditTaskActivity, getString(R.string.task_without_alarm)
             )
         }
     }
 
     private fun hasUnsavedChanges(): Boolean = with(binding) {
-        val defaultAlarmName = AudioUtils.defaultAlarmName(requireContext())
+        val defaultAlarmName = AudioUtils.defaultAlarmName(this@NewOrEditTaskActivity)
         return if (task != null) {
             val taskAlarm = ConvertUtils.convertTimeMillisIntoText(
-                requireContext(), task!!.alarmTimeMillis
+                this@NewOrEditTaskActivity, task!!.alarmTimeMillis
             )
             val taskAudio = AudioUtils.getAudioNameFromUri(
                 R.string.unknown_audio_file,
-                requireContext(),
+                this@NewOrEditTaskActivity,
                 task!!.alarmSoundUri.toUri()
             )
 
@@ -358,7 +326,7 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
         progressBar.visibility = View.VISIBLE
         lifecycleScope.launch {
             val isValid = withContext(Dispatchers.IO) {
-                AudioUtils.isValidAudioFile(requireContext(), uri)
+                AudioUtils.isValidAudioFile(this@NewOrEditTaskActivity, uri)
             }
             // Hide loading
             progressBar.visibility = View.GONE
@@ -368,7 +336,7 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
                 tvSelectedAlarmSound.text =
                     AudioUtils.getAudioNameFromUri(
                         R.string.unknown_audio_file,
-                        requireContext(),
+                        this@NewOrEditTaskActivity,
                         uri
                     )
                 tvSelectedAlarmSound.error = null
@@ -376,6 +344,27 @@ class NewOrEditTaskFragment : BaseViewBindingFragment<FragmentNewOrEditTaskBindi
                 Log.e(TAG, "Invalid audio file")
                 tvSelectedAlarmSound.error = "Invalid audio file. Please select another!"
             }
+        }
+    }
+
+    override fun onBackPressed() {
+        if (hasUnsavedChanges()) {
+            Utils.showConfirmDialog(
+                this,
+                getString(R.string.discard_changes),
+                getString(R.string.unsaved_changes_message),
+                getString(R.string.yes),
+                getString(R.string.cancel)
+            ) { super.onBackPressed() }
+            return
+        }
+        super.onBackPressed()
+    }
+
+    companion object {
+        fun newIntent(context: android.content.Context, taskModel: TaskModel?): Intent {
+            return Intent(context, NewOrEditTaskActivity::class.java)
+                .putExtra(TASK_KEY, taskModel)
         }
     }
 }

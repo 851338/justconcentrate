@@ -37,6 +37,21 @@
             android:exported="false"
             android:theme="@style/Theme.JustConcentration" />
         <activity
+            android:name=".view.CreateAccountActivity"
+            android:exported="false" />
+        <activity
+            android:name=".view.AboutActivity"
+            android:exported="false" />
+        <activity
+            android:name=".view.ChangePasswordActivity"
+            android:exported="false" />
+        <activity
+            android:name=".view.SearchTasksActivity"
+            android:exported="false" />
+        <activity
+            android:name=".view.NewOrEditTaskActivity"
+            android:exported="false" />
+        <activity
             android:name=".view.SettingsActivity"
             android:exported="false" />
         <activity

@@ -42,14 +42,6 @@
         app:layout_constraintTop_toTopOf="@id/textLang"
         app:layout_constraintBottom_toBottomOf="@id/textLang"/>
 
-    <FrameLayout
-        android:id="@+id/fr_ads_lang_top"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textLang"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_language"
@@ -60,23 +52,16 @@
         android:layout_marginBottom="4dp"
         android:orientation="vertical"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintBottom_toTopOf="@id/fr_ads_lang_bottom"
-        app:layout_constraintTop_toBottomOf="@id/fr_ads_lang_top" />
+        app:layout_constraintBottom_toTopOf="@id/native_ad_container"
+        app:layout_constraintTop_toBottomOf="@id/textLang" />
 
-    <FrameLayout
-        android:id="@+id/fr_ads_lang_bottom"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
-
-    <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/adView"
+    <include
+        android:id="@+id/native_ad_container"
+        layout="@layout/layout_native_button_down"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="3dp"
-        ads:adSize="BANNER"
-        ads:adUnitId="ca-app-pub-3940256099942544/6300978111"
-        ads:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

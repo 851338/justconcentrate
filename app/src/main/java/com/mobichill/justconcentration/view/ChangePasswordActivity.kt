@@ -5,24 +5,20 @@ import android.view.View
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.mobichill.justconcentration.R
-import com.mobichill.justconcentration.base.BaseViewBindingFragment
+import com.mobichill.justconcentration.base.BaseViewBindingActivity
 import com.mobichill.justconcentration.databinding.FragmentChangePasswordBinding
 import com.mobichill.justconcentration.listener.OnSingleClickListener
+import com.mobichill.justconcentration.manager.BannerAdManager
 import com.mobichill.justconcentration.utils.Utils
 
-class ChangePasswordFragment : BaseViewBindingFragment<FragmentChangePasswordBinding>() {
+class ChangePasswordActivity : BaseViewBindingActivity<FragmentChangePasswordBinding>() {
     override fun initViewBinding(): FragmentChangePasswordBinding =
         FragmentChangePasswordBinding.inflate(layoutInflater)
 
-    override fun onResume() {
-        super.onResume()
-        if (activity is SettingsActivity)
-            (activity as SettingsActivity).setupToolbar(getString(R.string.change_password))
-    }
-
-    override fun initData() {}
+    override fun initData(intent: Intent?, isNewIntent: Boolean) {}
 
     override fun initView() = with(binding) {
+        BannerAdManager.loadBanner(adView)
         btnConfirm.setOnClickListener(
             object : OnSingleClickListener() {
                 override fun onSingleClick(view: View) {
@@ -39,7 +35,7 @@ class ChangePasswordFragment : BaseViewBindingFragment<FragmentChangePasswordBin
     }
 
     private fun openForgotPasswordActivity() {
-        startActivity(Intent(requireActivity(), ForgotPasswordActivity::class.java))
+        startActivity(Intent(this, ForgotPasswordActivity::class.java))
     }
 
     private fun changePassword() = with(binding) {
@@ -59,19 +55,19 @@ class ChangePasswordFragment : BaseViewBindingFragment<FragmentChangePasswordBin
                             .addOnCompleteListener { updateTask ->
                                 if (updateTask.isSuccessful) {
                                     Utils.showToast(
-                                        requireContext(),
+                                        this@ChangePasswordActivity,
                                         getString(R.string.password_changed)
                                     )
                                 } else {
                                     Utils.showToast(
-                                        requireContext(),
+                                        this@ChangePasswordActivity,
                                         getString(R.string.password_change_failed)
                                     )
                                 }
                             }
                     } else {
                         Utils.showToast(
-                            requireContext(),
+                            this@ChangePasswordActivity,
                             getString(R.string.current_password_incorrect)
                         )
                         etCurrentPassword.error = getString(R.string.current_password_incorrect)

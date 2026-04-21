@@ -52,7 +52,7 @@ class LanguageActivity : BaseViewBindingActivity<ActivityLanguageBinding>() {
     }
 
     private fun loadLanguageNativeAd() {
-        val nativeAdView = binding.root.findViewById<NativeAdView>(R.id.native_ad_view) ?: return
+        val nativeAdView = binding.nativeAdContainer.root
         NativeAdManager.loadNativeAd(
             context = this,
             nativeAdView = nativeAdView,

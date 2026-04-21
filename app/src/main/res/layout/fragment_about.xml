@@ -40,7 +40,7 @@
                     android:layout_width="80dp"
                     android:layout_height="80dp"
                     android:contentDescription="@string/app_name"
-                    android:src="@drawable/ic_launcher_foreground" />
+                    android:src="@drawable/app_logo" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     style="@style/TextStyle"
@@ -137,7 +137,6 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="3dp"
         ads:adSize="BANNER"
-        ads:adUnitId="ca-app-pub-3940256099942544/6300978111"
         app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

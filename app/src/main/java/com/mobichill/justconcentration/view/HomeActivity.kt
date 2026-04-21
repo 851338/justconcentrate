@@ -118,7 +118,7 @@ class HomeActivity : BaseViewBindingActivity<ActivityHomeBinding>() {
     }
 
     private fun loadHomeNativeAd() {
-        val nativeAdView = binding.root.findViewById<NativeAdView>(R.id.native_ad_view) ?: return
+        val nativeAdView = binding.nativeAdContainer.root as? NativeAdView ?: return
         NativeAdManager.loadNativeAd(
             context = this,
             nativeAdView = nativeAdView,

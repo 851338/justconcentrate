@@ -7,8 +7,11 @@ import com.google.android.gms.ads.AdView
 object BannerAdManager {
     private const val TAG = "BannerAdManager"
 
-    // Change this value to quickly swap banner ad unit id across the app.
-    private var bannerAdUnitId: String = "ca-app-pub-3940256099942544/6300978111"
+    //Test ID
+//    private var bannerAdUnitId: String = "ca-app-pub-3940256099942544/6300978111"
+    //Product ID
+    private var bannerAdUnitId: String = "ca-app-pub-9156563357147909/6188577744"
+
 
     fun updateBannerAdUnitId(adUnitId: String) {
         if (adUnitId.isBlank()) return

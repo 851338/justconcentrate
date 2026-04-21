@@ -12,7 +12,11 @@ import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 
 object InterstitialAdManager {
-    private const val INTERSTITIAL_AD_UNIT_ID = "ca-app-pub-3940256099942544/1033173712"
+    //Test ID
+//    private const val INTERSTITIAL_AD_UNIT_ID = "ca-app-pub-3940256099942544/1033173712"
+    //Product ID
+    private const val INTERSTITIAL_AD_UNIT_ID = "ca-app-pub-9156563357147909/2804992230"
+
     private const val INTERSTITIAL_COOLDOWN_MS = 30_000L
 
     private var interstitialAd: InterstitialAd? = null

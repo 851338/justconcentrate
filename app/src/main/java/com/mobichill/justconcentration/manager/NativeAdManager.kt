@@ -16,8 +16,11 @@ import com.google.android.gms.ads.nativead.NativeAdView
 import com.mobichill.justconcentration.R
 
 object NativeAdManager {
-    // Change this value to quickly swap native ad unit id across the app.
-    private var nativeAdUnitId: String = "ca-app-pub-3940256099942544/2247696110"
+    //Test ID
+//    private var nativeAdUnitId: String = "ca-app-pub-3940256099942544/2247696110"
+    //Product ID
+    private var nativeAdUnitId: String = "ca-app-pub-9156563357147909/7016421408"
+
 
     fun updateNativeAdUnitId(adUnitId: String) {
         if (adUnitId.isBlank()) return

@@ -1,3 +1,6 @@
+import java.text.SimpleDateFormat
+import java.util.Date
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -24,7 +27,8 @@ android {
         targetSdk = 35
         versionCode = 24
         versionName = "1.0.0"
-
+        val formattedDate = SimpleDateFormat("MM.dd.yyyy").format(Date())
+        base.archivesName = "Just_Concentration_v${versionName}_$formattedDate"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
